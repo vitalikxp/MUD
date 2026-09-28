@@ -1,0 +1,11 @@
+# Зависимости и сборка
+node_modules/
+dist/
+.env.local
+.env.*.local
+
+# Python-кэш скриптов
+__pycache__/
+
+# Evals и отладка
+evals/reports/
