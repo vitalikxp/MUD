@@ -15,6 +15,7 @@ MVP = вехи **M0–M5**. Каждая веха заканчивается ч�
 - [ ] Экран настроек LLM (FR-LLM-1..5), хранение ключа, «Проверить»
 - [ ] `relay/`: Cloudflare Worker (allowlist хостов и Origin, стриминг, без логов), инструкция деплоя
 - [ ] `src/llm/`: клиент со стримингом SSE, tool calls, retry, пресеты, адаптеры Chat Completions и OpenAI Responses (модель по умолчанию `muse-spark-1.3-contributor` — Responses), пресеты «Экономный», «Приватный», «Качество», раскрытие про обучение на данных. Проверка на OpenCode Go и одном CORS-дружественном провайдере
+- [ ] Заголовки OpenCode Go (`x-opencode-session`, `User-Agent`), `reasoning.effort` и `max_output_tokens` по ролям, обработка `incomplete` ([ADR-0018](adr/0018-reasoning-effort-and-go-headers.md))
 
 **Готово, когда**: на Pages открывается терминал, можно ввести ключ и получить потоковый ответ модели в панели.
 
@@ -33,7 +34,7 @@ MVP = вехи **M0–M5**. Каждая веха заканчивается ч�
 - [ ] Панели: Хроника (стрим, броски, варианты), Лист, Вещи. Бытовые действия
 - [ ] Откат и перегенерация хода, `/`-команды
 - [ ] Адаптер Anthropic Messages ([ADR-0015](adr/0015-llm-three-api-formats.md))
-- [ ] Отладка Мастера. Первые `evals/` и `pnpm eval:dm`, сравнение дешёвых моделей OpenCode Go на русском языке и по надёжности tool calling (кандидаты: `muse-spark-1.3-contributor`, `gpt-5.6-luna`, `gpt-6-luna`, `deepseek-v4.1-flash`, `glm-5.3-flash`, `qwen3.8-flash`, `mimo-v2.6-flash`, `hy3`; эталон — `glm-5.3`), подтверждение или пересмотр [ADR-0017](adr/0017-default-model-muse-spark.md)
+- [ ] Отладка Мастера. Первые `evals/` и `pnpm eval:dm`, сравнение дешёвых моделей OpenCode Go на русском языке и по надёжности tool calling (кандидаты: `muse-spark-1.3-contributor`, `gpt-5.6-luna`, `gpt-6-luna`, `deepseek-v4.1-flash`, `glm-5.3-flash`, `qwen3.8-flash`, `mimo-v2.6-flash`, `hy3`; эталон — `glm-5.3`), подтверждение или пересмотр [ADR-0017](adr/0017-default-model-muse-spark.md); сравнение `reasoning.effort` `low` и `medium` для Мастера
 
 **Готово, когда**: соло-игрок проходит 30-минутную сцену с проверками и находками, после перезагрузки всё на месте.
 
