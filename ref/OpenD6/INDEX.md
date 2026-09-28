@@ -1,0 +1,1324 @@
+# Индекс книг OpenD6
+
+Сгенерировано `python3 scripts/ref/extract.py` — руками не править, правьте `CATALOG` в скрипте.
+Как пользоваться: [README.md](README.md). Тематическая карта: [TOPICS.md](TOPICS.md).
+
+Номера страниц — **страницы PDF** (как в просмотрщике), а не печатные номера книги.
+
+## Книги
+
+| Приоритет | slug | Книга | WEG | Стр. | Текст | Зачем SWRD |
+|---|---|---|---|---|---|---|
+| 1 | `adventure-creatures` | D6 Adventure Creatures | 51021 | 115 | текст есть | Бестиарий современности и мутантов: статблоки для `adventure` (постапокалипсис). |
+| 1 | `adventure` | D6 Adventure 2.0 | 51011 | 146 | текст есть | Ядро варианта `adventure` (постапокалипсис): характеристики, навыки, бой, урон, лечение, снаряжение, шаблоны персонажей. Есть глава о магии и псионике. |
+| 1 | `fantasy-creatures` | D6 Fantasy Creatures 1.1 | 51015 | 98 | текст есть | Бестиарий фэнтези: статблоки для `fantasy`. |
+| 1 | `fantasy` | D6 Fantasy 1.3 | 51013 | 146 | текст есть | Ядро варианта `fantasy` («Пограничье»): характеристики фэнтези, навыки, бой, магия, чудеса, снаряжение. |
+| 1 | `gm-screen` | D6 Gamemaster's Aid Screen | 51019 | 40 | текст есть | Сжатые справочные таблицы. Первое место для проверки чисел (сложности, дистанции, урон). |
+| 1 | `magic` | D6 Magic | 51024 | 109 | текст есть | Система магии подробно: формулы заклинаний, готовые заклинания. Источник для `spells.yaml`. |
+| 2 | `adventure-locations` | D6 Adventure Locations 1.1 | 51016 | 98 | текст есть | Локации современности: идеи для постапокалипсиса, здания, транспорт. |
+| 2 | `fantasy-locations` | D6 Fantasy Locations 1.1 | 51020 | 114 | текст есть | Локации фэнтези: идеи и правила для шаблона «Пограничье», карты, ловушки. |
+| 2 | `how-game-works` | D6: How the Game Works | — | 2 | текст есть | Двухстраничное введение в механику. Хороший конспект для `promptPrimer`. |
+| 2 | `player-gm-guide` | D6 Player Book and GM Guide | — | 162 | текст есть | Руководство игрока и Мастера (фанатская компиляция). Советы по ведению — материал для промптов Мастера. |
+| 2 | `sheet-adventure` | D6 Adventure Character Sheet | — | 2 | текст есть | Лист персонажа Adventure — референс для `sheetLayout`. |
+| 2 | `sheet-fantasy` | D6 Fantasy Character Sheet | — | 2 | **нет текста (скан/картинка)** | Лист персонажа Fantasy — референс для `sheetLayout`. |
+| 2 | `system-book` | D6 System Book | 51005 | 82 | текст есть | Базовая жанронезависимая книга правил. Сверять, когда Adventure и Fantasy расходятся. |
+| 2 | `tryout-nexus-temple` | D6 Try-Out: Crumbling Nexus Temple | — | 4 | **нет текста (скан/картинка)** | Короткое ознакомительное приключение. Пример сцены для evals. |
+| 3 | `legend-conversion` | D6 Legend and Conversion | — | 66 | текст есть | D6 Legend (упрощённая ветка) и конверсия между версиями D6. |
+| 3 | `septimus-quickstart` | Septimus Quickstart | 54000 | 34 | текст есть | Быстрый старт Septimus. |
+| 3 | `septimus` | Septimus | 54000 | 366 | текст есть | Готовый sci-fi сеттинг на D6. Пример структуры сеттинга. |
+| 3 | `sheet-generic` | D6 Character Sheet | — | 1 | **нет текста (скан/картинка)** | Универсальный лист персонажа. |
+| 3 | `sheet-space` | D6 Space Character Sheet | — | 2 | текст есть | Лист персонажа Space. |
+| 3 | `space-aliens` | D6 Space Aliens 1 | 51022 | 131 | текст есть | Инопланетяне для `space`. |
+| 3 | `space-opera` | D6 Space Opera | — | 60 | текст есть | Материалы space opera для `space`. |
+| 3 | `space-ships` | D6 Space Ships | 51017 | 98 | **нет текста (скан/картинка)** | Корабли для `space`. **Скан без текстового слоя**: для поиска нужен OCR. |
+| 3 | `space` | D6 Space 2.0 | 51012 | 146 | текст есть | Ядро будущего варианта `space`. |
+
+Приоритеты: 1 — нужна в MVP; 2 — полезна; 3 — после MVP.
+
+## Оглавления (из закладок PDF)
+
+### `adventure` — D6 Adventure 2.0
+
+- p.1 — Cover
+- p.3 — Contents
+- p.4 — Introduction
+- p.9 — KeyTerms
+- p.10 — Character Basics
+- p.16 — Character Options
+- p.44 — Improving Characters
+- p.47 — Game Basics
+- p.55 — Movement
+- p.59 — Combat
+- p.62 — Damage
+- p.65 — Healing
+- p.67 — Combat Options
+- p.72 — Example Skill Difficulties
+- p.84 — Magic
+- p.98 — Precalculated Spells
+- p.105 — Psionics
+- p.113 — Equipment
+- p.122 — Gamemaster Tips
+- p.123 — Advanture Tips
+- p.129 — Templates
+- p.141 — D6 Reference Sheet
+- p.143 — D6 Code Simplification
+- p.144 — Index
+- p.146 — OGL
+
+### `fantasy` — D6 Fantasy 1.3
+
+- p.1 — Cover
+- p.2 — Credits
+- p.3 — Contents
+- p.4 — Introduction
+- p.9 — Key Terms
+- p.10 — Character Basics
+- p.10 — Character Creation
+- p.11 — Attributes
+- p.12 — Skills
+- p.12 — Advantages, Disadvantages, & Special Abilities
+- p.14 — Move
+- p.14 — Special Points
+- p.14 — Body Points & Wounds
+- p.15 — Strength Damage
+- p.15 — Funds
+- p.15 — Equipment
+- p.15 — Character Features & Other Details
+- p.16 — Character Options
+- p.17 — Costs at Character Creation
+- p.18 — Disadvantages
+- p.28 — Advantages
+- p.33 — Special Abilities
+- p.43 — Non-Human Races
+- p.45 — Improving Characters
+- p.48 — Game Basics
+- p.48 — Rolling Dice
+- p.50 — Using Skills
+- p.50 — Game Time
+- p.53 — Choosing Difficulties
+- p.55 — Determining Success
+- p.56 — Movement
+- p.61 — Combat
+- p.61 — Attacking & Defending
+- p.62 — Determining Damage
+- p.63 — Combat Example
+- p.64 — Damage
+- p.64 — Damage & Body Points
+- p.64 — Damage & Wound Levels
+- p.67 — Healing
+- p.67 — Body Points
+- p.67 — Wound Levels
+- p.69 — Combat Options
+- p.73 — Example Skill Difficulties
+- p.73 — Using the Difficulties & Modifiers
+- p.73 — Combat Skills (Agility, Coordination)
+- p.73 — Information Skills (Intellect)
+- p.73 — Information Skills (Charisma)
+- p.74 — Observation Skills (Acumen)
+- p.74 — Charioteering, Pilotry (Coordination)
+- p.74 — Bluff, Charm, Intimidation (Charisma)
+- p.74 — Flying (Agility), Running, Swimming (Physique)
+- p.75 — Hide (Acumen), Stealth (Agility)
+- p.75 — Reading/Writing, Speaking (Intellect)
+- p.76 — Scholar, Trading (Intellect)
+- p.76 — Acrobatics (Agility)
+- p.76 — Animal Handling (Charisma)
+- p.76 — Artist (Acumen)
+- p.77 — Climbing (Agility)
+- p.77 — Command (Charisma)
+- p.77 — Contortion (Agility)
+- p.77 — Crafting (Acumen)
+- p.78 — Devices (Intellect)
+- p.78 — Disguise (Acumen)
+- p.78 — Gambling (Acumen)
+- p.78 — Healing (Intellect)
+- p.79 — Investigation (Acumen)
+- p.79 — Jumping (Agility)
+- p.79 — Know-How (Acumen)
+- p.79 — Lifting (Physique)
+- p.80 — Lockpicking (Coordination)
+- p.80 — Mettle (Charisma)
+- p.80 — Navigation (Intellect)
+- p.80 — Persuasion (Charisma)
+- p.81 — Riding (Agility)
+- p.81 — Search (Acumen)
+- p.81 — Sleight of Hand (Coordination)
+- p.81 — Stamina (Physique)
+- p.82 — Streetwise (Acumen)
+- p.82 — Survival (Acumen)
+- p.83 — Throwing (Coordination)
+- p.83 — Tracking (Acumen)
+- p.83 — Traps (Intellect)
+- p.84 — Magic
+- p.84 — Obtaining Access to Magic
+- p.84 — Learning & Improving Magic Skills
+- p.84 — Magic Skills
+- p.85 — Characteristics of a Spell
+- p.85 — Using Spells & Their Effects
+- p.86 — Designing the Spell
+- p.95 — Design Time
+- p.96 — Spell Design in Action
+- p.97 — Blank Spell Worksheet
+- p.98 — Precalculated Spells
+- p.104 — Miracles
+- p.105 — Obtaining Access to Miracles
+- p.106 — Learning & Improving Miracles Skills
+- p.106 — Miracles Skills
+- p.106 — Using Invocations & Their Effects
+- p.107 — Designing Invocations
+- p.109 — Sample Invocations
+- p.114 — Equipment
+- p.114 — Purchasing Equipment
+- p.115 — Gear
+- p.116 — Mystical Artifacts
+- p.116 — Holy Items
+- p.116 — Armor & Shields
+- p.118 — Gunpowder Weapons
+- p.118 — Missile & Thrown Weapons
+- p.119 — Melee Weapons
+- p.119 — Improvised Weapons
+- p.119 — Vehicles
+- p.121 — Gamemaster Tips
+- p.122 — Adventure Tips
+- p.122 — Creating Adventures
+- p.124 — Running Adventures
+- p.126 — Rewarding the Players
+- p.126 — Generic People
+- p.127 — Generic Animals
+- p.127 — Generic Monsters
+- p.129 — Character Templates
+- p.129 — Bard
+- p.130 — Cleric
+- p.131 — Gladiator
+- p.132 — Healer
+- p.133 — Merchant
+- p.134 — Monster Slayer
+- p.135 — Ranger
+- p.136 — Thief
+- p.137 — Wanderer
+- p.138 — Wizard
+- p.139 — Blank Character Sheet
+- p.141 — D6 Reference Sheet
+- p.143 — Die Code Simplification
+- p.144 — Index
+- p.146 — OGL
+
+### `magic` — D6 Magic
+
+- p.1 — Cover
+- p.2 — Introduction
+- p.3 — Expanding and Restricting the Aspects
+- p.3 — Area Effect
+- p.4 — Casting Time
+- p.5 — Change Target
+- p.5 — Charges: Basic & Improved
+- p.5 — Community
+- p.6 — Components
+- p.6 — Concentration
+- p.6 — Scribing a Spell
+- p.7 — Countenance
+- p.7 — Duration
+- p.7 — Memorizing a Spell
+- p.7 — Divination Spells
+- p.8 — Feedback
+- p.8 — Focus
+- p.8 — Gesture
+- p.8 — Incantation
+- p.8 — Range
+- p.9 — Unreal Effect
+- p.9 — Variable Effect
+- p.9 — Variable Movement
+- p.9 — Other Alterants
+- p.9 — Other Conditions
+- p.10 — Adding Aspects after the Design
+- p.11 — Keeping Magic Users in Check
+- p.13 — Example Spell Failure Results
+- p.14 — Skills and Effects
+- p.14 — Skills
+- p.15 — Learning and Improving Magic Skills
+- p.16 — Effects
+- p.17 — Determining Effects for Unknowns
+- p.20 — Magical Items
+- p.21 — Potions
+- p.25 — Alternate Magic Systems
+- p.28 — D6 Magic Primer
+- p.30 — Expanded Benchmark List
+- p.32 — Precalculated Spells
+- p.34 — Chronomancy
+- p.40 — Necromancy
+- p.50 — Sominomancy
+- p.58 — Vitomancy
+- p.66 — Photomancy
+- p.73 — Peregrination
+- p.80 — Technomancy
+- p.88 — Wizardry
+- p.95 — Elemental
+- p.102 — Magical Artifacts
+- p.109 — OGL
+
+### `gm-screen` — D6 Gamemaster's Aid Screen
+
+- p.1 — Contents & Credits
+- p.2 — Creating Your Own World
+- p.25 — Modifyng the D6 System
+- p.31 — D6 Genre Conversion
+- p.40 — OGL
+
+### `fantasy-creatures` — D6 Fantasy Creatures 1.1
+
+- p.1 — Cover
+- p.2 — Credits
+- p.3 — Contents
+- p.4 — Introduction
+- p.5 — Alligator, Crocodile
+- p.6 — Giant Bat
+- p.7 — Bear
+- p.8 — Bird Of Prey
+- p.9 — Giant Boar
+- p.10 — Bogie
+- p.11 — Bogle
+- p.12 — Bull
+- p.13 — Bunyip
+- p.14 — Cat
+- p.15 — Celestial
+- p.16 — Centaur
+- p.17 — Cyclops
+- p.18 — Demon
+- p.19 — Dinosaur
+- p.22 — Djinn
+- p.23 — Dog
+- p.24 — Dragon
+- p.29 — Dwarf
+- p.31 — Giant Eel
+- p.32 — Ekimmu
+- p.33 — Elemental
+- p.34 — Elephant
+- p.35 — Elf
+- p.36 — Empusa
+- p.37 — Fairy
+- p.39 — Familiar
+- p.40 — Fiana
+- p.41 — Flying Cat
+- p.42 — The Furies
+- p.43 — Gargoyle
+- p.43 — Ghost Warrior
+- p.44 — Ghoul
+- p.45 — Giang Shi
+- p.46 — Giant
+- p.49 — Gnome
+- p.50 — Golem
+- p.51 — Gwyllion
+- p.52 — Harpy
+- p.53 — Horse
+- p.54 — Hydra
+- p.55 — Kelpie
+- p.55 — Leprechaun
+- p.56 — Lizard
+- p.57 — Mermaid
+- p.58 — Minions Of Evil
+- p.59 — Minotaur
+- p.60 — Mummy
+- p.61 — Nymph
+- p.62 — Obayifo
+- p.63 — Oni
+- p.64 — Ooze
+- p.65 — Owl
+- p.66 — Pegasus
+- p.66 — Peryton
+- p.67 — Pixie
+- p.68 — Rakshasa
+- p.69 — Giant Rat
+- p.70 — Roc
+- p.71 — Sasquatch, Yeti
+- p.72 — Satyr
+- p.73 — Scorpion
+- p.74 — Sea Serpent
+- p.75 — Skeleton
+- p.76 — Snake
+- p.77 — Snake-woman
+- p.78 — Sphinx
+- p.79 — Giant Spider
+- p.80 — Sprite
+- p.81 — Giant Squid
+- p.82 — Stympalian Bird
+- p.83 — Swarms
+- p.85 — Toad
+- p.86 — Triton
+- p.87 — Troll
+- p.88 — White Unicorn
+- p.89 — Valkyrie
+- p.90 — Vampyr
+- p.91 — Wendigo
+- p.92 — Werewolf
+- p.93 — Wolf
+- p.94 — Yara-Ma-Yah-Who
+- p.95 — Zombie
+- p.96 — D6 Genre Conversion
+- p.97 — Skill Conversion List
+- p.98 — OGL
+
+### `adventure-creatures` — D6 Adventure Creatures
+
+- p.1 — Cover
+- p.2 — Contents
+- p.3 — Introduction
+- p.4 — Advanced Humans
+- p.5 — Atlanteans
+- p.7 — Bears
+- p.8 — Bedroom Monsters
+- p.9 — Benevolent Entities
+- p.10 — Big Media
+- p.11 — Candymen
+- p.12 — Carnivorous Fish
+- p.13 — Carrion-Eating Mammals
+- p.14 — Great Cats
+- p.15 — Crime Lords
+- p.17 — Crows
+- p.18 — Deadly Plants
+- p.19 — Demons
+- p.21 — Den Mothers
+- p.22 — Diableros
+- p.23 — Disembodied Parts
+- p.24 — Dinosaurs
+- p.27 — Doppelgangers
+- p.28 — Evil Clowns
+- p.30 — Extremist Political Groups
+- p.31 — Fanatical Cultists
+- p.32 — Fey Folk
+- p.34 — Flesh Constructs
+- p.35 — Gangs
+- p.37 — Gadgeteers
+- p.38 — Gargantuan Blob
+- p.39 — Gargantuan Lizards
+- p.40 — Gargantuan Mobile Vegetables
+- p.41 — Gargantuan Plants
+- p.42 — Gargantuan Spiders
+- p.43 — Miscellaneous Ghosts
+- p.45 — Gorillas
+- p.46 — Gray Aliens
+- p.47 — Gremlins
+- p.48 — Headless Entities
+- p.49 — Herd Animals
+- p.50 — Hive-Mind Aliens
+- p.51 — Homin-insectoids
+- p.53 — Horses
+- p.55 — Human-Animal Hybrids
+- p.57 — Hunter Aliens
+- p.58 — Killer Kangaroos
+- p.59 — Krakens
+- p.60 — Law Enforcement
+- p.62 — Leeches
+- p.63 — Lycanthropes
+- p.65 — Mad Scientists
+- p.66 — Mantis Aliens
+- p.67 — Megalomaniacal Villains
+- p.68 — Mercenaries
+- p.69 — Messenger Ghosts
+- p.70 — Mummies
+- p.71 — Mysterious Lake Dwellers
+- p.72 — Nasty Varmints
+- p.73 — Ninja
+- p.74 — Nuclear Shadows
+- p.74 — Odiumus
+- p.75 — Parasitic Beings
+- p.76 — People in the Park
+- p.77 — Poltergeist
+- p.78 — Possessed Artifacts
+- p.80 — Small Predatory Mammals
+- p.81 — Primitive Tribes
+- p.83 — Private Investigators
+- p.84 — Publicity Seekers
+- p.85 — Reanimated Killers
+- p.86 — Reptilian Aliens
+- p.87 — Rhnoceros
+- p.88 — Robots and Androids
+- p.89 — Screaming Blue Murders
+- p.90 — Sea Creatures
+- p.91 — Serial Killers
+- p.93 — Giant Sewer Creatures
+- p.95 — Soldiers
+- p.99 — Snakes
+- p.100 — Swans
+- p.101 — Tauntors
+- p.101 — Thalassines
+- p.102 — Two-Legged Terrors
+- p.104 — Vampires
+- p.106 — Whales
+- p.107 — Modern Wizards
+- p.108 — Zombies
+- p.109 — Converted D6 Fantasy Creatures
+- p.111 — D6 Genre Conversion
+- p.112 — Skill Conversion List
+- p.113 — Credits
+- p.115 — OGL
+
+### `system-book` — D6 System Book
+
+- p.1 — Cover
+- p.2 — Credits And Contents
+- p.3 — Introduction
+- p.3 — What Is Roleplaying
+- p.4 — Getting Ready To Play
+- p.5 — Player's Section
+- p.5 — Characters
+- p.8 — Adventuring
+- p.8 — Making Dice Rolls
+- p.10 — Evolving Characters
+- p.11 — Blank Character Sheet
+- p.13 — Gamemaster's Section
+- p.13 — What Does The Gamemaster Do?
+- p.14 — D6 System Templates
+- p.15 — Character Creation Template
+- p.16 — Game System Template
+- p.17 — Characters
+- p.17 — Developing A Character Creation Template
+- p.17 — Personal Information
+- p.18 — Species Template
+- p.19 — Attributes
+- p.21 — Skills
+- p.21 — Move
+- p.21 — Character Points
+- p.21 — Fate Points
+- p.21 — Veteran Points
+- p.22 — Damage Systems
+- p.22 — Roleplaying (Advantages and Disadvantages)
+- p.24 — Professions
+- p.27 — Finances
+- p.28 — Skills
+- p.28 — Skill Types
+- p.28 — Calling For Skill Rolls
+- p.28 — Setting Difficulties
+- p.29 — Free Skills
+- p.29 — Specializations
+- p.30 — List Of Skills
+- p.39 — Equipment
+- p.39 — Cost
+- p.39 — Weapons
+- p.39 — Armor
+- p.39 — Adventuring Gear
+- p.41 — Vehicles
+- p.41 — Dispensing Equipment
+- p.42 — Supernatural Powers
+- p.42 — Magic Systems
+- p.48 — Psychic Power Systems
+- p.50 — Super Power Systems
+- p.51 — Adventures
+- p.51 — Creating Adventures
+- p.52 — Types Of Adventures
+- p.54 — Types Of Scenes
+- p.56 — Adversaries
+- p.56 — Lead Characters
+- p.57 — Supporting Characters
+- p.57 — Extras
+- p.57 — Creatures
+- p.58 — Creature Template
+- p.58 — Preparing Adventures
+- p.59 — Running Adventures
+- p.63 — Ending Adventures
+- p.65 — Combat
+- p.66 — Ways To Run Combat
+- p.68 — Performing Multiple Actions
+- p.68 — Movement
+- p.69 — Attacking And Defending
+- p.71 — Damage
+- p.71 — Armor
+- p.71 — Scale
+- p.72 — Character Death
+- p.72 — Full-scale Battles
+- p.72 — Healing
+- p.74 — Vehicle Combat
+- p.75 — Vehicle Template
+- p.76 — Movement
+- p.76 — Stunts
+- p.76 — Damage
+- p.77 — Repairing Vehicles
+- p.78 — Sample Game System
+- p.82 — OGL
+
+### `fantasy-locations` — D6 Fantasy Locations 1.1
+
+- p.1 — Cover
+- p.2 — Credits
+- p.3 — Contents
+- p.4 — Introduction
+- p.5 — Settlements
+- p.5 — Delmara, Forest-side Hamlet
+- p.6 — Kiselton, Riverside Town
+- p.7 — Settlement Considerations
+- p.9 — Inachon's Point, Coastal City
+- p.13 — Politics
+- p.14 — Types of Leaders
+- p.17 — Izmerlia,Tree Village
+- p.19 — Typhon, Undersea City
+- p.20 — Gadara, Island Nation
+- p.20 — Cities
+- p.21 — Rhakotis, Secret Library
+- p.22 — Population
+- p.23 — Desert Nomad Camp
+- p.24 — The Hut of Morcades the Witch
+- p.26 — Halwyndale, Burrow Village
+- p.27 — Viking Village
+- p.29 — Thalas, Greek City
+- p.30 — Utsmuul, Maya City
+- p.31 — Sala Colonia, Roman African Colony
+- p.32 — Settlement Defenses
+- p.33 — Quick Settlement Design
+- p.35 — Settlement Design Sheet
+- p.37 — Castles And Fortresses
+- p.37 — Brief History
+- p.37 — Location
+- p.39 — Parts of a Castle
+- p.39 — Hills
+- p.39 — Walls
+- p.40 — Walls and Cover
+- p.42 — Trenches and Bridges
+- p.42 — Weaponry
+- p.43 — Castle and Siege Weapons
+- p.44 — Putting Out the Fire
+- p.45 — Towers
+- p.46 — Gatehouses
+- p.47 — Buildings
+- p.48 — Shops and Workers
+- p.51 — Heating and Lighting
+- p.52 — Floors and Staircases
+- p.53 — Roofing
+- p.53 — Furnishings
+- p.54 — Necessities
+- p.38 — Lord Urdane, Baron of the North/ands
+- p.41 — Crossroads Border Keep
+- p.45 — Minor Castle in the Northlands
+- p.50 — Dwarven Mountain Fortress
+- p.54 — Asian-Style Castles
+- p.55 — Kinzo Mimoto's Fortress
+- p.55 — Wizard's Tower
+- p.56 — Basic Shelter Spell
+- p.56 — Improved Hut Spell
+- p.56 — Small Long-Lasting Tower Spell
+- p.57 — Keep in the Air Spell
+- p.57 — Aaroth the Wizard
+- p.59 — Castle Design Sheet
+- p.61 — And Other Places
+- p.61 — Dragon's Cave
+- p.63 — Variana
+- p.63 — Caltrops
+- p.64 — The Home Cave Advantage
+- p.65 — Dojo
+- p.67 — Martial Arts in D6 Fantasy
+- p.68 — New Special Ability: Pain Tolerance
+- p.68 — Challenger's Forge
+- p.70 — Breeze and Wind Arena Challenges
+- p.71 — Combining Attacks
+- p.73 — Typhoon Arena Challenges
+- p.75 — Labyrinth of Kephalos
+- p.79 — Mine Tunnels
+- p.80 — Monastery
+- p.83 — Mirror of the Highest Sun
+- p.83 — Ruined Castle's Dungeon
+- p.85 — Ruins of the Ancients
+- p.88 — Stone Circles
+- p.91 — Temple
+- p.94 — Fa'aya (religion)
+- p.95 — Miracle: Clearing the Undergrowth
+- p.97 — Treacherous Straits
+- p.98 — Rules for Navigating Straits
+- p.100 — Miracle: Divine Aid
+- p.101 — Designing a Maze
+- p.104 — Random Dungeons
+- p.105 — Dungeon Goal
+- p.105 — Dungeon Location
+- p.106 — Example Maze
+- p.107 — Dungeon Encounters
+- p.107 — Combat Encounters
+- p.108 — Skill Resolution Encounters
+- p.109 — Roleplaying Encounters
+- p.111 — Premade Rooms
+- p.114 — OGL
+
+### `adventure-locations` — D6 Adventure Locations 1.1
+
+- p.1 — Cover
+- p.2 — Credits
+- p.3 — Contents
+- p.4 — Introduction
+- p.5 — Places
+- p.5 — Airport
+- p.7 — Amusement Park
+- p.10 — Apartment
+- p.12 — Bar/Nightclub
+- p.14 — Casino
+- p.16 — Cavern System
+- p.20 — Cemetery
+- p.22 — City Street
+- p.25 — Convenience Store
+- p.27 — Convention Center
+- p.30 — Dock Front
+- p.33 — Farm
+- p.37 — Forest and Meadow
+- p.39 — Hotel/Motel
+- p.42 — House
+- p.44 — Island Stronghold
+- p.47 — Laboratory
+- p.49 — Library
+- p.52 — Mall
+- p.59 — Museum
+- p.62 — Office
+- p.65 — Park
+- p.67 — Restaurant
+- p.70 — Spaceship
+- p.73 — School
+- p.76 — Secret Headquarters
+- p.79 — Showboat
+- p.82 — Stadium
+- p.84 — Temple
+- p.87 — Warehouse
+- p.90 — Weapons Trial Area
+- p.93 — Wrestling Ring
+- p.95 — Zoo
+- p.7 — People
+- p.7 — Airline Ticket Counter Representative
+- p.84 — Athlete
+- p.14 — Bartender
+- p.97 — Black Bear
+- p.15 — Card Dealer
+- p.12 — Child
+- p.30 — Demonic Sales Rep
+- p.33 — Dock Worker
+- p.24 — Elderly Person
+- p.36 — Farmer
+- p.36 — Farm Animals (guidelines)
+- p.79 — Field Agent
+- p.92 — Firearms Instructor
+- p.41 — Front Desk Clerk
+- p.4 — Generic Person
+- p.21 — Groundskeeper
+- p.39 — Hidden Sniper
+- p.67 — Hunter
+- p.49 — Lab Assistant
+- p.51 — Librarian
+- p.69 — Mobster
+- p.43 — Mother
+- p.62 — Museum Curator
+- p.81 — Musician
+- p.64 — Office Worker
+- p.24 — Pigeon
+- p.38 — Psychic Fungus
+- p.20 — Rats
+- p.9 — Roustabout
+- p.72 — Secret Government Agency Officer
+- p.58 — Store Employee
+- p.27 — Store Manager
+- p.46 — Surveillance Crew
+- p.75 — Teacher
+- p.20 — Treasure Seeker
+- p.69 — Wait Staff
+- p.90 — Warehouse Worker
+- p.87 — Warrior-priest
+- p.95 — Wrestler
+- p.97 — Zookeeper
+- p.19 — Additional Information
+- p.19 — Cave Drawings
+- p.54 — Price Difficulties
+- p.91 — Reloading Ammunition
+- p.72 — Spaceship Combat (inside alien ship)
+- p.82 — Sports and Their Skills
+- p.98 — OGL
+
+### `player-gm-guide` — D6 Player Book and GM Guide
+
+- p.1 — Player Book
+- p.1 — Contents
+- p.5 — Introduction
+- p.5 — What is a Role-playing Game
+- p.5 — The D6 game system in a nutshell
+- p.6 — Campaign settings
+- p.7 — Glossary
+- p.9 — Basic game mechanics
+- p.9 — Dice Codes
+- p.9 — Dice Codes Math
+- p.9 — Rolling the Dice
+- p.11 — [Optional] The Wild Die
+- p.12 — [Optional] Fumble – « All 1 »
+- p.12 — [Optional] High MS – High MF
+- p.12 — Skill Points (or Character Points)
+- p.12 — Fate Points
+- p.13 — Multiple Actions
+- p.14 — Character Creation
+- p.14 — Character Concept
+- p.14 — The character sheet
+- p.18 — Creation Points
+- p.19 — Selecting a Template
+- p.19 — Fleshing out the Template
+- p.22 — Merits and Flaws
+- p.22 — Secret Merits and Flaws
+- p.22 — Merits
+- p.26 — Physical flaws
+- p.28 — Mental Flaws
+- p.30 — Social Flaws
+- p.32 — Templates
+- p.32 — What is a template?
+- p.32 — Predefined templates
+- p.32 — Template’s values
+- p.32 — Selecting a Template
+- p.32 — Creating new Templates
+- p.35 — Completing a Template
+- p.36 — Non-human Species
+- p.36 — Foreword
+- p.36 — TP Value
+- p.36 — Description of a sentient species
+- p.36 — The Human, the base species
+- p.37 — Species concept
+- p.37 — Bulk
+- p.37 — Lifespan
+- p.38 — Assigning Attributes minima and maxima
+- p.38 — Assigning Move minimum and maximum
+- p.38 — Define special traits
+- p.38 — Finishing touches
+- p.38 — Recording
+- p.38 — Recapitulation table
+- p.39 — Non-human species example
+- p.39 — Exotic trait for non-human species
+- p.41 — Attributes and Skills
+- p.41 — Deciding what skill to roll
+- p.41 — Attributes vs. Skills
+- p.42 — Skill levels
+- p.42 — Specializations
+- p.42 — Advanced Skills
+- p.43 — Reaction Skills
+- p.43 — Abstract Skills
+- p.44 — Restrictive Skills
+- p.44 — Trying again
+- p.44 — How to read these lists
+- p.45 — Agility Skills
+- p.47 — Coordination Skills
+- p.49 — Strength Skills
+- p.51 — Perception skills
+- p.56 — Charisma Skills
+- p.58 — Knowledge Skills
+- p.64 — Technical Skills
+- p.69 — Character’s Advancement
+- p.69 — Character Points
+- p.69 — Advancement through Experience
+- p.71 — [Optional] Pure Training Improvement
+- p.72 — GM Guide
+- p.72 — Index
+- p.81 — Health
+- p.81 — Wounds
+- p.83 — [Optional] Localized states
+- p.85 — Other Sources of Damage
+- p.90 — Task's Resolution
+- p.90 — Determining task’s parameters
+- p.90 — Rushing things
+- p.90 — Taking more time
+- p.90 — Fumbles
+- p.91 — Character Points and Fate points
+- p.91 — Multiple Actions
+- p.91 — Combined Actions or TeamWork
+- p.93 — Arts & Artistic Creations
+- p.93 — Composition
+- p.93 — Restitution
+- p.94 — Improvisation
+- p.94 — Effect on the Audience
+- p.94 — Perform (A) Advanced skill
+- p.94 — Arts & TeamWork
+- p.96 — Social Interactions
+- p.96 — Generalities
+- p.97 — One way interactions
+- p.97 — Two way interactions
+- p.97 — Various modifiers
+- p.99 — Individual Combat
+- p.99 — The combat round
+- p.101 — Dice less actions
+- p.101 — Melee attack
+- p.102 — Melee parry
+- p.102 — Brawling attack
+- p.103 — Brawling parry
+- p.103 — Range attack
+- p.106 — Dodge
+- p.107 — Individual Combat’s Modifiers Summary Table
+- p.108 — Skirmishes– Small units combat
+- p.109 — Advanced Individual Combat
+- p.109 — Fast-Draw
+- p.109 — Blind Combat
+- p.110 — Melee mastery
+- p.112 — Martial arts
+- p.114 — Large Scale Combat
+- p.114 — The battle round
+- p.114 — The engagement level
+- p.114 — Battle round's resolution
+- p.115 — Battle's results
+- p.115 — Special Operations
+- p.115 — The Battle Table
+- p.117 — Wealth
+- p.117 — The Wealth dice codes
+- p.117 — Price indexes
+- p.117 — How to use it
+- p.118 — Upkeep
+- p.118 — Extraordinary cash flow
+- p.118 — Bribes
+- p.119 — Equipment
+- p.119 — Acquiring equipment
+- p.119 — Equipment's value
+- p.119 — Availability
+- p.120 — Encumbrance
+- p.120 — Equipment's stats
+- p.122 — Melee weapons
+- p.123 — Range weapons
+- p.123 — Ranges
+- p.124 — Armor
+- p.124 — Vehicle
+- p.125 — Damaging equipment
+- p.126 — [Optional] Maintenance
+- p.126 — Repairing equipment
+- p.127 — [Optional] Building equipment
+- p.128 — [Optional] Designing equipment
+- p.128 — [Optional] Modifying equipment
+- p.129 — Movement, Chase and Vehicle Combat
+- p.129 — Vehicles' stats
+- p.131 — Scales
+- p.131 — Long journeys
+- p.132 — The chase round
+- p.133 — Movement difficulties
+- p.133 — The various speeds
+- p.134 — Maneuvers
+- p.136 — Combining movements
+- p.136 — Planes
+- p.137 — Failed movement rolls
+- p.137 — Vehicle combat
+- p.138 — Vehicle's weapon's anatomy
+- p.138 — Weapon in the front arc
+- p.139 — Turret weapons
+- p.139 — Propelled missiles
+- p.139 — Vehicle damage
+- p.142 — Vehicles' Crew
+- p.142 — Crew [Minimum]
+- p.143 — Big vehicle, big crew and Command
+- p.145 — Creatures
+- p.145 — Stats
+- p.146 — Training
+- p.146 — Sample creature
+- p.147 — Campaign Settings
+- p.147 — Picking a Campaign setting
+- p.147 — Presenting the setting
+- p.148 — Rules' adaptations
+- p.151 — Detailed Campaign setting's description
+- p.153 — Some rules related to environment
+- p.155 — Some weapon statistics' samples
+- p.157 — Game Mastering
+- p.157 — Adventures or campaign
+- p.157 — Preparing an adventure
+- p.158 — Mastering an adventure
+- p.159 — Preparing a campaign
+- p.160 — Mastering a campaign
+- p.161 — References and Inspirations
+- p.161 — Role Playing Games
+- p.161 — Comics, Books, Movies, Series
+
+### `how-game-works` — D6: How the Game Works
+
+_(закладок в PDF нет)_
+
+### `tryout-nexus-temple` — D6 Try-Out: Crumbling Nexus Temple
+
+_(закладок в PDF нет)_
+
+### `legend-conversion` — D6 Legend and Conversion
+
+_(закладок в PDF нет)_
+
+### `space` — D6 Space 2.0
+
+- p.1 — Cover
+- p.2 — Credits
+- p.3 — Contents
+- p.4 — Introduction
+- p.5 — Introductory Adventure
+- p.9 — Key Terms
+- p.10 — Character Basics
+- p.10 — Character Creation
+- p.11 — Attributes
+- p.12 — Skills
+- p.12 — Advantages, Disadvantages, and Special Abilities
+- p.14 — Move
+- p.14 — Special Points
+- p.15 — Body Points and Wounds
+- p.15 — Strength Damage
+- p.15 — Funds
+- p.15 — Equipment
+- p.15 — Character Features and Other Details
+- p.16 — Character Options
+- p.17 — Costs at Character Creation
+- p.18 — Disadvantages
+- p.28 — Advantages
+- p.32 — Special Abilities
+- p.42 — Aliens and Human Offshoots
+- p.43 — Examples and Packages
+- p.46 — Cybernetics
+- p.53 — Improving Characters
+- p.56 — Game Basics
+- p.56 — Rolling Dice
+- p.58 — Using Skills
+- p.58 — Rounds and Initiative
+- p.59 — Performing Actions in Rounds
+- p.61 — Choosing Difficulties
+- p.63 — Determining Success
+- p.63 — Second Chances
+- p.63 — Gamemaster's Fiat
+- p.63 — Common Difficulties and Modifiers
+- p.64 — Movement
+- p.69 — Space Travel
+- p.73 — Combat
+- p.73 — Generating Initiative
+- p.73 — Attacking and Defending
+- p.75 — Determining Damage
+- p.75 — Repeat
+- p.75 — Combat Example
+- p.76 — Damage
+- p.76 — Body Points
+- p.77 — Wound Levels
+- p.79 — Healing
+- p.79 — Body Points
+- p.80 — Wounds
+- p.81 — Combat Options
+- p.85 — Example Skill Difficulties
+- p.85 — Combat Skills
+- p.85 — Information Skills
+- p.85 — Interaction Skills
+- p.86 — Mental Defenses
+- p.86 — Observation Skills
+- p.87 — Repair Skills
+- p.87 — Aliens, Astrographv, Bureaucracy, Business, Cultures, Scholar, Security Regulations
+- p.87 — Exoskeleton Operation, Vehicle Operation
+- p.87 — FIying/0-G, Running, Swim
+- p.87 — Hide, Sneak
+- p.87 — Acrobatics
+- p.88 — Artist
+- p.88 — Bargain
+- p.89 — Climb/Jump
+- p.89 — Command
+- p.89 — Computer Interlace/Repair
+- p.89 — Con
+- p.90 — Demolitions
+- p.90 — Forgery
+- p.91 — Gambling
+- p.91 — Investigation
+- p.91 — Know-how
+- p.91 — Languages
+- p.92 — Lift
+- p.92 — Medicine
+- p.92 — Navigation
+- p.93 — Piloting
+- p.93 — Riding
+- p.93 — Robot Interface/Repair
+- p.93 — Search
+- p.94 — Security
+- p.94 — Shields
+- p.94 — Sleight of Hand
+- p.94 — Stamina
+- p.94 — Streetwise
+- p.95 — Survival
+- p.95 — Tactics
+- p.95 — Throwing
+- p.95 — Willpower
+- p.96 — Metaphysics
+- p.96 — Obtaining Access to Metaphysics
+- p.96 — Learning and Improving Metaphysics Skills
+- p.96 — Metaphysics Skills
+- p.97 — Designing the Manipulation
+- p.98 — Situation Modifiers
+- p.99 — Releasing the Manipulation
+- p.100 — Sample Manipulations
+- p.103 — Manipulation Worksheet
+- p.104 — Equipment
+- p.104 — Purchasing Equipment
+- p.105 — Gear
+- p.106 — Robots
+- p.107 — Protective Gear
+- p.108 — Firearms
+- p.110 — Firearm Accessories
+- p.111 — Explosives
+- p.112 — Missile and Thrown Weapons
+- p.113 — Melee Weapons
+- p.113 — Improvised Weapons
+- p.113 — Planetary Vehicles
+- p.115 — Basic Ship Design
+- p.122 — Gamemaster Tips
+- p.123 — Adventure Tips
+- p.123 — Designing the Setting
+- p.123 — Creating Adventures
+- p.125 — Starting the Adventure
+- p.125 — Running Adventures
+- p.127 — Rewarding the Players
+- p.128 — Generic People
+- p.128 — Generic Animals
+- p.129 — Character Templates
+- p.139 — Blank Character Sheet
+- p.141 — D6 Reference Sheet
+- p.143 — Die Code Simplification
+- p.144 — Index
+- p.146 — OGL
+
+### `space-aliens` — D6 Space Aliens 1
+
+- p.1 — Cover
+- p.2 — Credits
+- p.3 — Contents
+- p.4 — Introduction
+- p.4 — How to Use the Species Packages
+- p.5 — Making Your Own Species Packages
+- p.6 — Hyposapient Species
+- p.6 — Basilisks
+- p.7 — Borkines
+- p.8 — Chalsamars
+- p.9 — Charybdis Devourers
+- p.10 — Dire Lurkers
+- p.11 — Duskdiggers
+- p.12 — Grassback Maulers
+- p.13 — Grotto Gatherers
+- p.14 — Orvoxx
+- p.15 — Plasmakells
+- p.16 — Starwhals
+- p.17 — Sustari
+- p.18 — Tide Stalkers
+- p.19 — Valdusians
+- p.20 — Homosapient Species
+- p.20 — Barathax
+- p.26 — The Dealers
+- p.31 — Gilvahns
+- p.37 — Gruemor
+- p.43 — Hurshuka
+- p.49 — Lonthyn
+- p.55 — Malcharans
+- p.60 — Mareens
+- p.65 — Pherro
+- p.71 — Razithar
+- p.77 — Taurids
+- p.83 — Verdendrians
+- p.90 — Hypersapient Species
+- p.90 — Cree-va
+- p.94 — Elecdrone Swarming
+- p.97 — Elnari
+- p.101 — The Spool
+- p.105 — Thayarr
+- p.109 — Random Creature Generation
+- p.112 — Templates
+- p.112 — Barathax Military Trainer
+- p.113 — Dealer Merchant
+- p.114 — Gilvahn Prospector
+- p.115 — Gruemor Planetary Surveyor
+- p.116 — Hurshuk Ecoscientist
+- p.117 — Lonthyn (Outer-World) Assassin-Spy
+- p.118 — Malcharan Cybersculptor
+- p.119 — Mareen Traveling Artist
+- p.120 — Pherro Pilot
+- p.121 — Razithar Entrepreneur
+- p.122 — Taurid Mercenary
+- p.123 — Verdendrian Explorer
+- p.124 — Converted D6 Fantasy Creatures
+- p.126 — Converted D6 Adventure Creatures
+- p.128 — D6 Genre Conversion
+- p.131 — OGL
+
+### `space-ships` — D6 Space Ships
+
+- p.1 — Cover
+- p.2 — Credits
+- p.3 — Contents
+- p.4 — Introduction
+- p.5 — Travel and Combat
+- p.5 — Galactic Travel
+- p.5 — Your Own Ship
+- p.6 — Passenger Liners
+- p.7 — Chartered Ships
+- p.7 — Warships
+- p.8 — Restrictive Travel Systems
+- p.8 — Space-Faring Authorities
+- p.9 — Military Fleets
+- p.9 — Trade Agencies
+- p.10 — System Militias
+- p.11 — Star-Faring Regulations
+- p.13 — Starship Operations
+- p.13 — Drive Systems
+- p.13 — Power Plant
+- p.13 — In-System Drives
+- p.13 — Interstellar Drives
+- p.15 — Space Navigation
+- p.16 — Intercepting Interstellar Craft
+- p.17 — In-System Operations
+- p.22 — Space Combat
+- p.23 — Mechanics of Combat
+- p.25 — Starship Damage
+- p.28 — Revised Ship Design
+- p.28 — Imposing Limitations
+- p.28 — Using the Ship Design System
+- p.29 — Ship Roles
+- p.31 — Terms
+- p.32 — Life-Supporting Modules
+- p.34 — Cargo Modules
+- p.35 — Life-Support Equipment
+- p.36 — Module Upgrades
+- p.37 — Weapon Modules
+- p.41 — Drive Modules
+- p.43 — Power Plant Modules
+- p.43 — Hull
+- p.45 — Stealth Options
+- p.45 — Armor
+- p.45 — Shields
+- p.46 — Shape and Size
+- p.47 — Maintenance
+- p.48 — Repairs
+- p.48 — Modifications
+- p.49 — Quirky Ships
+- p.53 — Example Ships
+- p.53 — Drop Ship
+- p.54 — Interceptor Patrol Craft
+- p.55 — Light Defender
+- p.56 — Light Freighter
+- p.56 — Patrol Frigate
+- p.57 — Pleasure Yacht
+- p.58 — Remote Outpost
+- p.58 — Scout Ship
+- p.59 — Shuttlecraft
+- p.59 — Strike Fighter
+- p.60 — Military Carrier
+- p.61 — Pirate Corsair
+- p.62 — Blockade Runner
+- p.62 — Galaxy’s Wings
+- p.63 — Stock Freighter
+- p.63 — Zeus Machina
+- p.64 — Adventures in Space
+- p.65 — Alien Encounters
+- p.70 — Interstellar Hazards
+- p.75 — Politics and Contraband
+- p.75 — Criminal Enterprises and Law Enforcement
+- p.81 — Commerce and Recreation
+- p.86 — Planet Creation
+- p.90 — Planet Design Log
+- p.91 — D6 Adventure Conversion
+- p.92 — Detailed Ship Design Log
+- p.97 — Freeform Ship Design Log
+- p.98 — OGL
+
+### `space-opera` — D6 Space Opera
+
+- p.1 — Credits
+- p.2 — Contents
+- p.3 — Introduction
+- p.4 — Character Basics
+- p.8 — Game Basics
+- p.16 — Combat Basics
+- p.20 — Psionics
+- p.28 — Sample Equipment
+- p.50 — Rewards
+- p.51 — Shatterzone/D6 Conversion
+- p.52 — Character Templates
+- p.57 — Blank Character Sheet
+- p.59 — Reference Sheet
+
+### `septimus` — Septimus
+
+- p.1 — Front Cover
+- p.3 — Credits
+- p.4 — Contents
+- p.5 — Setting
+- p.5 — The Seventh Empire
+- p.14 — The Sphere
+- p.21 — The Sindavar Extent
+- p.24 — Arcopolis
+- p.70 — The Seven Cities
+- p.74 — The Newcomers
+- p.78 — Archipelago
+- p.100 — The D6 System
+- p.100 — Attributes
+- p.106 — Movement
+- p.113 — Combat
+- p.116 — Combat Options
+- p.122 — Healing
+- p.125 — Corruption
+- p.129 — Characters
+- p.129 — Step One: Attributes
+- p.129 — Step Two: Determine Your Priorities
+- p.131 — Step Three: Modifications
+- p.132 — Step Four: Hardware
+- p.134 — Interlude: Who Are You?
+- p.134 — Step Five: Demeanor
+- p.136 — Step Six: Motivation
+- p.138 — Step Seven: Persona
+- p.141 — Finishing Up
+- p.141 — Improving Characters
+- p.142 — Skills
+- p.142 — Skill Descriptions
+- p.172 — Boons
+- p.191 — Banes
+- p.214 — Nanotech
+- p.215 — Nanomod Descriptions
+- p.237 — Genotech
+- p.239 — Genomods
+- p.249 — Genomod Enhancements
+- p.250 — Genomod Limitations
+- p.253 — Metaphysics
+- p.255 — Designing The Manipulation
+- p.257 — Manipulation Difficulty
+- p.260 — Releasing The Manipulation
+- p.262 — Sample Manipulations
+- p.267 — Hardware
+- p.272 — Weapons
+- p.286 — Armor
+- p.290 — Robots
+- p.293 — Ground Vehicles
+- p.297 — Aircraft
+- p.300 — Starships
+- p.305 — Megascale Construction
+- p.309 — Templates
+- p.317 — Bodger
+- p.319 — Dragoon
+- p.323 — Flatliner
+- p.325 — Hardcase
+- p.327 — Helix
+- p.329 — Hierarch
+- p.331 — Hyperion
+- p.333 — Merchant
+- p.335 — Morituri
+- p.339 — Pathfinder
+- p.341 — Prole
+- p.343 — Settler
+- p.345 — Sleepwalker
+- p.347 — Spacer
+- p.349 — Spoilsport
+- p.351 — Steeljack
+- p.353 — Stringer
+- p.355 — Synthient
+- p.357 — Zealot
+- p.359 — Index
+- p.364 — OGL
+- p.366 — Back Cover
+
+### `septimus-quickstart` — Septimus Quickstart
+
+- p.1 — Cover
+- p.3 — Contents And Credits
+- p.3 — Introduction
+- p.3 — What Is Roleplaying
+- p.3 — D6 Mechanics
+- p.3 — Improving A Roll
+- p.3 — Skills
+- p.3 — Combat
+- p.3 — Combat
+- p.3 — Corruption
+- p.3 — Characters
+- p.3 — Flight Of The Argosy
+
+### `sheet-adventure` — D6 Adventure Character Sheet
+
+_(закладок в PDF нет)_
+
+### `sheet-fantasy` — D6 Fantasy Character Sheet
+
+_(закладок в PDF нет)_
+
+### `sheet-space` — D6 Space Character Sheet
+
+_(закладок в PDF нет)_
+
+### `sheet-generic` — D6 Character Sheet
+
+_(закладок в PDF нет)_
