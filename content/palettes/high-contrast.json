@@ -1,0 +1,51 @@
+{
+  "id": "high-contrast",
+  "name": {
+    "ru": "Высокий контраст",
+    "en": "High contrast"
+  },
+  "when": {
+    "ru": "доступность (Мастеру недоступна)",
+    "en": "accessibility (not available to the GM)"
+  },
+  "dmAllowed": false,
+  "colors": {
+    "bg": "#000000",
+    "bgAlt": "#000000",
+    "bgPanel": "#000000",
+    "fg": "#ffffff",
+    "fgDim": "#e0e0e0",
+    "fgBright": "#ffffff",
+    "title": "#ffffff",
+    "accent": "#00ffff",
+    "accent2": "#ffff00",
+    "dm": "#ffffff",
+    "player": "#00ffff",
+    "ooc": "#e0e0e0",
+    "system": "#00ffff",
+    "success": "#00ff00",
+    "failure": "#ff6060",
+    "crit": "#ffff00",
+    "fumble": "#ff6060",
+    "hp": "#00ff00",
+    "hpLow": "#ff6060",
+    "mana": "#ff80ff",
+    "danger": "#ff6060",
+    "warning": "#ffff00",
+    "info": "#00ffff",
+    "magic": "#ff80ff",
+    "mapFloor": "#e0e0e0",
+    "mapWall": "#ffffff",
+    "mapWater": "#00ffff",
+    "mapSeen": "#e0e0e0",
+    "mapToken": "#ffffff",
+    "mapEnemy": "#ff6060",
+    "mapAlly": "#00ff00",
+    "frame": "#ffffff",
+    "frameActive": "#ffff00",
+    "selBg": "#ffffff",
+    "selFg": "#000000",
+    "cursor": "#ffffff",
+    "mapFog": "#303030"
+  }
+}

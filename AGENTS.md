@@ -25,7 +25,7 @@
 
 ## 3. Стек и команды
 
-- TypeScript (strict), Preact + `@preact/signals`, Vite, **pnpm** (npm и yarn не используются), Vitest, Playwright, Zod.
+- TypeScript 7 (strict, `tsc --noEmit`), Preact + `@preact/signals`, Vite, **pnpm** (npm и yarn не используются), oxlint (не ESLint: `typescript-eslint` несовместим с TS 7, [ADR-0019](docs/adr/0019-typescript7-oxlint-font-source.md)), Vitest, Playwright, Zod.
 - UI на Preact: импорты из `preact`, `preact/hooks` и `@preact/signals`, **не из `react`**. `preact/compat` не подключается без отдельного ADR.
   Глобальное состояние хранится в сигналах в `src/app/`, сторонних библиотек стора нет.
 - Firebase (тариф Spark): Auth, Firestore, Realtime Database. **Cloud Functions не используются**, на Spark их нет.
@@ -33,17 +33,18 @@
 - Модели по умолчанию меняются только новым ADR по методике [ADR-0016](docs/adr/0016-default-models-pareto.md): цены и лимиты — https://opencode.ai/docs/go/, Elo — CSV внутри `https://eqbench.com/creative_writing.js` (HTML-таблица рисуется скриптом, `WebFetch` её не видит).
 - Хостинг: GitHub Pages через GitHub Actions.
 
-Команды (появятся в M0, см. [дорожную карту](docs/10-roadmap.md)):
+Команды (`test:rules`, `eval:dm`, `relay:*` появятся в следующих шагах, см. [дорожную карту](docs/10-roadmap.md)):
 
 | Команда | Назначение |
 |---|---|
 | `pnpm dev` | dev-сервер Vite |
-| `pnpm build` | `tsc -b && vite build` |
+| `pnpm build` | `tsc --noEmit && vite build` + копия `404.html` для SPA |
 | `pnpm test` | unit-тесты (Vitest) |
 | `pnpm test:rules` | тесты правил безопасности Firebase (эмулятор) |
-| `pnpm test:e2e` | Playwright с mock-LLM и эмулятором Firebase |
+| `pnpm test:e2e` | Playwright по собранному сайту, проекты `desktop` (1280) и `mobile` (390); позже — mock-LLM и эмулятор Firebase |
 | `pnpm eval:dm` | сценарные проверки ИИ-мастера на реальной модели (ключ — см. ниже) |
-| `pnpm lint` / `pnpm typecheck` | линтер и проверка типов |
+| `pnpm lint` / `pnpm typecheck` | oxlint и проверка типов |
+| `pnpm docs:check` | то же, что `python3 scripts/check_docs.py` |
 | `pnpm relay:dev` / `pnpm relay:deploy` | локальный запуск и деплой relay (wrangler) |
 | `python3 scripts/ref/search.py …` | поиск по книгам OpenD6 (работает уже сейчас, см. §8) |
 | `python3 scripts/ref/extract.py` | пересобрать `ref/OpenD6/text/` и `INDEX.md` после добавления PDF (запись в `CATALOG`) |
@@ -81,7 +82,7 @@
 13. **Обучение на данных — только с согласием.** Если модель Мастера отдаёт данные на обучение (`*-contributor`), это раскрывается в UI,
     а участник кооп-кампании подтверждает согласие (`modelConsent`) до отправки заявок. См. FR-LLM-9, [ADR-0017](docs/adr/0017-default-model-muse-spark.md).
 
-## 5. Структура репозитория (целевая; сейчас есть только `docs/`, `ref/`, `scripts/`)
+## 5. Структура репозитория (целевая; сейчас в `src/` есть `app/`, `i18n/`, `theme/`, `ui/`)
 
 ```
 src/
@@ -97,7 +98,8 @@ src/
   ui/screens/   экраны: Title, Settings, Lobby, SessionZero, CharacterCreation, Game
   theme/        палитры, шрифты, метрики ячейки
   i18n/         словари ru/en
-content/        шаблоны сеттингов, палитры (данные, не код)
+content/        шаблоны сеттингов, палитры (данные, не код; палитры — content/palettes/*.json)
+public/         статика: шрифты (public/fonts/), CNAME
 relay/          Cloudflare Worker
 firebase/       firestore.rules, database.rules.json, firebase.json
 e2e/            Playwright
@@ -133,7 +135,7 @@ scripts/        check_docs.py — проверка документации
 2. Для engine и rules сначала пиши тест (Vitest), потом код.
 3. Промпты Мастера лежат в `src/dm/prompts/` как версионируемые файлы. Изменил промпт — прогони `pnpm eval:dm`, если есть ключ.
    Если ключа нет, так и напиши в отчёте.
-4. Перед завершением: `pnpm typecheck && pnpm lint && pnpm test` (с M0; до этого для задач по `docs/` — `python3 scripts/check_docs.py`).
+4. Перед завершением: `pnpm typecheck && pnpm lint && pnpm test && pnpm docs:check`; для UI — ещё `pnpm test:e2e`.
    Для UI-изменений нужна визуальная проверка в браузере на ширине 1280 и 390 px.
 5. В отчёте честно указывай, что не проверено.
 

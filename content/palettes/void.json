@@ -1,0 +1,51 @@
+{
+  "id": "void",
+  "name": {
+    "ru": "Пустота",
+    "en": "Void"
+  },
+  "when": {
+    "ru": "ужас, безумие, пустота",
+    "en": "horror, madness, the void"
+  },
+  "dmAllowed": true,
+  "colors": {
+    "bg": "#050505",
+    "bgAlt": "#0a0a0a",
+    "bgPanel": "#050505",
+    "fg": "#b8b8b0",
+    "fgDim": "#7a7a74",
+    "fgBright": "#e8e8e0",
+    "title": "#e8e8e0",
+    "accent": "#9a9a90",
+    "accent2": "#c0b89a",
+    "dm": "#b8b8b0",
+    "player": "#9a9a90",
+    "ooc": "#7a7a74",
+    "system": "#8a9aa8",
+    "success": "#9aa894",
+    "failure": "#b86a6a",
+    "crit": "#b8ac80",
+    "fumble": "#b86a6a",
+    "hp": "#9aa894",
+    "hpLow": "#b86a6a",
+    "mana": "#9a8aa8",
+    "danger": "#b86a6a",
+    "warning": "#b8ac80",
+    "info": "#8a9aa8",
+    "magic": "#9a8aa8",
+    "mapFloor": "#7a7a74",
+    "mapWall": "#b8b8b0",
+    "mapWater": "#8a9aa8",
+    "mapSeen": "#7a7a74",
+    "mapToken": "#e8e8e0",
+    "mapEnemy": "#b86a6a",
+    "mapAlly": "#9aa894",
+    "frame": "#5f5f58",
+    "frameActive": "#b8b8b0",
+    "selBg": "#2a2a28",
+    "selFg": "#e8e8e0",
+    "cursor": "#e8e8e0",
+    "mapFog": "#141414"
+  }
+}

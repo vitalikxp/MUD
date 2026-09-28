@@ -1,0 +1,51 @@
+{
+  "id": "amber",
+  "name": {
+    "ru": "Янтарь",
+    "en": "Amber"
+  },
+  "when": {
+    "ru": "воспоминания, документы, записки; «Пепел»",
+    "en": "memories, documents, notes; \"Ash\""
+  },
+  "dmAllowed": true,
+  "colors": {
+    "bg": "#140c00",
+    "bgAlt": "#1c1200",
+    "bgPanel": "#140c00",
+    "fg": "#ffb000",
+    "fgDim": "#b37a00",
+    "fgBright": "#ffd480",
+    "title": "#ffd480",
+    "accent": "#ffcc33",
+    "accent2": "#ff9900",
+    "dm": "#ffb000",
+    "player": "#ffcc33",
+    "ooc": "#b37a00",
+    "system": "#ffc04d",
+    "success": "#ffd060",
+    "failure": "#ff7a1a",
+    "crit": "#ffe08a",
+    "fumble": "#ff7a1a",
+    "hp": "#ffd060",
+    "hpLow": "#ff7a1a",
+    "mana": "#ffb366",
+    "danger": "#ff7a1a",
+    "warning": "#ffe08a",
+    "info": "#ffc04d",
+    "magic": "#ffb366",
+    "mapFloor": "#b37a00",
+    "mapWall": "#ffb000",
+    "mapWater": "#ffc04d",
+    "mapSeen": "#b37a00",
+    "mapToken": "#ffd480",
+    "mapEnemy": "#ff7a1a",
+    "mapAlly": "#ffd060",
+    "frame": "#8a5a00",
+    "frameActive": "#ffcc33",
+    "selBg": "#664400",
+    "selFg": "#ffe6b3",
+    "cursor": "#ffd480",
+    "mapFog": "#2e1f00"
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "id": "nc-blue",
+  "name": {
+    "ru": "Norton Commander",
+    "en": "Norton Commander"
+  },
+  "when": {
+    "ru": "город, безопасное место, меню",
+    "en": "town, safe place, menus"
+  },
+  "dmAllowed": true,
+  "colors": {
+    "bg": "#0000a8",
+    "bgAlt": "#0000b4",
+    "bgPanel": "#0000a8",
+    "fg": "#d8d8d8",
+    "fgDim": "#a8a8c8",
+    "fgBright": "#ffffff",
+    "title": "#ffffff",
+    "accent": "#55ffff",
+    "accent2": "#ffff55",
+    "dm": "#d8d8d8",
+    "player": "#55ffff",
+    "ooc": "#a8a8c8",
+    "system": "#55ffff",
+    "success": "#55ff55",
+    "failure": "#ff8080",
+    "crit": "#ffff55",
+    "fumble": "#ff8080",
+    "hp": "#55ff55",
+    "hpLow": "#ff8080",
+    "mana": "#ff80ff",
+    "danger": "#ff8080",
+    "warning": "#ffff55",
+    "info": "#55ffff",
+    "magic": "#ff80ff",
+    "mapFloor": "#a8a8c8",
+    "mapWall": "#d8d8d8",
+    "mapWater": "#55ffff",
+    "mapSeen": "#a8a8c8",
+    "mapToken": "#ffffff",
+    "mapEnemy": "#ff8080",
+    "mapAlly": "#55ff55",
+    "frame": "#55ffff",
+    "frameActive": "#ffffff",
+    "selBg": "#00a8a8",
+    "selFg": "#000000",
+    "cursor": "#ffffff",
+    "mapFog": "#1c1c80"
+  }
+}

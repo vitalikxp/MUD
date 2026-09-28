@@ -1,0 +1,51 @@
+{
+  "id": "fey",
+  "name": {
+    "ru": "Фейри",
+    "en": "Fey"
+  },
+  "when": {
+    "ru": "магия, сон, фейри",
+    "en": "magic, dreams, the fey"
+  },
+  "dmAllowed": true,
+  "colors": {
+    "bg": "#10061a",
+    "bgAlt": "#170a24",
+    "bgPanel": "#10061a",
+    "fg": "#ecd9ff",
+    "fgDim": "#a88fc0",
+    "fgBright": "#ffffff",
+    "title": "#ffffff",
+    "accent": "#ff8ae6",
+    "accent2": "#9ae6ff",
+    "dm": "#ecd9ff",
+    "player": "#ff8ae6",
+    "ooc": "#a88fc0",
+    "system": "#9ae6ff",
+    "success": "#a6f0b0",
+    "failure": "#ff7a9c",
+    "crit": "#ffe08a",
+    "fumble": "#ff7a9c",
+    "hp": "#a6f0b0",
+    "hpLow": "#ff7a9c",
+    "mana": "#d59bff",
+    "danger": "#ff7a9c",
+    "warning": "#ffe08a",
+    "info": "#9ae6ff",
+    "magic": "#d59bff",
+    "mapFloor": "#a88fc0",
+    "mapWall": "#ecd9ff",
+    "mapWater": "#9ae6ff",
+    "mapSeen": "#a88fc0",
+    "mapToken": "#ffffff",
+    "mapEnemy": "#ff7a9c",
+    "mapAlly": "#a6f0b0",
+    "frame": "#8046a7",
+    "frameActive": "#ff8ae6",
+    "selBg": "#4a1f66",
+    "selFg": "#ffffff",
+    "cursor": "#ffffff",
+    "mapFog": "#241430"
+  }
+}

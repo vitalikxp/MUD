@@ -46,3 +46,4 @@
 | [0016](0016-default-models-pareto.md) | Модели по умолчанию: самые дешёвые на парето-фронте «цена / творческое письмо» | Accepted, выбор заменён 0017 |
 | [0017](0017-default-model-muse-spark.md) | Модель по умолчанию — Muse Spark 1.3 Contributor; пресеты «Приватный» и «Качество» | Accepted |
 | [0018](0018-reasoning-effort-and-go-headers.md) | Уровень рассуждений по ролям, обязательные заголовки OpenCode Go, `enum` в схемах инструментов | Accepted |
+| [0019](0019-typescript7-oxlint-font-source.md) | TypeScript 7 + oxlint вместо ESLint; источник шрифта PxPlus, маркер `♦` | Accepted |

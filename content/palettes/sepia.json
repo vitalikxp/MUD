@@ -1,0 +1,51 @@
+{
+  "id": "sepia",
+  "name": {
+    "ru": "Сепия",
+    "en": "Sepia"
+  },
+  "when": {
+    "ru": "флешбеки, пролог, старые хроники",
+    "en": "flashbacks, prologue, old chronicles"
+  },
+  "dmAllowed": true,
+  "colors": {
+    "bg": "#f1e6cf",
+    "bgAlt": "#e9dcc0",
+    "bgPanel": "#f1e6cf",
+    "fg": "#3b2c1c",
+    "fgDim": "#6e5a42",
+    "fgBright": "#1e140a",
+    "title": "#1e140a",
+    "accent": "#8a3c12",
+    "accent2": "#6a4a10",
+    "dm": "#3b2c1c",
+    "player": "#8a3c12",
+    "ooc": "#6e5a42",
+    "system": "#2f4f6a",
+    "success": "#3f5f1a",
+    "failure": "#9a1f1f",
+    "crit": "#7a5200",
+    "fumble": "#9a1f1f",
+    "hp": "#3f5f1a",
+    "hpLow": "#9a1f1f",
+    "mana": "#5a2f6a",
+    "danger": "#9a1f1f",
+    "warning": "#7a5200",
+    "info": "#2f4f6a",
+    "magic": "#5a2f6a",
+    "mapFloor": "#6e5a42",
+    "mapWall": "#3b2c1c",
+    "mapWater": "#2f4f6a",
+    "mapSeen": "#6e5a42",
+    "mapToken": "#1e140a",
+    "mapEnemy": "#9a1f1f",
+    "mapAlly": "#3f5f1a",
+    "frame": "#8a7458",
+    "frameActive": "#8a3c12",
+    "selBg": "#c9a978",
+    "selFg": "#1e140a",
+    "cursor": "#1e140a",
+    "mapFog": "#dccdb0"
+  }
+}

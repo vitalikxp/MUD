@@ -1,0 +1,51 @@
+{
+  "id": "phosphor",
+  "name": {
+    "ru": "Фосфор",
+    "en": "Phosphor"
+  },
+  "when": {
+    "ru": "технологии, древние машины, sci-fi",
+    "en": "technology, ancient machines, sci-fi"
+  },
+  "dmAllowed": true,
+  "colors": {
+    "bg": "#020d02",
+    "bgAlt": "#041404",
+    "bgPanel": "#020d02",
+    "fg": "#33ff66",
+    "fgDim": "#1fae45",
+    "fgBright": "#b3ffc6",
+    "title": "#b3ffc6",
+    "accent": "#66ff99",
+    "accent2": "#ccff66",
+    "dm": "#33ff66",
+    "player": "#66ff99",
+    "ooc": "#1fae45",
+    "system": "#66ffcc",
+    "success": "#66ff99",
+    "failure": "#ffcc00",
+    "crit": "#e6ff66",
+    "fumble": "#ffcc00",
+    "hp": "#66ff99",
+    "hpLow": "#ffcc00",
+    "mana": "#99ffcc",
+    "danger": "#ffcc00",
+    "warning": "#e6ff66",
+    "info": "#66ffcc",
+    "magic": "#99ffcc",
+    "mapFloor": "#1fae45",
+    "mapWall": "#33ff66",
+    "mapWater": "#66ffcc",
+    "mapSeen": "#1fae45",
+    "mapToken": "#b3ffc6",
+    "mapEnemy": "#ffcc00",
+    "mapAlly": "#66ff99",
+    "frame": "#127a2e",
+    "frameActive": "#66ff99",
+    "selBg": "#0f5a24",
+    "selFg": "#e6ffec",
+    "cursor": "#b3ffc6",
+    "mapFog": "#0a2a10"
+  }
+}

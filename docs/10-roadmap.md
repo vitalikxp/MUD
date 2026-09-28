@@ -5,13 +5,13 @@ MVP = вехи **M0–M5**. Каждая веха заканчивается ч�
 
 ## M0. Фундамент: «терминал, который говорит с LLM»
 
-- [ ] Каркас: Vite (`@preact/preset-vite`) + Preact + TS strict + pnpm, ESLint, Vitest, Playwright. Структура каталогов из [AGENTS.md §5](../AGENTS.md)
-- [ ] CI: GitHub Actions → GitHub Pages, `404.html` для SPA, `public/CNAME` = `swrd.ru`
+- [x] Каркас: Vite (`@preact/preset-vite`) + Preact + TypeScript 7 strict + pnpm, oxlint ([ADR-0019](adr/0019-typescript7-oxlint-font-source.md)), Vitest, Playwright. Структура каталогов из [AGENTS.md §5](../AGENTS.md)
+- [x] CI: GitHub Actions (проверки, e2e) → GitHub Pages, `404.html` для SPA, `public/CNAME` = `swrd.ru`
 - [x] `LICENSE` (0BSD), `NOTICE.md` (CC0 для контента, OGL для модуля, шрифты)
-- [ ] TUI-примитивы: `Screen`, `Panel`, `Frame`, `TextView`, `Input`, `Menu`, `Dialog`, `FKeyBar` + страница `/dev/glyphs`
-- [ ] Шрифты self-hosted, проверка покрытия кириллицы и псевдографики (выбор дефолта)
-- [ ] Палитры: токены, 11 встроенных, переключение, тест контраста
-- [ ] i18n RU/EN, тест совпадения ключей
+- [x] TUI-примитивы: `Screen`, `Panel`, рамки, `TextView`, `Input`, `Menu`, `Dialog`, `FKeyBar`, `Tabs` + страница `/dev/glyphs`
+- [x] Шрифты self-hosted (PxPlus IBM VGA 9x16 по умолчанию, JetBrains Mono), покрытие кириллицы и псевдографики проверено
+- [x] Палитры: 37 токенов, 11 встроенных, переключение, тест контраста
+- [x] i18n RU/EN, тест совпадения ключей
 - [ ] Экран настроек LLM (FR-LLM-1..5), хранение ключа, «Проверить»
 - [ ] `relay/`: Cloudflare Worker (allowlist хостов и Origin, стриминг, без логов), инструкция деплоя
 - [ ] `src/llm/`: клиент со стримингом SSE, tool calls, retry, пресеты, адаптеры Chat Completions и OpenAI Responses (модель по умолчанию `muse-spark-1.3-contributor` — Responses), пресеты «Экономный», «Приватный», «Качество», раскрытие про обучение на данных. Проверка на OpenCode Go и одном CORS-дружественном провайдере

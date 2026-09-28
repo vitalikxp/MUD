@@ -107,6 +107,7 @@ interface StorageAdapter {
 | UI | Preact + `@preact/signals` | ~4 КБ вместо ~45 КБ у React, точечные обновления без перерисовки дерева, меньше зависимостей ([ADR-0008](adr/0008-dom-char-grid-preact.md)) |
 | Схемы | Zod | валидация аргументов tool calls, контента, импорта; JSON Schema для LLM через `zod-to-json-schema` или `z.toJSONSchema` |
 | Сборка | Vite | стандарт |
+| Типы и линтер | TypeScript 7 (`tsc --noEmit`), oxlint | `typescript-eslint` несовместим с TS 7 ([ADR-0019](adr/0019-typescript7-oxlint-font-source.md)) |
 | Тесты | Vitest, Playwright, `@firebase/rules-unit-testing` | |
 | Локальное хранилище | IndexedDB через `idb` | маленькая обёртка |
 | i18n | собственный типизированный словарь (без i18next) | меньше зависимостей, ключи проверяются типами |

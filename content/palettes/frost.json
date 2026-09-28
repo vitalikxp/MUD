@@ -1,0 +1,51 @@
+{
+  "id": "frost",
+  "name": {
+    "ru": "Иней",
+    "en": "Frost"
+  },
+  "when": {
+    "ru": "зима, смерть, отчуждение",
+    "en": "winter, death, estrangement"
+  },
+  "dmAllowed": true,
+  "colors": {
+    "bg": "#060b14",
+    "bgAlt": "#0a1220",
+    "bgPanel": "#060b14",
+    "fg": "#d6e6f5",
+    "fgDim": "#8aa0b8",
+    "fgBright": "#ffffff",
+    "title": "#ffffff",
+    "accent": "#7fd4ff",
+    "accent2": "#b8c9ff",
+    "dm": "#d6e6f5",
+    "player": "#7fd4ff",
+    "ooc": "#8aa0b8",
+    "system": "#7fd4ff",
+    "success": "#8fe0c0",
+    "failure": "#ff8aa0",
+    "crit": "#ffe08a",
+    "fumble": "#ff8aa0",
+    "hp": "#8fe0c0",
+    "hpLow": "#ff8aa0",
+    "mana": "#b8a6ff",
+    "danger": "#ff8aa0",
+    "warning": "#ffe08a",
+    "info": "#7fd4ff",
+    "magic": "#b8a6ff",
+    "mapFloor": "#8aa0b8",
+    "mapWall": "#d6e6f5",
+    "mapWater": "#7fd4ff",
+    "mapSeen": "#8aa0b8",
+    "mapToken": "#ffffff",
+    "mapEnemy": "#ff8aa0",
+    "mapAlly": "#8fe0c0",
+    "frame": "#416488",
+    "frameActive": "#7fd4ff",
+    "selBg": "#1f3d5c",
+    "selFg": "#ffffff",
+    "cursor": "#ffffff",
+    "mapFog": "#141e2e"
+  }
+}

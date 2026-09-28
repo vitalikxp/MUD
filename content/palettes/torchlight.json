@@ -1,0 +1,51 @@
+{
+  "id": "torchlight",
+  "name": {
+    "ru": "Факел",
+    "en": "Torchlight"
+  },
+  "when": {
+    "ru": "подземелье, пещеры, ночь у костра",
+    "en": "dungeons, caves, night by the fire"
+  },
+  "dmAllowed": true,
+  "colors": {
+    "bg": "#120a06",
+    "bgAlt": "#1a0f09",
+    "bgPanel": "#120a06",
+    "fg": "#e8d2b0",
+    "fgDim": "#a8896a",
+    "fgBright": "#fff1d6",
+    "title": "#fff1d6",
+    "accent": "#ff9a3c",
+    "accent2": "#ffd27a",
+    "dm": "#e8d2b0",
+    "player": "#ff9a3c",
+    "ooc": "#a8896a",
+    "system": "#d9a86c",
+    "success": "#b5d67a",
+    "failure": "#ff5e3a",
+    "crit": "#ffc24a",
+    "fumble": "#ff5e3a",
+    "hp": "#b5d67a",
+    "hpLow": "#ff5e3a",
+    "mana": "#d49aff",
+    "danger": "#ff5e3a",
+    "warning": "#ffc24a",
+    "info": "#d9a86c",
+    "magic": "#d49aff",
+    "mapFloor": "#a8896a",
+    "mapWall": "#e8d2b0",
+    "mapWater": "#d9a86c",
+    "mapSeen": "#a8896a",
+    "mapToken": "#fff1d6",
+    "mapEnemy": "#ff5e3a",
+    "mapAlly": "#b5d67a",
+    "frame": "#8d562e",
+    "frameActive": "#ff9a3c",
+    "selBg": "#5a2e12",
+    "selFg": "#fff1d6",
+    "cursor": "#fff1d6",
+    "mapFog": "#2a1a10"
+  }
+}

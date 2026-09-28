@@ -17,16 +17,18 @@ Mock-LLM: `src/llm/mock.ts` реализует тот же интерфейс, �
 
 ## CI (GitHub Actions)
 
+Файл: `.github/workflows/deploy.yml`. Запускается на push в `master`, на PR и вручную.
+
 ```
-on: push to master, PR
-jobs:
-  check:  pnpm i --frozen-lockfile → typecheck → lint → test → content:check → i18n:check
-  rules:  firebase emulators:exec "pnpm test:rules"
-  e2e:    playwright (chromium) с эмулятором и mock-LLM
-  deploy: (только master) build → upload-pages-artifact → deploy-pages
-# checkout во всех job — sparse, без ref/ (356 МБ PDF, ADR-0014)
+check:  pnpm install --frozen-lockfile → typecheck → lint → test → docs:check
+e2e:    playwright install chromium → test:e2e (desktop 1280 + mobile 390); при падении — трейсы в артефактах
+build:  (только master, после check и e2e) pnpm build → upload-pages-artifact
+deploy: deploy-pages → https://swrd.ru
 ```
-Секреты: только `VITE_FIREBASE_*`. Ключей LLM в CI нет, evals в CI не запускаются.
+- Во всех job checkout — sparse, без `ref/OpenD6/*.pdf` и `ref/OpenD6/text/` (~360 МБ, [ADR-0014](adr/0014-reference-books-in-git.md)).
+  Markdown в `ref/OpenD6/` остаётся: на него ссылается документация.
+- Позже добавятся: `test:rules` на эмуляторе Firebase (M3), mock-LLM в e2e (M1).
+- Секреты: только `VITE_FIREBASE_*` (с M3). Ключей LLM в CI нет, evals в CI не запускаются.
 
 ## Relay (Cloudflare Worker)
 

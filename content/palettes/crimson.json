@@ -1,0 +1,51 @@
+{
+  "id": "crimson",
+  "name": {
+    "ru": "Багрянец",
+    "en": "Crimson"
+  },
+  "when": {
+    "ru": "бой, кровь, тревога",
+    "en": "combat, blood, alarm"
+  },
+  "dmAllowed": true,
+  "colors": {
+    "bg": "#140406",
+    "bgAlt": "#1c0609",
+    "bgPanel": "#140406",
+    "fg": "#f0d0d0",
+    "fgDim": "#b08a8a",
+    "fgBright": "#ffffff",
+    "title": "#ffffff",
+    "accent": "#ff4d5e",
+    "accent2": "#ffb347",
+    "dm": "#f0d0d0",
+    "player": "#ff4d5e",
+    "ooc": "#b08a8a",
+    "system": "#ff8a9a",
+    "success": "#9fd67a",
+    "failure": "#ff3b3b",
+    "crit": "#ffb347",
+    "fumble": "#ff3b3b",
+    "hp": "#9fd67a",
+    "hpLow": "#ff3b3b",
+    "mana": "#e08aff",
+    "danger": "#ff3b3b",
+    "warning": "#ffb347",
+    "info": "#ff8a9a",
+    "magic": "#e08aff",
+    "mapFloor": "#b08a8a",
+    "mapWall": "#f0d0d0",
+    "mapWater": "#ff8a9a",
+    "mapSeen": "#b08a8a",
+    "mapToken": "#ffffff",
+    "mapEnemy": "#ff3b3b",
+    "mapAlly": "#9fd67a",
+    "frame": "#a9343f",
+    "frameActive": "#ff4d5e",
+    "selBg": "#6a1420",
+    "selFg": "#ffffff",
+    "cursor": "#ffffff",
+    "mapFog": "#2e0c10"
+  }
+}

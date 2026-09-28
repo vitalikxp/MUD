@@ -9,3 +9,7 @@ __pycache__/
 
 # Evals и отладка
 evals/reports/
+
+# Playwright
+test-results/
+playwright-report/

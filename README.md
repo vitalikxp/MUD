@@ -18,4 +18,4 @@
 
 Правила: [OpenD6](https://opend6.net) (OGL 1.0a). Лицензии: код — 0BSD, контент — CC0 1.0, подробности в [NOTICE.md](NOTICE.md).
 
-**Статус:** проектирование. Документация: [docs/README.md](docs/README.md). Правила для AI-агентов: [AGENTS.md](AGENTS.md).
+**Статус:** веха M0 — терминальный интерфейс, палитры и шрифты готовы; клиент LLM и relay — в работе. Документация: [docs/README.md](docs/README.md). Правила для AI-агентов: [AGENTS.md](AGENTS.md).

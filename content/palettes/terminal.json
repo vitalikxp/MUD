@@ -1,0 +1,51 @@
+{
+  "id": "terminal",
+  "name": {
+    "ru": "Терминал",
+    "en": "Terminal"
+  },
+  "when": {
+    "ru": "по умолчанию; нейтральная сцена",
+    "en": "default; neutral scene"
+  },
+  "dmAllowed": true,
+  "colors": {
+    "bg": "#0c0c0c",
+    "bgAlt": "#141414",
+    "bgPanel": "#0c0c0c",
+    "fg": "#c8c8c8",
+    "fgDim": "#8a8a8a",
+    "fgBright": "#ffffff",
+    "title": "#ffffff",
+    "accent": "#4fd6e8",
+    "accent2": "#e8c547",
+    "dm": "#c8c8c8",
+    "player": "#4fd6e8",
+    "ooc": "#8a8a8a",
+    "system": "#6fb4ff",
+    "success": "#6fd66f",
+    "failure": "#ff6b6b",
+    "crit": "#f0c040",
+    "fumble": "#ff6b6b",
+    "hp": "#6fd66f",
+    "hpLow": "#ff6b6b",
+    "mana": "#c792ea",
+    "danger": "#ff6b6b",
+    "warning": "#f0c040",
+    "info": "#6fb4ff",
+    "magic": "#c792ea",
+    "mapFloor": "#8a8a8a",
+    "mapWall": "#c8c8c8",
+    "mapWater": "#6fb4ff",
+    "mapSeen": "#8a8a8a",
+    "mapToken": "#ffffff",
+    "mapEnemy": "#ff6b6b",
+    "mapAlly": "#6fd66f",
+    "frame": "#6a6a6a",
+    "frameActive": "#4fd6e8",
+    "selBg": "#2a5a66",
+    "selFg": "#ffffff",
+    "cursor": "#ffffff",
+    "mapFog": "#262626"
+  }
+}
