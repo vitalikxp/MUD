@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { computeMetrics, FONTS, MIN_COLS, MIN_ROWS } from './fonts';
+import { computeMetrics, FONT, MIN_COLS, MIN_ROWS } from './fonts';
 
-const px = FONTS.pxplus;
+const px = FONT;
 
 describe('computeMetrics', () => {
   it('ноутбук 1280×800: масштаб ×1, сетка 142×50', () => {

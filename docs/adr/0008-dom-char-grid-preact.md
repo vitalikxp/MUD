@@ -1,6 +1,6 @@
 # 0008. TUI на DOM-сетке символов, Preact + Signals
 
-- Статус: Accepted
+- Статус: Accepted. Шрифт: единственный PxPlus, без переключения — [0020](0020-single-font.md)
 - Дата: 2026-09-28 (до начала кода React + Zustand заменён на Preact + Signals по решению владельца)
 
 ## Контекст

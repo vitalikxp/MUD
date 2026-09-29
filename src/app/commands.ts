@@ -1,13 +1,11 @@
 // Разбор строки ввода: `/команда аргументы` или обычная заявка. Чистая функция — эффекты применяет экран.
 import type { Locale } from '../i18n';
-import type { FontId } from '../theme/fonts';
 
 export type Command =
   | { kind: 'say'; text: string }
   | { kind: 'help' }
   | { kind: 'palette'; id: string }
   | { kind: 'lang'; locale: Locale }
-  | { kind: 'font'; font: FontId }
   | { kind: 'glyphs' }
   | { kind: 'settings' }
   | { kind: 'unknown'; raw: string };
@@ -24,8 +22,6 @@ export function parseCommand(input: string, knownPalettes: readonly string[]): C
       return knownPalettes.includes(arg) ? { kind: 'palette', id: arg } : { kind: 'unknown', raw: text };
     case 'lang':
       return arg === 'ru' || arg === 'en' ? { kind: 'lang', locale: arg } : { kind: 'unknown', raw: text };
-    case 'font':
-      return arg === 'pxplus' || arg === 'jetbrains' ? { kind: 'font', font: arg } : { kind: 'unknown', raw: text };
     case 'glyphs':
       return { kind: 'glyphs' };
     case 'settings':

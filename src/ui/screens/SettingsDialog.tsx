@@ -1,15 +1,14 @@
 import { signal } from '@preact/signals';
 import { useEffect, useRef } from 'preact/hooks';
 import * as llm from '../../app/llm';
-import { navigate } from '../../app/router';
-import { t, type Key } from '../../i18n';
+import { locale, t, type Key, type Locale } from '../../i18n';
 import { checkProvider, type CheckStep } from '../../llm/check';
 import { CUSTOM, OPENCODE_GO } from '../../llm/presets';
 import type { ApiFormat } from '../../llm/types';
-import { FKeyBar, useFKeys, type FKey } from '../tui/FKeyBar';
+import { Dialog } from '../tui/Dialog';
+import { useFKeys, type FKey } from '../tui/FKeyBar';
 import { Form, type Field } from '../tui/Form';
-import { Panel } from '../tui/Panel';
-import type { ScreenInfo } from '../tui/Screen';
+import { useScreen } from '../tui/Screen';
 import { TextView, wrapParagraphs } from '../tui/TextView';
 import type { Paragraph } from '../tui/types';
 
@@ -33,7 +32,7 @@ function stepLines(steps: readonly CheckStep[]): Paragraph[] {
   const out: Paragraph[] = [];
   for (const s of steps) {
     const extra = s.count !== undefined ? ` (${t('check.deltas', { count: s.count })})` : '';
-    out.push({ text: `${s.ok ? '✓' : '✗'} ${t(`check.${s.id}`)}: ${s.ok ? t('check.ok') : t('check.fail')}${extra}`, fg: s.ok ? 'success' : 'failure' });
+    out.push({ text: `${s.ok ? '✓' : '×'} ${t(`check.${s.id}`)}: ${s.ok ? t('check.ok') : t('check.fail')}${extra}`, fg: s.ok ? 'success' : 'failure' });
     if (!s.ok) {
       const reason = s.id === 'tools' && !s.kind ? t('check.noTools') : s.kind === 'other' && s.message ? s.message : t(`errors.${s.kind ?? 'other'}`);
       out.push({ text: `→ ${reason}`, fg: 'warning' });
@@ -44,14 +43,25 @@ function stepLines(steps: readonly CheckStep[]): Paragraph[] {
   return out;
 }
 
-export function SettingsScreen({ screen }: { screen: ScreenInfo }) {
-  const { cols, rows, mobile } = screen;
+/**
+ * Настройки LLM во всплывающем окне (F4, `/settings`).
+ * `gate` — первый запуск без настроек: окно единственное на экране, закрыть его нельзя, пока не выбрано «Начать игру».
+ */
+export function SettingsDialog({ gate, onClose, onStart }: { gate: boolean; onClose: () => void; onStart: () => void }) {
+  const { cols, rows } = useScreen();
   const formRef = useRef<HTMLDivElement>(null);
   useEffect(() => { formRef.current?.focus(); }, []);
   useEffect(() => { checkState.value = { status: 'idle' }; }, []);
 
   const custom = llm.provider.value.id === CUSTOM.id;
+  const start = () => {
+    if (llm.problems.value.length > 0) checkState.value = { status: 'blocked' };
+    else onStart();
+  };
   const fields: Field[] = [
+    { id: 'lang', label: t('settings.lang'), kind: 'choice', value: locale.value,
+      options: [{ value: 'ru', label: 'Русский' }, { value: 'en', label: 'English' }],
+      onChange: (v) => { locale.value = v as Locale; } },
     { id: 'provider', label: t('settings.provider'), kind: 'choice', value: llm.providerId.value,
       options: [OPENCODE_GO, CUSTOM].map((p) => ({ value: p.id, label: t(`providers.${p.id}` as Key) })),
       onChange: (v) => { llm.providerId.value = v; } },
@@ -80,26 +90,17 @@ export function SettingsScreen({ screen }: { screen: ScreenInfo }) {
       ? ([{ id: 'relayUrl', label: t('settings.relayUrl'), kind: 'text', value: llm.relayUrl.value, placeholder: t('settings.relayUrlEmpty'), onChange: (v: string) => { llm.relayUrl.value = v; } }] satisfies Field[])
       : []),
     { id: 'check', label: t('settings.check'), kind: 'action', onRun: () => { void runCheck(); } },
+    ...(gate ? ([{ id: 'start', label: t('settings.start'), kind: 'action', onRun: start }] satisfies Field[]) : []),
   ];
 
-  const fkeys: FKey[] = [
-    { n: 6, label: t('fkeys.check'), action: () => { void runCheck(); } },
-    { n: 10, label: t('fkeys.back'), action: () => navigate('home') },
-  ];
-  useFKeys(fkeys);
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const editing = (document.activeElement as HTMLElement | null)?.classList.contains('tui-native-input');
-      if (e.key === 'Escape' && !editing) navigate('home');
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  useFKeys([{ n: 6, label: t('fkeys.check'), action: () => { void runCheck(); } } satisfies FKey]);
 
-  const w = cols;
+  const w = Math.min(cols - 2, 84);
+  const h = Math.min(rows - 2, 32);
   const bodyW = w - 2;
   const formH = fields.length;
-  const notes: Paragraph[] = [{ text: t('settings.hint'), fg: 'fgDim' }];
+  const notes: Paragraph[] = gate ? [{ text: t('settings.firstRun'), fg: 'accent' }, { text: '' }] : [];
+  notes.push({ text: t(gate ? 'settings.hintFirst' : 'settings.hint'), fg: 'fgDim' });
   if (llm.trainsOnData.value) notes.push({ text: t('settings.noteTrains'), fg: 'warning' });
   if (llm.provider.value.notice === 'opencode-terms') notes.push({ text: t('settings.noteTerms'), fg: 'warning' });
   notes.push({ text: t('settings.noteKey'), fg: 'fgDim' });
@@ -108,20 +109,16 @@ export function SettingsScreen({ screen }: { screen: ScreenInfo }) {
 
   const cs = checkState.value;
   if (cs.status === 'running') notes.push({ text: t('check.running'), fg: 'info' });
-  else if (cs.status === 'blocked') notes.push({ text: t('check.fixFirst', { problems: llm.problems.value.map((p) => t(`problems.${p}`)).join(', ') }), fg: 'warning' });
+  else if (cs.status === 'blocked') notes.push({ text: t('check.fixFirst', { problems: llm.problems.value.map((p) => t(`problems.${p}` as Key)).join(', ') }), fg: 'warning' });
   else if (cs.status === 'done') notes.push(...stepLines(cs.steps));
 
-  const h = mobile ? rows - 1 : rows - 1;
   const lines = wrapParagraphs(notes, bodyW);
   return (
-    <>
-      <Panel x={0} y={0} w={w} h={h} title={t('panels.settings')} active separators={[formH + 1]}>
-        <Form fields={fields} width={bodyW} label={t('panels.settings')} formRef={formRef} />
-        <div style={{ position: 'absolute', left: 0, right: 0, top: `calc(var(--ch) * ${formH + 1})` }}>
-          <TextView lines={lines} width={bodyW} height={Math.max(1, h - 2 - formH - 1)} anchor="top" live />
-        </div>
-      </Panel>
-      <FKeyBar keys={fkeys} y={rows - 1} cols={cols} />
-    </>
+    <Dialog title={t('panels.settings')} w={w} h={h} onClose={onClose} separators={[formH + 1]}>
+      <Form fields={fields} width={bodyW} label={t('panels.settings')} formRef={formRef} />
+      <div style={{ position: 'absolute', left: 0, right: 0, top: `calc(var(--ch) * ${formH + 1})` }}>
+        <TextView lines={lines} width={bodyW} height={Math.max(1, h - 2 - formH - 1)} anchor="top" live />
+      </div>
+    </Dialog>
   );
 }

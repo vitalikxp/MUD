@@ -4,11 +4,13 @@ import { Panel } from './Panel';
 import { cellBox, useScreen } from './Screen';
 
 /** Модальное окно по центру сетки: двойная рамка и тень на 1 ячейку вправо-вниз. Esc закрывает. */
-export function Dialog({ title, w, h, onClose, children }: {
+export function Dialog({ title, w, h, onClose, separators, children }: {
   title: string;
   w: number;
   h: number;
   onClose: () => void;
+  /** Строки рамки, где проходит горизонтальный разделитель (см. Panel). */
+  separators?: readonly number[];
   children?: ComponentChildren;
 }) {
   const { cols, rows } = useScreen();
@@ -17,12 +19,12 @@ export function Dialog({ title, w, h, onClose, children }: {
   const x = Math.max(0, Math.floor((cols - width) / 2));
   const y = Math.max(0, Math.floor((rows - height) / 2));
   const ref = useRef<HTMLDivElement>(null);
-  const previous = useRef<Element | null>(null);
+  const previous = useRef<Element | null>(document.activeElement); // до того, как потомки заберут фокус
 
   useEffect(() => {
-    previous.current = document.activeElement;
-    ref.current?.focus();
-    return () => (previous.current as HTMLElement | null)?.focus?.();
+    if (!ref.current?.contains(document.activeElement)) ref.current?.focus();
+    const back = previous.current as HTMLElement | null;
+    return () => back?.focus?.();
   }, []);
 
   return (
@@ -45,7 +47,7 @@ export function Dialog({ title, w, h, onClose, children }: {
       {/* oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- клик вне окна закрывает его; с клавиатуры — Esc */}
       <div class="tui-dialog-backdrop" onMouseDown={onClose} />
       <div class="tui-shadow" style={cellBox(x + 1, y + 1, width, height)} />
-      <Panel x={x} y={y} w={width} h={height} title={title} active>
+      <Panel x={x} y={y} w={width} h={height} title={title} active {...(separators ? { separators } : {})}>
         {children}
       </Panel>
     </div>

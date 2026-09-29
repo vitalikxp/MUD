@@ -3,10 +3,13 @@
 import { signal } from '@preact/signals';
 import { locale } from '../i18n';
 import { complete } from '../llm/client';
-import { LlmError, type Message } from '../llm/types';
+import { LlmError, type LlmErrorKind, type Message } from '../llm/types';
 import * as llm from './llm';
 
 export const busy = signal(false);
+/** Итоги последнего запроса для строки состояния. */
+export const lastError = signal<LlmErrorKind | null>(null);
+export const lastUsage = signal<{ inputTokens: number; outputTokens: number; ms: number } | null>(null);
 const history: Message[] = [];
 let controller: AbortController | null = null;
 
@@ -33,6 +36,8 @@ export async function ask(playerText: string, handlers: AskHandlers): Promise<st
   history.push({ role: 'user', content: playerText });
   controller = new AbortController();
   busy.value = true;
+  lastError.value = null;
+  const started = Date.now();
   const p = llm.preset.value;
   let text = '';
   try {
@@ -51,11 +56,14 @@ export async function ask(playerText: string, handlers: AskHandlers): Promise<st
       },
     );
     history.push({ role: 'assistant', content: c.text });
+    lastUsage.value = { inputTokens: c.usage.inputTokens, outputTokens: c.usage.outputTokens, ms: Date.now() - started };
     return c.text;
   } catch (e) {
     // Неудавшуюся реплику убираем из истории, чтобы повтор не дублировал её.
     if (history.at(-1)?.role === 'user') history.pop();
-    throw e instanceof LlmError ? e : new LlmError('other', e instanceof Error ? e.message : String(e));
+    const err = e instanceof LlmError ? e : new LlmError('other', e instanceof Error ? e.message : String(e));
+    lastError.value = err.kind === 'aborted' ? null : err.kind;
+    throw err;
   } finally {
     busy.value = false;
     controller = null;

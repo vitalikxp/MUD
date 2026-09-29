@@ -10,7 +10,7 @@ describe('parseCommand', () => {
   it('команды с аргументами', () => {
     expect(parseCommand('/palette amber', P)).toEqual({ kind: 'palette', id: 'amber' });
     expect(parseCommand('/LANG EN', P)).toEqual({ kind: 'lang', locale: 'en' });
-    expect(parseCommand('/font jetbrains', P)).toEqual({ kind: 'font', font: 'jetbrains' });
+    expect(parseCommand('/font jetbrains', P).kind).toBe('unknown'); // смены шрифта больше нет
     expect(parseCommand('/help', P)).toEqual({ kind: 'help' });
     expect(parseCommand('/glyphs', P)).toEqual({ kind: 'glyphs' });
     expect(parseCommand('/settings', P)).toEqual({ kind: 'settings' });

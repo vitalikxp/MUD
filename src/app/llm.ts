@@ -78,6 +78,12 @@ export const problems = computed<Problem[]>(() => {
   return out;
 });
 
+/**
+ * Первый запуск без настроек: показываем только окно настроек LLM, пока игрок не выберет «Начать игру».
+ * Вычисляется один раз при загрузке: если настройки уже есть, окно не навязывается.
+ */
+export const setupPending = signal(problems.value.length > 0);
+
 export const sessionId = crypto.randomUUID();
 
 export function providerConfig(): ProviderConfig {

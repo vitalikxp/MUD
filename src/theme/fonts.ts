@@ -1,26 +1,17 @@
-// Шрифты и метрики ячейки (docs/07-ui-tui.md#шрифты).
-import '@fontsource/jetbrains-mono/cyrillic-400.css';
-import '@fontsource/jetbrains-mono/latin-400.css';
-
-export type FontId = 'pxplus' | 'jetbrains';
-
+// Шрифт и метрики ячейки (docs/07-ui-tui.md#шрифты).
 export interface FontDef {
-  id: FontId;
   family: string;
   /** Базовый кегль в CSS px при масштабе ×1. */
   size: number;
   /** Высота ячейки при масштабе ×1 (= line-height). */
   lineHeight: number;
-  /** Пиксельный шрифт: только целочисленный масштаб, без сглаживания. */
-  pixel: boolean;
 }
 
-export const FONTS: Record<FontId, FontDef> = {
-  pxplus: { id: 'pxplus', family: '"SWRD PxPlus IBM VGA"', size: 16, lineHeight: 16, pixel: true },
-  jetbrains: { id: 'jetbrains', family: '"JetBrains Mono"', size: 15, lineHeight: 19, pixel: false },
-};
-
-export const DEFAULT_FONT: FontId = 'pxplus';
+/**
+ * Единственный шрифт проекта: PxPlus IBM VGA 9x16, пиксельный. Целочисленный масштаб, без сглаживания.
+ * Смены шрифта нет намеренно: рамки и сетка выверены под его метрики (ADR-0020).
+ */
+export const FONT: FontDef = { family: '"SWRD PxPlus IBM VGA"', size: 16, lineHeight: 16 };
 
 /** Минимальная сетка десктоп-раскладки; уже — мобильная. */
 export const MIN_COLS = 80;
@@ -62,7 +53,7 @@ export function computeMetrics(font: FontDef, viewportW: number, viewportH: numb
       break;
     }
   }
-  const cellW = font.pixel ? Math.round(charW1 * scale) : charW1 * scale;
+  const cellW = Math.round(charW1 * scale);
   const cellH = font.lineHeight * scale;
   return {
     cellW,

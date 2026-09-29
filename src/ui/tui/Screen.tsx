@@ -69,7 +69,7 @@ export function Screen({ font, children }: { font: FontDef; children: (info: Scr
 
   return (
     <ScreenContext.Provider value={info}>
-      <div ref={screenRef} class={`tui-screen${font.pixel ? ' tui-pixel' : ''}`} style={style} data-cols={info.cols} data-rows={info.rows}>
+      <div ref={screenRef} class="tui-screen tui-pixel" style={style} data-cols={info.cols} data-rows={info.rows}>
         {children(info)}
         <MouseCursor screenRef={screenRef} />
       </div>

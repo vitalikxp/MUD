@@ -1,5 +1,5 @@
 import { navigate } from '../../app/router';
-import { fontId, paletteId } from '../../app/settings';
+import { paletteId } from '../../app/settings';
 import { locale, t } from '../../i18n';
 import { PALETTES, TOKENS, getPalette } from '../../theme/palettes';
 import { FKeyBar, useFKeys, type FKey } from '../tui/FKeyBar';
@@ -20,7 +20,6 @@ export function GlyphsScreen({ screen }: { screen: ScreenInfo }) {
   const { cols, rows } = screen;
   const loc = locale.value;
   const fkeys: FKey[] = [
-    { n: 3, label: t('fkeys.font'), action: () => { fontId.value = fontId.value === 'pxplus' ? 'jetbrains' : 'pxplus'; } },
     { n: 8, label: t('fkeys.palette'), action: () => {
       const i = PALETTES.findIndex((p) => p.id === paletteId.value);
       paletteId.value = PALETTES[(i + 1) % PALETTES.length]!.id;
@@ -59,7 +58,7 @@ export function GlyphsScreen({ screen }: { screen: ScreenInfo }) {
   const leftW = screen.mobile ? cols : Math.min(cols - 28, Math.max(60, Math.floor(cols * 0.7)));
   return (
     <>
-      <Panel x={0} y={0} w={leftW} h={h} title={`${t('panels.glyphs')} · ${t(`fonts.${fontId.value}`)}`} active>
+      <Panel x={0} y={0} w={leftW} h={h} title={`${t('panels.glyphs')} · PxPlus IBM VGA 9x16`} active>
         <TextView lines={lines} width={leftW - 2} height={h - 2} anchor="top" />
       </Panel>
       {!screen.mobile ? (

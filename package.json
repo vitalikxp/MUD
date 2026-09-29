@@ -23,7 +23,6 @@
     "relay:deploy": "pnpm dlx wrangler@4 deploy --config relay/wrangler.toml"
   },
   "dependencies": {
-    "@fontsource/jetbrains-mono": "^5.3.0",
     "@preact/signals": "^2.11.2",
     "preact": "^10.29.8"
   },

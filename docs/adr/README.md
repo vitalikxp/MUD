@@ -47,3 +47,4 @@
 | [0017](0017-default-model-muse-spark.md) | Модель по умолчанию — Muse Spark 1.3 Contributor; пресеты «Приватный» и «Качество» | Accepted |
 | [0018](0018-reasoning-effort-and-go-headers.md) | Уровень рассуждений по ролям, обязательные заголовки OpenCode Go, `enum` в схемах инструментов | Accepted |
 | [0019](0019-typescript7-oxlint-font-source.md) | TypeScript 7 + oxlint вместо ESLint; источник шрифта PxPlus, маркер `♦` | Accepted |
+| [0020](0020-single-font.md) | Один шрифт (PxPlus), без переключения | Accepted |

@@ -25,8 +25,8 @@ describe('i18n', () => {
   });
 
   it('подстановки и выбор языка', () => {
-    expect(t('msg.font', { name: 'X' }, 'ru')).toBe('Шрифт: X');
-    expect(t('msg.font', { name: 'X' }, 'en')).toBe('Font: X');
+    expect(t('msg.palette', { name: 'X' }, 'ru')).toBe('Палитра: X');
+    expect(t('msg.palette', { name: 'X' }, 'en')).toBe('Palette: X');
     expect(t('msg.unknown', {}, 'ru')).toContain('{cmd}');
     expect(tList('help.lines', 'en').length).toBe(tList('help.lines', 'ru').length);
   });
