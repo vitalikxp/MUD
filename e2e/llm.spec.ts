@@ -1,7 +1,7 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
 
 const RELAY = 'https://relay.test';
-const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'POST, OPTIONS' };
+const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'GET, POST, OPTIONS' };
 const sse = (events: { event: string; data: object }[]): string => events.map((e) => `event: ${e.event}\ndata: ${JSON.stringify({ type: e.event, ...e.data })}\n\n`).join('');
 
 /** Фальшивый relay в формате Responses: с tools — вызов ping, без tools — потоковый текст. */
@@ -9,6 +9,7 @@ async function mockRelay(page: Page, seen: { headers: Record<string, string>[]; 
   await page.route(`${RELAY}/**`, async (route: Route) => {
     const req = route.request();
     if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: CORS });
+    if (req.method() === 'GET') return route.fulfill({ status: 404, headers: CORS, body: 'no models' }); // список моделей подгружается сам после ввода ключа
     seen.headers.push(req.headers());
     const body = req.postDataJSON() as Record<string, unknown>;
     seen.bodies.push(body);
@@ -34,19 +35,16 @@ async function openSettings(page: Page): Promise<void> {
   await expect(page.getByRole('menu')).toBeFocused();
 }
 
-/** В окне первого запуска задать: приватный пресет, ключ, свой relay. Управление — клавиатурой. Курсор остаётся на «Адрес relay». */
+/** В окне первого запуска задать: ключ, свой relay (модель — по умолчанию). Управление — клавиатурой. Курсор остаётся на «Адрес relay». */
 async function configure(page: Page): Promise<void> {
   await openSettings(page);
   await page.keyboard.press('ArrowDown'); // Провайдер
-  await page.keyboard.press('ArrowDown'); // Модели
-  await page.keyboard.press('ArrowRight'); // → Приватный
-  await expect(page.getByRole('menuitem', { name: /Приватный/ })).toBeVisible();
-  await page.keyboard.press('ArrowDown'); // Модель (выбор из списка)
   await page.keyboard.press('ArrowDown'); // Ключ
   await page.keyboard.press('Enter');
   await page.keyboard.type('sk-test-123');
   await page.keyboard.press('Enter');
   await page.keyboard.press('ArrowDown'); // Запомнить
+  await page.keyboard.press('ArrowDown'); // Модель (выбор из списка)
   await page.keyboard.press('ArrowDown'); // Relay
   await page.keyboard.press('ArrowRight'); // → свой адрес
   await page.keyboard.press('ArrowDown'); // Адрес relay
@@ -110,16 +108,10 @@ test('первый запуск без настроек: только окно �
   await expect(page.getByRole('dialog', { name: 'LLM settings' })).toBeVisible();
   await page.keyboard.press('ArrowLeft');
   await expect(page.getByRole('dialog', { name: 'Настройки LLM' })).toBeVisible();
-  // Экономный пресет по умолчанию: раскрытие про обучение и согласие.
-  await expect(page.getByText('Meta', { exact: false }).first()).toBeVisible();
-  await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('ArrowDown');
-  await page.keyboard.press('ArrowDown'); // Обучение (нет согласия)
-  await page.keyboard.press('Enter'); // подтвердить
-  await expect(page.getByRole('menuitem', { name: /согласен/ })).toBeVisible();
+  // Модель по умолчанию не отдаёт данные на обучение: строки согласия нет.
+  await expect(page.getByRole('menuitem', { name: /согласен/ })).toHaveCount(0);
   // «Начать игру» без ключа — не пускает и говорит, чего не хватает.
-  for (let n = 0; n < 5; n++) await page.keyboard.press('ArrowDown'); // ключ, запомнить, relay, проверить, начать
+  for (let n = 0; n < 7; n++) await page.keyboard.press('ArrowDown'); // провайдер, ключ, запомнить, модель, relay, проверить, начать
   await page.keyboard.press('Enter');
   await expect(page.getByRole('log')).toContainText('Сначала исправьте: нет ключа API');
   await expect(page.getByRole('region', { name: 'Хроника' })).toHaveCount(0);
@@ -128,9 +120,6 @@ test('первый запуск без настроек: только окно �
 test('ключ и настройки переживают перезагрузку; без «запомнить» ключ остаётся только в sessionStorage', async ({ page }) => {
   await openSettings(page);
   await page.keyboard.press('ArrowDown'); // Провайдер
-  await page.keyboard.press('ArrowDown'); // Модели
-  await page.keyboard.press('ArrowRight'); // → Приватный
-  await page.keyboard.press('ArrowDown'); // Модель (выбор из списка)
   await page.keyboard.press('ArrowDown'); // Ключ
   await page.keyboard.press('Enter');
   await page.keyboard.type('sk-keep-me');
@@ -142,7 +131,7 @@ test('ключ и настройки переживают перезагрузк
   await page.keyboard.press('F4');
   await expect(page.getByRole('dialog', { name: 'Настройки LLM' })).toBeVisible();
   await expect(page.getByRole('menu')).toBeFocused();
-  for (let n = 0; n < 5; n++) await page.keyboard.press('ArrowDown'); // до «Запомнить ключ»
+  for (let n = 0; n < 3; n++) await page.keyboard.press('ArrowDown'); // до «Запомнить ключ»
   await page.keyboard.press('Enter'); // выключить
   expect(await page.evaluate(() => localStorage.getItem('mud.llm.key.v1'))).toBeNull();
   expect(await page.evaluate(() => sessionStorage.getItem('mud.llm.key.v1'))).toBe('sk-keep-me');
@@ -270,7 +259,7 @@ test('настройки LLM — окно по F4: повторное нажат
   await expect(page.getByRole('dialog')).toBeHidden();
   await page.keyboard.press('F4');
   await expect(page.getByRole('menu')).toBeFocused();
-  for (let n = 0; n < 4; n++) await page.keyboard.press('ArrowDown'); // Ключ
+  for (let n = 0; n < 2; n++) await page.keyboard.press('ArrowDown'); // Ключ
   await page.keyboard.press('Enter');
   await page.keyboard.press('Control+A');
   await page.keyboard.press('Backspace');
@@ -303,7 +292,8 @@ async function openModelPicker(page: Page): Promise<void> {
   await page.keyboard.press('F4');
   await expect(page.getByRole('menu')).toBeFocused();
   await page.keyboard.press('ArrowDown'); // Провайдер
-  await page.keyboard.press('ArrowDown'); // Модели
+  await page.keyboard.press('ArrowDown'); // Ключ
+  await page.keyboard.press('ArrowDown'); // Запомнить
   await page.keyboard.press('ArrowDown'); // Модель
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog', { name: 'Выбор модели' })).toBeVisible();
@@ -318,6 +308,7 @@ test('выбор модели: проверенные первыми и цвет
   await startGame(page);
   await openModelPicker(page);
   const options = page.getByRole('option');
+  await expect(page.getByRole('dialog', { name: 'Выбор модели' })).toContainText('Моделей у провайдера: 9'); // список подгружен после ввода ключа
   await expect(options.first()).toContainText('gpt-5.6-luna');
   await expect(options.first()).toContainText('рекомендуем');
   // порядок: рекомендуемые, с оговорками, непроверенные по алфавиту, неработающие
@@ -338,22 +329,20 @@ test('выбор модели: проверенные первыми и цвет
   await expect(page.getByRole('dialog', { name: 'Выбор модели' })).toHaveCount(0);
 
   // выбор запомнился и попал в запрос проверки
-  await page.keyboard.press('ArrowDown'); // Ключ
-  await page.keyboard.press('ArrowDown'); // Запомнить
   await page.keyboard.press('ArrowDown'); // Relay
   await page.keyboard.press('ArrowDown'); // Адрес relay
   await page.keyboard.press('ArrowDown'); // Проверить
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog', { name: 'Настройки LLM' }).getByRole('log')).toContainText('Готово');
   expect(seen.bodies.at(-1)).toMatchObject({ model: 'grok-4.7' });
-  expect(seen.bodies.at(-1)!['reasoning']).toBeUndefined(); // для модели вне пресета усилие рассуждений не задаётся
+  expect(seen.bodies.at(-1)!['reasoning']).toBeUndefined(); // для модели не по умолчанию усилие рассуждений не задаётся
   await page.reload();
   await expect(page.getByRole('textbox')).toBeFocused(); // обработчики F-клавиш подключены
   await page.keyboard.press('F4');
   await expect(page.getByRole('dialog', { name: 'Настройки LLM' })).toContainText('grok-4.7');
 });
 
-test('выбор модели: список не получен — показаны проверенные и причина; выбор модели пресета переключает пресет', async ({ page }) => {
+test('выбор модели: список не получен — показаны проверенные и причина; выбранная модель заменяет модель по умолчанию; модель с обучением на данных требует согласия', async ({ page }) => {
   const seen = { headers: [] as Record<string, string>[], bodies: [] as Record<string, unknown>[] };
   await mockRelay(page, seen);
   await mockModels(page, 'fail');
@@ -363,6 +352,33 @@ test('выбор модели: список не получен — показа
   await expect(page.getByRole('dialog', { name: 'Выбор модели' })).toContainText('Список не получен');
   await expect(page.getByRole('option').first()).toContainText('gpt-5.6-luna');
   await page.locator('#menu-item-glm-5\\.3').click();
-  await expect(page.getByRole('menuitem', { name: /Качество/ })).toBeVisible(); // модель пресета «Качество» → пресет
   await expect(page.getByRole('menuitem', { name: /Модель\s+glm-5.3/ })).toBeVisible();
+  // Модель с обучением на данных: раскрытие и строка согласия.
+  await page.keyboard.press('Enter');
+  await page.locator('#menu-item-muse-spark-1\\.3-contributor').click();
+  await expect(page.getByText('Meta', { exact: false }).first()).toBeVisible();
+  await expect(page.getByRole('menuitem', { name: /нет согласия/ })).toBeVisible();
+});
+
+test('после ввода ключа список моделей подгружается сам: число моделей в настройках, без открытия окна выбора', async ({ page }) => {
+  await mockRelay(page, { headers: [], bodies: [] });
+  const models = await mockModels(page, ['aaa-unknown', 'glm-5.3', 'gpt-5.6-luna']);
+  await openSettings(page);
+  await expect(page.getByRole('dialog', { name: 'Настройки LLM' })).toContainText('Введите ключ API');
+  await page.keyboard.press('ArrowDown'); // Провайдер
+  await page.keyboard.press('ArrowDown'); // Ключ
+  await page.keyboard.press('ArrowDown'); // Запомнить
+  await page.keyboard.press('ArrowDown'); // Модель
+  await page.keyboard.press('ArrowDown'); // Relay
+  await page.keyboard.press('ArrowRight'); // → свой адрес
+  await page.keyboard.press('ArrowDown'); // Адрес relay
+  await page.keyboard.press('Enter');
+  await page.keyboard.type(RELAY);
+  await page.keyboard.press('Enter');
+  for (let n = 0; n < 4; n++) await page.keyboard.press('ArrowUp'); // Ключ
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('sk-test-123');
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('dialog', { name: 'Настройки LLM' })).toContainText('Моделей у провайдера: 3');
+  expect(models.requests).toEqual(['GET Bearer sk-test-123']);
 });

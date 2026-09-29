@@ -144,7 +144,7 @@ tools/          env-default.ts — загрузчик .env.default для vite.c
 
 1. Прочитай раздел `docs/`, относящийся к задаче, и связанные ADR.
 2. Для engine и rules сначала пиши тест (Vitest), потом код.
-3. Промпты Мастера лежат в `src/dm/prompts/` как версионируемые файлы. Изменил промпт — подними `SYSTEM_PROMPT_VERSION` и прогони `pnpm eval:dm` (пока его нет — `DM_LIVE=1 pnpm test src/dm/live`, пресет `DM_PRESET=economy|private|quality`), если есть ключ.
+3. Промпты Мастера лежат в `src/dm/prompts/` как версионируемые файлы. Изменил промпт — подними `SYSTEM_PROMPT_VERSION` и прогони `pnpm eval:dm` (пока его нет — `DM_LIVE=1 pnpm test src/dm/live`, другая модель — `DM_MODEL=<id>`, `DM_EFFORT`, `DM_FORMAT`), если есть ключ.
    Если ключа нет, так и напиши в отчёте.
 4. Перед завершением: `pnpm typecheck && pnpm lint && pnpm test && pnpm docs:check`; для UI — ещё `pnpm test:e2e`.
    Для UI-изменений нужна визуальная проверка в браузере на ширине 1280 и 390 px.

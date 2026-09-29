@@ -44,7 +44,8 @@
 | [0014](0014-reference-books-in-git.md) | Книги OpenD6 в git без LFS | Accepted |
 | [0015](0015-llm-three-api-formats.md) | LLM-клиент: Chat Completions, Responses, Anthropic Messages | Accepted, этапы уточнены 0016 |
 | [0016](0016-default-models-pareto.md) | Модели по умолчанию: самые дешёвые на парето-фронте «цена / творческое письмо» | Accepted, выбор заменён 0017 |
-| [0017](0017-default-model-muse-spark.md) | Модель по умолчанию — Muse Spark 1.3 Contributor; пресеты «Приватный» и «Качество» | Accepted |
+| [0017](0017-default-model-muse-spark.md) | Модель по умолчанию — Muse Spark 1.3 Contributor; пресеты «Приватный» и «Качество» | Accepted, пресеты и выбор модели заменены 0021 |
 | [0018](0018-reasoning-effort-and-go-headers.md) | Уровень рассуждений по ролям, обязательные заголовки OpenCode Go, `enum` в схемах инструментов | Accepted |
 | [0019](0019-typescript7-oxlint-font-source.md) | TypeScript 7 + oxlint вместо ESLint; источник шрифта PxPlus, маркер `♦` | Accepted |
 | [0020](0020-single-font.md) | Один шрифт (PxPlus), без переключения | Accepted |
+| [0021](0021-no-model-presets.md) | Без пресетов моделей: одна модель по умолчанию и выбор из списка | Accepted |

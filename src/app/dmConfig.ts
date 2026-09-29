@@ -1,4 +1,4 @@
-// Настройки хода Мастера из настроек LLM игрока (ключ, модель, пресет, relay).
+// Настройки хода Мастера из настроек LLM игрока (ключ, модель, relay).
 import { PALETTES } from '../theme/palettes';
 import { complete } from '../llm/client';
 import * as llm from './llm';

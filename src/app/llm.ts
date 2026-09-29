@@ -2,7 +2,7 @@
 import { computed, effect, signal } from '@preact/signals';
 import { storageKey } from '../brand';
 import { modelTrainsOnData } from '../llm/models';
-import { CUSTOM, formatFor, getProvider, OPENCODE_GO, type ModelPreset, type ProviderPreset, type RoleModel } from '../llm/presets';
+import { CUSTOM, formatFor, getProvider, OPENCODE_GO, type ProviderPreset, type RoleModel } from '../llm/presets';
 import type { ApiFormat, ProviderConfig } from '../llm/types';
 
 const STORAGE_KEY = storageKey('llm.v1');
@@ -15,8 +15,7 @@ export const DEFAULT_RELAY_URL: string = import.meta.env.VITE_RELAY_URL ?? '';
 
 interface Stored {
   provider?: string;
-  preset?: ModelPreset['id'];
-  /** Модель, выбранная в окне выбора поверх пресета (провайдер с каталогом моделей). */
+  /** Модель, выбранная в окне выбора вместо модели по умолчанию (провайдер с каталогом моделей). */
   model?: string;
   relayMode?: RelayMode;
   relayUrl?: string;
@@ -46,8 +45,7 @@ function loadKey(): string {
 
 const s = load();
 export const providerId = signal(getProvider(s.provider ?? OPENCODE_GO.id).id);
-export const presetId = signal<ModelPreset['id']>(s.preset ?? 'economy');
-/** Пусто — модель берётся из пресета. */
+/** Пусто — модель по умолчанию у провайдера. */
 export const modelOverride = signal(s.model ?? '');
 export const relayMode = signal<RelayMode>(s.relayMode ?? 'default');
 export const relayUrl = signal(s.relayUrl ?? '');
@@ -59,21 +57,17 @@ export const trainsAck = signal(s.trainsAck ?? false);
 export const apiKey = signal(loadKey());
 
 export const provider = computed<ProviderPreset>(() => (providerId.value === CUSTOM.id ? CUSTOM : OPENCODE_GO));
-export const preset = computed<ModelPreset | undefined>(() =>
-  provider.value.presets.find((p) => p.id === presetId.value) ?? provider.value.presets[0],
-);
-/** Модель Мастера: выбранная вручную или из пресета (для своего API — введённая). */
+/** Модель Мастера: выбранная вручную или по умолчанию (для своего API — введённая). */
 export const dmModel = computed(() => {
   if (provider.value.id === CUSTOM.id) return customModel.value;
-  return modelOverride.value.trim() || (preset.value?.dm.model ?? '');
+  return modelOverride.value.trim() || provider.value.defaultModel.model;
 });
-/** Параметры роли Мастера. Для модели вне пресета усилие рассуждений не задаётся: часть моделей на нём отвечает пустым текстом. */
+/** Параметры роли Мастера. Для модели, не выбранной по умолчанию, усилие рассуждений не задаётся: часть моделей на нём отвечает пустым текстом. */
 export const dmRole = computed<RoleModel>(() => {
-  const p = preset.value;
-  if (p && dmModel.value === p.dm.model) return p.dm;
-  return { model: dmModel.value, maxOutputTokens: p?.dm.maxOutputTokens ?? 4000 };
+  const d = provider.value.defaultModel;
+  return dmModel.value === d.model ? d : { model: dmModel.value, maxOutputTokens: d.maxOutputTokens };
 });
-export const trainsOnData = computed(() => (provider.value.id === CUSTOM.id ? false : modelTrainsOnData(provider.value, dmModel.value)));
+export const trainsOnData = computed(() => (provider.value.id === CUSTOM.id ? false : modelTrainsOnData(dmModel.value)));
 
 export const baseUrl = computed(() => (provider.value.id === CUSTOM.id ? customBaseUrl.value : provider.value.baseUrl));
 
@@ -120,7 +114,7 @@ export function providerConfig(): ProviderConfig {
 export function startLlmSettings(): void {
   effect(() => {
     const data: Stored = {
-      provider: providerId.value, preset: presetId.value, model: modelOverride.value, relayMode: relayMode.value, relayUrl: relayUrl.value,
+      provider: providerId.value, model: modelOverride.value, relayMode: relayMode.value, relayUrl: relayUrl.value,
       customBaseUrl: customBaseUrl.value, customModel: customModel.value, customFormat: customFormat.value,
       remember: remember.value, trainsAck: trainsAck.value,
     };

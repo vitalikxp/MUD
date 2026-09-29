@@ -137,7 +137,6 @@ export const en: Dict = {
     start: 'Start game',
     firstRun: 'First launch: pick a language, set the API key and model, then choose "Start game".',
     provider: 'Provider',
-    preset: 'Models',
     key: 'API key',
     keyEmpty: '(not set)',
     remember: 'Remember key',
@@ -176,12 +175,6 @@ export const en: Dict = {
       bad: 'does not work',
     },
   },
-  presets: {
-    economy: 'Economy (Muse)',
-    private: 'Private (Luna)',
-    quality: 'Quality (GLM 5.3)',
-    custom: 'Custom model',
-  },
   providers: {
     'opencode-go': 'OpenCode Go',
     custom: 'Custom API',
@@ -219,7 +212,7 @@ export const en: Dict = {
   },
   errors: {
     auth: 'wrong key or no access',
-    region: 'model unavailable in your region, or the plan consent is not enabled in the provider account — try the "Private" preset',
+    region: 'model unavailable in your region, or the plan consent is not enabled in the provider account — pick another model',
     session: 'the provider requires a session header (x-opencode-session) — please report a bug',
     rate: 'subscription or rate limit exhausted',
     server: 'provider server error, try again later',

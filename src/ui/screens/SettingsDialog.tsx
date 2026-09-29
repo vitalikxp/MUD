@@ -1,6 +1,7 @@
 import { signal } from '@preact/signals';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import * as llm from '../../app/llm';
+import { modelList, modelListKey, refreshModels } from '../../app/models';
 import { locale, t, type Key, type Locale } from '../../i18n';
 import { checkProvider, type CheckStep } from '../../llm/check';
 import { CUSTOM, OPENCODE_GO } from '../../llm/presets';
@@ -54,6 +55,10 @@ export function SettingsDialog({ gate, onClose, onStart }: { gate: boolean; onCl
   const [picking, setPicking] = useState(false);
   useEffect(() => { formRef.current?.focus(); }, []);
   useEffect(() => { checkState.value = { status: 'idle' }; }, []);
+  // Ключ, провайдер или relay изменились — подгрузить список моделей (ответ общий с окном выбора).
+  const listKey = modelListKey();
+  useEffect(() => { refreshModels(); }, [listKey]);
+  const list = modelList.value;
 
   const custom = llm.provider.value.id === CUSTOM.id;
   const start = () => {
@@ -67,6 +72,8 @@ export function SettingsDialog({ gate, onClose, onStart }: { gate: boolean; onCl
     { id: 'provider', label: t('settings.provider'), kind: 'choice', value: llm.providerId.value,
       options: [OPENCODE_GO, CUSTOM].map((p) => ({ value: p.id, label: t(`providers.${p.id}` as Key) })),
       onChange: (v) => { llm.providerId.value = v; } },
+    { id: 'key', label: t('settings.key'), kind: 'text', value: llm.apiKey.value, secret: true, placeholder: t('settings.keyEmpty'), onChange: (v) => { llm.apiKey.value = v; } },
+    { id: 'remember', label: t('settings.remember'), kind: 'toggle', value: llm.remember.value, yes: t('settings.rememberYes'), no: t('settings.rememberNo'), onChange: (v) => { llm.remember.value = v; } },
     ...(custom
       ? ([
           { id: 'baseUrl', label: t('settings.baseUrl'), kind: 'text', value: llm.customBaseUrl.value, placeholder: 'https://…/v1', onChange: (v: string) => { llm.customBaseUrl.value = v; } },
@@ -76,16 +83,11 @@ export function SettingsDialog({ gate, onClose, onStart }: { gate: boolean; onCl
             onChange: (v: string) => { llm.customFormat.value = v as ApiFormat; } },
         ] satisfies Field[])
       : ([
-          { id: 'preset', label: t('settings.preset'), kind: 'choice', value: llm.presetId.value,
-            options: OPENCODE_GO.presets.map((p) => ({ value: p.id, label: t(`presets.${p.id}`) })),
-            onChange: (v: string) => { llm.presetId.value = v as typeof llm.presetId.value; llm.modelOverride.value = ''; } },
           { id: 'modelPick', label: t('settings.modelPick'), kind: 'pick', value: llm.dmModel.value, onPick: () => setPicking(true) },
         ] satisfies Field[])),
     ...(llm.trainsOnData.value
       ? ([{ id: 'ack', label: t('settings.ack'), kind: 'toggle', value: llm.trainsAck.value, yes: t('settings.ackYes'), no: t('settings.ackNo'), onChange: (v: boolean) => { llm.trainsAck.value = v; } }] satisfies Field[])
       : []),
-    { id: 'key', label: t('settings.key'), kind: 'text', value: llm.apiKey.value, secret: true, placeholder: t('settings.keyEmpty'), onChange: (v) => { llm.apiKey.value = v; } },
-    { id: 'remember', label: t('settings.remember'), kind: 'toggle', value: llm.remember.value, yes: t('settings.rememberYes'), no: t('settings.rememberNo'), onChange: (v) => { llm.remember.value = v; } },
     { id: 'relay', label: t('settings.relay'), kind: 'choice', value: llm.relayMode.value,
       options: (['default', 'custom', 'direct'] as const).map((m) => ({ value: m, label: t(`relayModes.${m}`) })),
       onChange: (v) => { llm.relayMode.value = v as llm.RelayMode; } },
@@ -106,6 +108,10 @@ export function SettingsDialog({ gate, onClose, onStart }: { gate: boolean; onCl
   notes.push({ text: t(gate ? 'settings.hintFirst' : 'settings.hint'), fg: 'fgDim' });
   if (llm.trainsOnData.value) notes.push({ text: t('settings.noteTrains'), fg: 'warning' });
   if (llm.provider.value.notice === 'opencode-terms') notes.push({ text: t('settings.noteTerms'), fg: 'warning' });
+  if (list.status === 'ok') notes.push({ text: t('models.count', { n: list.ids.length }), fg: 'fgDim' });
+  else if (list.status === 'loading') notes.push({ text: t('models.loading'), fg: 'info' });
+  else if (list.status === 'error') notes.push({ text: t('models.error', { reason: list.reason }), fg: 'warning' });
+  else if (list.status === 'nokey') notes.push({ text: t('models.nokey'), fg: 'fgDim' });
   notes.push({ text: t('settings.noteKey'), fg: 'fgDim' });
   if (llm.provider.value.needsRelay) notes.push({ text: t('settings.noteRelay'), fg: 'fgDim' });
   notes.push({ text: '' });

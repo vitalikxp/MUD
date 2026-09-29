@@ -22,16 +22,16 @@ describe.skipIf(process.env['DM_LIVE'] !== '1' || !key)('Мастер на ре�
   it('открытие игры и ход игрока с проверкой', { timeout: Number(process.env['DM_TIMEOUT'] ?? 240_000) }, async () => {
     useStorage(new LocalAdapter('live'));
     closeSession();
-    // Модель: DM_MODEL=<id> (формат — DM_FORMAT или по таблице провайдера, усилие рассуждений — DM_EFFORT) либо пресет DM_PRESET.
-    const preset = OPENCODE_GO.presets.find((p) => p.id === (process.env['DM_PRESET'] ?? 'economy'))!;
-    const model = process.env['DM_MODEL'] ?? preset.dm.model;
+    // Модель: DM_MODEL=<id> (формат — DM_FORMAT или по таблице провайдера, усилие рассуждений — DM_EFFORT) либо модель по умолчанию провайдера.
+    const def = OPENCODE_GO.defaultModel;
+    const model = process.env['DM_MODEL'] ?? def.model;
     const format = (process.env['DM_FORMAT'] as ApiFormat | undefined) ?? OPENCODE_GO.formatByModel?.[model] ?? OPENCODE_GO.format;
-    const effort = process.env['DM_MODEL'] ? (process.env['DM_EFFORT'] as ReasoningEffort | undefined) : preset.dm.effort;
+    const effort = process.env['DM_MODEL'] ? (process.env['DM_EFFORT'] as ReasoningEffort | undefined) : def.effort;
     const provider = { format, baseUrl: OPENCODE_GO.baseUrl, apiKey: key, sessionId: crypto.randomUUID() };
     const config = {
       llm: (req: Parameters<typeof complete>[1], onText?: (d: string) => void) => complete(provider, req, onText, { fetch: withUa }),
       model,
-      maxOutputTokens: preset.dm.maxOutputTokens,
+      maxOutputTokens: def.maxOutputTokens,
       ...(effort ? { reasoningEffort: effort } : {}),
       paletteIds: ['terminal', 'amber'],
     };

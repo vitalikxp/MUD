@@ -79,18 +79,18 @@ describe('arrangeModels: порядок окна выбора', () => {
     expect(arrangeModels(CUSTOM, null)).toEqual([]);
   });
 
-  it('реестр не содержит повторов и не противоречит пресетам', () => {
+  it('реестр не содержит повторов и включает модель по умолчанию', () => {
     const ids = OPENCODE_GO.verified!.map((v) => v.id);
     expect(new Set(ids).size).toBe(ids.length);
-    for (const p of OPENCODE_GO.presets) expect(ids).toContain(p.dm.model);
+    expect(ids).toContain(OPENCODE_GO.defaultModel.model);
   });
 });
 
 describe('modelTrainsOnData', () => {
-  it('пресет знает точно, для прочих — по признаку contributor в id', () => {
-    expect(modelTrainsOnData(OPENCODE_GO, 'muse-spark-1.3-contributor')).toBe(true);
-    expect(modelTrainsOnData(OPENCODE_GO, 'gpt-5.6-luna')).toBe(false);
-    expect(modelTrainsOnData(OPENCODE_GO, 'muse-spark-1.2-contributor')).toBe(true);
-    expect(modelTrainsOnData(OPENCODE_GO, 'deepseek-v4-flash')).toBe(false);
+  it('признак contributor в id', () => {
+    expect(modelTrainsOnData('muse-spark-1.3-contributor')).toBe(true);
+    expect(modelTrainsOnData('gpt-5.6-luna')).toBe(false);
+    expect(modelTrainsOnData('muse-spark-1.2-contributor')).toBe(true);
+    expect(modelTrainsOnData('deepseek-v4-flash')).toBe(false);
   });
 });

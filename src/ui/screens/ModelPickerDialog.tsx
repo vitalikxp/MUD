@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'preact/hooks';
-import { errorText } from '../../app/chronicle';
 import * as llm from '../../app/llm';
+import { modelList, refreshModels } from '../../app/models';
 import { locale, t, type Key } from '../../i18n';
-import { arrangeModels, listModels, type ModelChoice, type ModelLevel } from '../../llm/models';
+import { arrangeModels, type ModelChoice, type ModelLevel } from '../../llm/models';
 import type { Token } from '../../theme/palettes';
 import { Dialog } from '../tui/Dialog';
 import { Menu, type MenuItem } from '../tui/Menu';
@@ -27,23 +27,15 @@ function notesFor(c: ModelChoice | undefined): Paragraph[] {
 export function ModelPickerDialog({ onClose }: { onClose: () => void }) {
   const { cols, rows } = useScreen();
   const menuRef = useRef<HTMLDivElement>(null);
-  const [available, setAvailable] = useState<string[] | null>(null);
-  const [status, setStatus] = useState<'loading' | 'ok' | 'error' | 'nokey'>('loading');
-  const [failure, setFailure] = useState('');
+  const list = modelList.value;
+  const available = list.status === 'ok' ? list.ids : null;
+  const status = list.status === 'idle' ? 'nokey' : list.status;
+  const failure = list.status === 'error' ? list.reason : '';
   const provider = llm.provider.value;
 
   useEffect(() => {
     menuRef.current?.focus();
-    if (!llm.apiKey.value.trim()) {
-      setStatus('nokey');
-      return;
-    }
-    const controller = new AbortController();
-    listModels(llm.providerConfig(), { signal: controller.signal }).then(
-      (ids) => { setAvailable(ids); setStatus('ok'); },
-      (e: unknown) => { if (!controller.signal.aborted) { setFailure(errorText(e)); setStatus('error'); } },
-    );
-    return () => controller.abort();
+    refreshModels(); // список уже загружен после ввода ключа; здесь повторяется только неудачная загрузка
   }, []);
 
   const choices = useMemo(() => arrangeModels(provider, available), [provider, available]);
@@ -67,12 +59,7 @@ export function ModelPickerDialog({ onClose }: { onClose: () => void }) {
   const choose = (index: number) => {
     const c = choices[index];
     if (!c) return;
-    // Модель из пресета — пресет (усилие рассуждений, согласие на обучение подтянутся сами); прочая — выбор поверх.
-    const preset = provider.presets.find((p) => p.dm.model === c.id);
-    if (preset) {
-      llm.presetId.value = preset.id;
-      llm.modelOverride.value = '';
-    } else llm.modelOverride.value = c.id;
+    llm.modelOverride.value = c.id;
     onClose();
   };
 

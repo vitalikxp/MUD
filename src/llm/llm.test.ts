@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { parseChatStream, buildChatBody } from './chat';
 import { buildHeaders, classifyError, complete, endpointUrl, streamChat } from './client';
 import { formatFor, getProvider, OPENCODE_GO } from './presets';
+import { modelTrainsOnData } from './models';
 import { buildResponsesBody, parseResponsesStream } from './responses';
 import { parseSse } from './sse';
 import { LlmError, type ChatRequest, type ProviderConfig, type StreamEvent } from './types';
@@ -198,9 +199,9 @@ describe('пресеты', () => {
     expect(formatFor(OPENCODE_GO, 'deepseek-v4.1-flash')).toBe('chat');
     expect(formatFor(OPENCODE_GO, 'glm-5.3')).toBe('chat');
   });
-  it('у Мастера запас токенов на рассуждения; обучение на данных только у «economy»', () => {
-    for (const p of OPENCODE_GO.presets) expect(p.dm.maxOutputTokens).toBeGreaterThanOrEqual(1500);
-    expect(OPENCODE_GO.presets.filter((p) => p.trainsOnData).map((p) => p.id)).toEqual(['economy']);
+  it('у Мастера запас токенов на рассуждения; модель по умолчанию не отдаёт данные на обучение', () => {
+    expect(OPENCODE_GO.defaultModel.maxOutputTokens).toBeGreaterThanOrEqual(1500);
+    expect(modelTrainsOnData(OPENCODE_GO.defaultModel.model)).toBe(false);
   });
   it('неизвестный провайдер → OpenCode Go', () => {
     expect(getProvider('nope').id).toBe('opencode-go');

@@ -1,18 +1,10 @@
-// Пресеты провайдеров и моделей (ADR-0002, 0016, 0017, 0018). Имена моделей живут только здесь.
+// Пресеты провайдеров (ADR-0002, 0018, 0021). Имена моделей живут только здесь.
 import type { ApiFormat, ReasoningEffort } from './types';
 
 export interface RoleModel {
   model: string;
   effort?: ReasoningEffort;
   maxOutputTokens: number;
-}
-
-export interface ModelPreset {
-  id: 'economy' | 'private' | 'quality';
-  /** Модель отдаёт тексты игры на обучение (нужно раскрытие и согласие, FR-LLM-9). */
-  trainsOnData: boolean;
-  dm: RoleModel;
-  keeper: RoleModel;
 }
 
 /** Итог нашей проверки модели в роли Мастера (`DM_LIVE=1 pnpm test src/dm/live`, docs/04-ai-dm.md). */
@@ -37,7 +29,8 @@ export interface ProviderPreset {
   /** Нужен ли relay (у провайдера нет CORS для браузера). */
   needsRelay: boolean;
   notice?: 'opencode-terms';
-  presets: ModelPreset[];
+  /** Модель Мастера по умолчанию и её параметры; для прочих моделей усилие рассуждений не задаётся. */
+  defaultModel: RoleModel;
   /** Модели, проверенные в игре: они идут в окне выбора первыми. */
   verified?: VerifiedModel[];
 }
@@ -64,26 +57,7 @@ export const OPENCODE_GO: ProviderPreset = {
   formatByModel: GO_FORMATS,
   needsRelay: true,
   notice: 'opencode-terms',
-  presets: [
-    {
-      id: 'economy',
-      trainsOnData: true,
-      dm: { model: 'muse-spark-1.3-contributor', effort: 'medium', maxOutputTokens: 4000 },
-      keeper: { model: 'muse-spark-1.3-contributor', effort: 'low', maxOutputTokens: 2000 },
-    },
-    {
-      id: 'private',
-      trainsOnData: false,
-      dm: { model: 'gpt-5.6-luna', effort: 'medium', maxOutputTokens: 4000 },
-      keeper: { model: 'deepseek-v4.1-flash', maxOutputTokens: 2000 },
-    },
-    {
-      id: 'quality',
-      trainsOnData: false,
-      dm: { model: 'glm-5.3', maxOutputTokens: 4000 },
-      keeper: { model: 'deepseek-v4.1-flash', maxOutputTokens: 2000 },
-    },
-  ],
+  defaultModel: { model: 'gpt-5.6-luna', effort: 'medium', maxOutputTokens: 4000 },
   verified: [
     { id: 'gpt-5.6-luna', level: 'good', checked: '2026-09-29', note: { ru: 'Связная история, честно спрашивает про очки, аккуратные инструменты.', en: 'Coherent story, asks about points, clean tool calls.' } },
     { id: 'glm-5.3', level: 'good', checked: '2026-09-29', note: { ru: 'Богатый язык, следует правилам хода.', en: 'Rich prose, follows the turn rules.' } },
@@ -105,7 +79,7 @@ export const CUSTOM: ProviderPreset = {
   baseUrl: '',
   format: 'chat',
   needsRelay: false,
-  presets: [],
+  defaultModel: { model: '', maxOutputTokens: 4000 },
 };
 
 export const PROVIDERS: readonly ProviderPreset[] = [OPENCODE_GO, CUSTOM];

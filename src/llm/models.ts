@@ -68,8 +68,7 @@ export function arrangeModels(provider: ProviderPreset, available: readonly stri
   return choices.toSorted((a, b) => ORDER[a.level] - ORDER[b.level] || (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0) || a.id.localeCompare(b.id));
 }
 
-/** Модели с обучением на данных игрока помечены в id (ADR-0017); проверенные пресеты знают это точнее. */
-export function modelTrainsOnData(provider: ProviderPreset, model: string): boolean {
-  const preset = provider.presets.find((p) => p.dm.model === model);
-  return preset ? preset.trainsOnData : /contributor/i.test(model);
+/** Модели с обучением на данных игрока помечены в id (ADR-0017). */
+export function modelTrainsOnData(model: string): boolean {
+  return /contributor/i.test(model);
 }
