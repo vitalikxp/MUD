@@ -45,6 +45,7 @@ export const cssVar = (t: Token): string => `var(--c-${t})`;
 export function applyPalette(palette: Palette, root: HTMLElement = document.documentElement): void {
   for (const t of TOKENS) root.style.setProperty(`--c-${t}`, palette.colors[t]);
   root.dataset['palette'] = palette.id;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', palette.colors.bg); // цвет панели браузера следует за палитрой
   root.style.colorScheme = relativeLuminance(palette.colors.bg) < 0.2 ? 'dark' : 'light';
 }
 
