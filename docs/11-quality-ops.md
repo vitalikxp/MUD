@@ -32,7 +32,7 @@ deploy: deploy-pages → https://mud.vitalik.dev
 
 ## Relay (Cloudflare Worker)
 
-- `POST /v1/chat/completions`, `/v1/responses`, `/v1/messages` и `GET /v1/models` (список моделей для окна выбора) → `https://<upstream>/…`. Пропускаются заголовки `Authorization`, `x-api-key`, `anthropic-version`, `x-opencode-session`; `User-Agent` ставит сам relay. Подробности и деплой: [relay/README.md](../relay/README.md). Upstream задаётся заголовком `X-Upstream` и проверяется по **allowlist**
+- `POST /v1/chat/completions`, `/v1/responses` и `GET /v1/models` (список моделей для окна выбора) → `https://<upstream>/…`. Пропускаются заголовки `Authorization`, `x-opencode-session`; `User-Agent` ставит сам relay. Подробности и деплой: [relay/README.md](../relay/README.md). Upstream задаётся заголовком `X-Upstream` и проверяется по **allowlist**
   (`opencode.ai`, `openrouter.ai`, `generativelanguage.googleapis.com`, …). Список в `relay/allowlist.ts`.
 - CORS: `Access-Control-Allow-Origin` только для разрешённых Origin (`https://mud.vitalik.dev`, `http://localhost:*`; форки задают свой список переменной окружения).
 - Заголовок `Authorization` передаётся как есть. **Тела, заголовки и ответы не логируются.**

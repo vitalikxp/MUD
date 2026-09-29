@@ -7,19 +7,19 @@ Stateless-прокси на Cloudflare Worker (бесплатный тариф):
 ## Контракт
 
 ```
-POST {relay}/v1/chat/completions | /v1/responses | /v1/messages
+POST {relay}/v1/chat/completions | /v1/responses
 GET  {relay}/v1/models            (список моделей провайдера для окна выбора модели)
-Headers: Authorization | x-api-key, anthropic-version, x-opencode-session, X-Upstream: https://opencode.ai/zen/go/v1
+Headers: Authorization, x-opencode-session, X-Upstream: https://opencode.ai/zen/go/v1
 ```
 Запрос уходит на `X-Upstream + / + <endpoint>`. Ответ (включая SSE-поток и коды ошибок провайдера) возвращается как есть.
 
 Что проверяется:
 - `Origin` — из `ALLOWED_ORIGINS` (по умолчанию `https://mud.vitalik.dev`, берётся из `brand.json`); `http://localhost:*` разрешён всегда; иначе 403;
-- хост `X-Upstream` — только `https` и только из allowlist: `opencode.ai`, `openrouter.ai`, `generativelanguage.googleapis.com`, `api.openai.com`, `api.anthropic.com`
+- хост `X-Upstream` — только `https` и только из allowlist: `opencode.ai`, `openrouter.ai`, `generativelanguage.googleapis.com`, `api.openai.com`
   (+ `EXTRA_UPSTREAM_HOSTS`); адреса с логином/паролем и IP-адреса отклоняются;
-- путь — только три эндпоинта для `POST` и `/v1/models` для `GET`; другие методы и пути отвергаются (405/404).
+- путь — только два эндпоинта для `POST` (`chat/completions`, `responses`) и `/v1/models` для `GET`; другие методы и пути отвергаются (405/404).
 
-Провайдеру передаются лишь `content-type`, `accept`, `authorization`, `x-api-key`, `anthropic-version`, `x-opencode-session` и собственный `User-Agent: mud-relay/0.1`
+Провайдеру передаются лишь `content-type`, `accept`, `authorization`, `x-opencode-session` и собственный `User-Agent: mud-relay/0.1`
 (браузер не позволяет странице менять `User-Agent`, поэтому его выставляет relay). Cookie, Origin и `cf-*` отбрасываются.
 
 ## Relay проекта

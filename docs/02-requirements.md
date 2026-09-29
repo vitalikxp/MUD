@@ -28,7 +28,7 @@
 | FR-LLM-6 | Счётчик токенов за ход, за сессию и за кампанию (по данным `usage` из ответа) | S | M1 |
 | FR-LLM-7 | Фолбэк для моделей без tool calling: текстовый протокол действий | L | — |
 | FR-LLM-9 | Раскрытие: если модель Мастера обучается на данных (`*-contributor`), это видно в настройках, при создании кампании и в лобби. Участник кооп-кампании подтверждает согласие при входе. При отказе по региону или opt-in UI предлагает пресет «Приватный» | M | M0/M3 |
-| FR-LLM-8 | Три формата API: OpenAI Chat Completions и OpenAI Responses (M0), Anthropic Messages (M1). Формат задаётся пресетом и моделью ([ADR-0015](adr/0015-llm-three-api-formats.md)) | M | M0/M1 |
+| FR-LLM-8 | Два формата API: OpenAI Chat Completions и OpenAI Responses (M0). Формат задаётся пресетом и моделью ([ADR-0015](adr/0015-llm-three-api-formats.md), [ADR-0022](adr/0022-no-anthropic-messages.md)) | M | M0 |
 
 ### 2.2. Кампании и сессия ноль
 

@@ -58,7 +58,7 @@
 - Ключ LLM для dev и evals: `.env.local` → `OPENCODE_GO_API_KEY` (без префикса `VITE_`, иначе Vite вложит ключ в сборку). Значение ключа не выводить в логи и ответы.
 - Публичные значения по умолчанию (например `VITE_RELAY_URL`) лежат в `.env.default` (в git, **только `VITE_*`, секретов нет** — это проверяет тест). Приоритет: окружение/CI > `.env.local` > `.env.default`.
   В CI `VITE_RELAY_URL` берётся из переменной репозитория `RELAY_URL` и перекрывает `.env.default`: при смене адреса relay обнови её (`gh variable set RELAY_URL --body <url>`, проверка — `gh variable list`) и перезапусти деплой (`gh workflow run deploy.yml --ref master`).
-- Ручной запрос к Go: `POST https://opencode.ai/zen/go/v1/{chat/completions|responses|messages}` (формат зависит от модели) с заголовками `Authorization: Bearer`, `x-opencode-session: <uuid>` (иначе `400 MissingSessionID`) и `User-Agent`.
+- Ручной запрос к Go: `POST https://opencode.ai/zen/go/v1/{chat/completions|responses}` (формат зависит от модели) с заголовками `Authorization: Bearer`, `x-opencode-session: <uuid>` (иначе `400 MissingSessionID`) и `User-Agent`.
 - Думающим моделям (Muse Spark и др.) задавай `reasoning.effort` и `max_output_tokens` ≥ 1500, иначе ответ может прийти `incomplete` без текста ([ADR-0018](docs/adr/0018-reasoning-effort-and-go-headers.md)).
 
 ## 4. Архитектурные инварианты (нарушать нельзя)
@@ -73,12 +73,13 @@
    Остальные клиенты пишут только свои заявки (intents). См. [08-multiplayer.md](docs/08-multiplayer.md).
 5. **Ключ LLM не покидает браузер игрока.** Ключ не пишется в Firestore, RTDB, логи или аналитику.
    Relay пересылает запрос дальше и ничего не хранит.
-6. **Провайдер-агностичность.** Код работает с тремя форматами API: OpenAI Chat Completions, OpenAI Responses, Anthropic Messages ([ADR-0015](docs/adr/0015-llm-three-api-formats.md)). OpenCode Go только один из пресетов.
+6. **Провайдер-агностичность.** Код работает с двумя форматами API: OpenAI Chat Completions и OpenAI Responses ([ADR-0015](docs/adr/0015-llm-three-api-formats.md), Anthropic Messages не делаем: [ADR-0022](docs/adr/0022-no-anthropic-messages.md)). OpenCode Go только один из пресетов.
    Имена моделей и провайдеров в логике не хардкодятся.
 7. **Модуль правил подключаемый.** Ядро и ИИ-мастер обращаются к правилам только через интерфейс `RulesModule`
    ([05-rules-engine.md](docs/05-rules-engine.md)). Конкретику OpenD6 за пределы `src/rules/opend6/` не выносить.
 8. **Сетка символов.** Весь UI рисуется в ячейках (колонки × строки). Никаких пиксельных отступов внутри TUI-панелей.
    Цвета берутся только из токенов палитры. См. [07-ui-tui.md](docs/07-ui-tui.md).
+   Текст Мастера (запись хроники с `md: true`) рисуется через `markdownLines`; жирный и курсив передаются цветом токенов (`fgBright`, `accent2`), начертание не синтезируется (шрифт один, [ADR-0020](docs/adr/0020-single-font.md)).
 9. **Все строки UI идут через i18n** (RU и EN). Литералы на русском или английском в JSX запрещены.
    Имя проекта и домен — только из `brand.json` (`BRAND_NAME`, `BRAND_DOMAIN` в `src/brand.ts`); ключи localStorage — через `storageKey()`. Литералов имени в коде, тестах и UI нет.
 10. **Бесплатные тарифы.** Изменения, из-за которых вырастет число чтений/записей Firestore, проверяются по бюджету из
@@ -90,7 +91,7 @@
 13. **Обучение на данных — только с согласием.** Если модель Мастера отдаёт данные на обучение (`*-contributor`), это раскрывается в UI,
     а участник кооп-кампании подтверждает согласие (`modelConsent`) до отправки заявок. См. FR-LLM-9, [ADR-0017](docs/adr/0017-default-model-muse-spark.md).
 
-## 5. Структура репозитория (целевая; сейчас в `src/` есть `app/`, `dm/`, `engine/`, `i18n/`, `llm/`, `net/`, `rules/`, `theme/`, `ui/`, `brand.ts`; ещё нет `firebase/`, `evals/`, `src/content/`, `src/ui/panels/`)
+## 5. Структура репозитория (целевая; сейчас в `src/` есть `app/`, `dm/`, `engine/`, `i18n/`, `llm/`, `net/`, `rules/`, `theme/`, `ui/`, `brand.ts`; ещё нет `firebase/`, `evals/`, `src/content/`)
 
 ```
 src/
@@ -102,7 +103,7 @@ src/
   net/          адаптеры хранилища (local / firebase), присутствие, аренда хоста
   content/      загрузка и валидация контента (шаблоны сеттингов)
   ui/tui/       примитивы TUI: Grid, Frame, Panel, Menu, FKeyBar, Dialog, Input
-  ui/panels/    панели: Chronicle, Sheet, Inventory, Map, Party, Lore, Log, Dice
+  ui/panels/    панели правой колонки: Sheet, Inventory (есть); Map, Party, Lore, Log, Dice (позже). Хроника — в `ui/screens/HomeScreen.tsx`
   ui/screens/   экраны: Title, Settings, Lobby, SessionZero, CharacterCreation, Game
   theme/        палитры, шрифты, метрики ячейки
   i18n/         словари ru/en

@@ -175,7 +175,7 @@ export const en: Dict = {
     error: 'Could not fetch the list: {reason}. Only verified models are shown.',
     count: 'Models at the provider: {n}',
     unchecked: 'We have not tested this model: it may write worse or not call tools.',
-    unsupported: 'The Anthropic Messages format is not supported yet: this model cannot be played.',
+    unsupported: 'The Messages (Anthropic) format is not supported: this model cannot be played.',
     offline: 'This model is not in the provider list.',
     level: {
       good: 'recommended',
@@ -195,7 +195,6 @@ export const en: Dict = {
   formats: {
     chat: 'OpenAI Chat Completions',
     responses: 'OpenAI Responses',
-    messages: 'Anthropic Messages (soon)',
   },
   problems: {
     key: 'no API key',

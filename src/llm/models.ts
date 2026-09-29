@@ -34,7 +34,7 @@ export interface ModelChoice {
   level: ModelLevel;
   note?: VerifiedModel['note'];
   format: ApiFormat;
-  /** Формат, который клиент пока не умеет (Anthropic Messages, ADR-0015): выбор возможен, но игра не запустится. */
+  /** Формат, который клиент не поддерживает (Messages от Anthropic, ADR-0022): выбор возможен, но игра не запустится. */
   unsupported: boolean;
   /** Модели нет в списке провайдера (например, список не удалось получить). */
   offline: boolean;

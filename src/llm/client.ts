@@ -44,7 +44,7 @@ export function classifyError(status: number, body: string): LlmError {
 }
 
 export async function* streamChat(cfg: ProviderConfig, req: ChatRequest, opts: ClientOptions = {}): AsyncGenerator<StreamEvent> {
-  if (cfg.format === 'messages') throw new LlmError('other', 'Формат Anthropic Messages будет добавлен в M1 (ADR-0015)');
+  if (cfg.format === 'messages') throw new LlmError('other', 'Формат Messages (Anthropic) не поддерживается (ADR-0022)');
   const doFetch = opts.fetch ?? fetch;
   const sleep = opts.sleep ?? defaultSleep;
   const retries = opts.retries ?? 2;

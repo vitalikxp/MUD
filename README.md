@@ -12,7 +12,7 @@
 а ИИ рассказывает историю и вызывает инструменты движка.
 
 - Статический сайт (GitHub Pages), Firebase на бесплатном тарифе, свой ключ LLM (BYOK).
-- Любой провайдер с API в формате OpenAI или Anthropic: OpenCode Go, OpenRouter, Gemini, Anthropic, OpenAI, локальный Ollama.
+- Любой провайдер с OpenAI-совместимым API: OpenCode Go, OpenRouter, Gemini, OpenAI, локальный Ollama.
 
 Сайт: **https://mud.vitalik.dev** (пока не опубликован).
 

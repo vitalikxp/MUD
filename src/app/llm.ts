@@ -88,7 +88,7 @@ export const problems = computed<Problem[]>(() => {
   if (!dmModel.value.trim()) out.push('model');
   if (provider.value.needsRelay && relayMode.value !== 'direct' && !effectiveRelay.value) out.push('relay');
   if (trainsOnData.value && !trainsAck.value) out.push('consent');
-  if (dmModel.value.trim() && dmFormat.value === 'messages') out.push('format'); // Anthropic Messages пока не поддержан (ADR-0015)
+  if (dmModel.value.trim() && dmFormat.value === 'messages') out.push('format'); // формат Messages (Anthropic) не поддерживается (ADR-0022)
   return out;
 });
 

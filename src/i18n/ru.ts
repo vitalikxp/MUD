@@ -175,7 +175,7 @@ export const ru = {
     error: 'Список не получен: {reason}. Показаны только проверенные модели.',
     count: 'Моделей у провайдера: {n}',
     unchecked: 'Мы эту модель не проверяли: она может писать хуже или не вызывать инструменты.',
-    unsupported: 'Формат Anthropic Messages пока не поддержан: играть с этой моделью нельзя.',
+    unsupported: 'Формат Messages (Anthropic) не поддерживается: играть с этой моделью нельзя.',
     offline: 'Этой модели нет в списке провайдера.',
     level: {
       good: 'рекомендуем',
@@ -195,7 +195,6 @@ export const ru = {
   formats: {
     chat: 'OpenAI Chat Completions',
     responses: 'OpenAI Responses',
-    messages: 'Anthropic Messages (скоро)',
   },
   problems: {
     key: 'нет ключа API',

@@ -79,7 +79,7 @@ export function SettingsDialog({ gate, onClose, onStart }: { gate: boolean; onCl
           { id: 'baseUrl', label: t('settings.baseUrl'), kind: 'text', value: llm.customBaseUrl.value, placeholder: 'https://…/v1', onChange: (v: string) => { llm.customBaseUrl.value = v; } },
           { id: 'model', label: t('settings.model'), kind: 'text', value: llm.customModel.value, onChange: (v: string) => { llm.customModel.value = v; } },
           { id: 'format', label: t('settings.format'), kind: 'choice', value: llm.customFormat.value,
-            options: (['chat', 'responses', 'messages'] as const).map((f) => ({ value: f, label: t(`formats.${f}`) })),
+            options: (['chat', 'responses'] as const).map((f) => ({ value: f, label: t(`formats.${f}`) })),
             onChange: (v: string) => { llm.customFormat.value = v as ApiFormat; } },
         ] satisfies Field[])
       : ([

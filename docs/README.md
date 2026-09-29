@@ -54,7 +54,7 @@
 | Q8 | Механика OpenD6 сверена с книгами, у каждого правила в [05](05-rules-engine.md) есть ссылка на страницу; 4 осознанных отступления записаны там же |
 | Q9 | Постапокалипсис — «Пепел» (`ash`): пустыня, топливо, банды на машинах, караваны; в духе Mad Max и Fallout |
 | — | Правила: OpenD6 вместо собственного `d20lite` ([ADR-0011](adr/0011-opend6-first-module.md)) |
-| — | LLM-клиент: три формата API — Chat Completions, Responses, Anthropic Messages ([ADR-0015](adr/0015-llm-three-api-formats.md)) |
+| — | LLM-клиент: два формата API — Chat Completions и Responses ([ADR-0015](adr/0015-llm-three-api-formats.md), [ADR-0022](adr/0022-no-anthropic-messages.md)) |
 | — | Лицензии: 0BSD для кода + CC0 1.0 для контента (+ OGL 1.0a для модуля OpenD6) |
 | — | PDF книг OpenD6 хранятся в обычном git (без LFS) |
 | — | Шрифт по умолчанию: PxPlus IBM VGA 9x16 |

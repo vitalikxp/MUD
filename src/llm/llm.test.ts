@@ -187,7 +187,7 @@ describe('client', () => {
     await expect(complete(responsesCfg, req, undefined, { fetch: f2 })).rejects.toMatchObject({ kind: 'incomplete' });
   });
 
-  it('формат Anthropic Messages пока не поддержан — понятная ошибка', async () => {
+  it('формат Messages (Anthropic) не поддерживается — понятная ошибка', async () => {
     await expect(collect(streamChat({ ...cfg, format: 'messages' }, req))).rejects.toMatchObject({ kind: 'other' });
   });
 });

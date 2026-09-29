@@ -1,5 +1,5 @@
 // Stateless-relay для LLM-запросов из браузера (ADR-0002, docs/11-quality-ops.md#relay).
-// Пересылает POST /v1/{chat/completions|responses|messages} и GET /v1/models (список моделей) к провайдеру из allowlist, ничего не хранит и не логирует.
+// Пересылает POST /v1/{chat/completions|responses} и GET /v1/models (список моделей) к провайдеру из allowlist, ничего не хранит и не логирует.
 // Cloudflare Worker (Free): ожидание сети не расходует лимит CPU, потоковые ответы разрешены.
 
 import brand from '../../brand.json';
@@ -17,13 +17,12 @@ export const UPSTREAM_HOSTS = [
   'openrouter.ai',
   'generativelanguage.googleapis.com',
   'api.openai.com',
-  'api.anthropic.com',
 ];
-const POST_ENDPOINTS = new Set(['chat/completions', 'responses', 'messages']);
+const POST_ENDPOINTS = new Set(['chat/completions', 'responses']);
 const GET_ENDPOINTS = new Set(['models']);
 
 /** Заголовки клиента, которые передаются провайдеру. Остальное (cookie, origin, cf-*) отбрасывается. */
-const FORWARD_REQUEST_HEADERS = ['content-type', 'accept', 'authorization', 'x-api-key', 'anthropic-version', 'x-opencode-session'];
+const FORWARD_REQUEST_HEADERS = ['content-type', 'accept', 'authorization', 'x-opencode-session'];
 /** Заголовки ответа, которые возвращаются клиенту. */
 const FORWARD_RESPONSE_HEADERS = ['content-type', 'cache-control', 'retry-after'];
 const USER_AGENT = `${brand.id}-relay/0.1 (+https://${brand.domain})`;
@@ -42,7 +41,7 @@ function cors(origin: string): Record<string, string> {
   return {
     'Access-Control-Allow-Origin': origin,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': ['content-type', 'authorization', 'x-api-key', 'anthropic-version', 'x-opencode-session', 'x-upstream', 'accept'].join(', '),
+    'Access-Control-Allow-Headers': ['content-type', 'authorization', 'x-opencode-session', 'x-upstream', 'accept'].join(', '),
     'Access-Control-Max-Age': '86400',
     'Access-Control-Expose-Headers': 'retry-after',
     Vary: 'Origin',

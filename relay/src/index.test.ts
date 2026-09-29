@@ -113,6 +113,21 @@ describe('relay', () => {
     expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
 
+  it('Anthropic не поддерживается: путь /v1/messages и хост api.anthropic.com отвергаются, их заголовки не пересылаются (ADR-0022)', async () => {
+    const upstream = vi.fn().mockResolvedValue(new Response('{}', { status: 200 }));
+    vi.stubGlobal('fetch', upstream);
+    expect((await relay.fetch(post('/v1/messages'))).status).toBe(404);
+    expect((await relay.fetch(post('/v1/responses', { upstream: 'https://api.anthropic.com/v1' }))).status).toBe(403);
+    expect(upstream).not.toHaveBeenCalled();
+    const res = await relay.fetch(post('/v1/chat/completions', { headers: { 'x-api-key': 'K', 'anthropic-version': '2023-06-01' } }));
+    expect(res.status).toBe(200);
+    const sent = upstream.mock.calls[0]![1].headers as Headers;
+    expect(sent.get('x-api-key')).toBeNull();
+    expect(sent.get('anthropic-version')).toBeNull();
+    const preflight = await relay.fetch(new Request('https://relay.test/v1/responses', { method: 'OPTIONS', headers: { Origin: ORIGIN } }));
+    expect(preflight.headers.get('Access-Control-Allow-Headers')).not.toMatch(/x-api-key|anthropic/);
+  });
+
   it('EXTRA_UPSTREAM_HOSTS расширяет список провайдеров', () => {
     expect(upstreamAllowed(new URL('https://llm.local/v1'), {})).toBe(false);
     expect(upstreamAllowed(new URL('https://llm.local/v1'), { EXTRA_UPSTREAM_HOSTS: 'llm.local' })).toBe(true);

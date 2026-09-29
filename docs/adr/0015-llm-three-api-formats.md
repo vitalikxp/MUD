@@ -1,6 +1,6 @@
 # 0015. LLM-клиент поддерживает три формата API
 
-- Статус: Accepted. Адаптер Responses перенесён в M0 решением [0016](0016-default-models-pareto.md)
+- Статус: Accepted. Адаптер Responses перенесён в M0 решением [0016](0016-default-models-pareto.md); адаптер Anthropic Messages отменён в [0022](0022-no-anthropic-messages.md)
 - Дата: 2026-09-28
 - Дополняет: [0002](0002-llm-relay-provider-agnostic.md) (там предполагался только OpenAI Chat Completions)
 

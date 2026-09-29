@@ -21,7 +21,7 @@
  │ Auth (anonymous, Google)                     │      │ stateless, CORS, allowlist    │
  │ Firestore: кампании, коммиты, проекции,      │      └──────────────┬────────────────┘
  │            заявки, лор                       │                     ▼
- │ RTDB: присутствие, аренда*, стрим текста     │      LLM-провайдер (OpenAI/Anthropic API)
+ │ RTDB: присутствие, аренда*, стрим текста     │      LLM-провайдер (OpenAI-совм. API)
  └──────────────────────────────────────────────┘      (OpenCode Go / OpenRouter / Gemini / Ollama…)
 ```
 \* Аренда хоста хранится в Firestore, RTDB только сигнализирует о присутствии (подробнее в [08](08-multiplayer.md)).
@@ -32,7 +32,7 @@
 |---|---|---|---|
 | Engine | `src/engine/` | Типы событий, редьюсер `apply(state, event)`, проекции, сидированный RNG, парсер и бросатель кубов, генераторы карт, поле зрения | ничего |
 | Rules | `src/rules/` | Интерфейс `RulesModule` и модули. Схема персонажа, проверки, бой, контент (монстры, предметы) | engine (типы) |
-| LLM | `src/llm/` | HTTP-клиент с адаптерами Chat Completions, Responses и Anthropic Messages: стриминг SSE, tool calls, retry, пресеты провайдеров, relay/direct, учёт usage ([ADR-0015](adr/0015-llm-three-api-formats.md)) | ничего |
+| LLM | `src/llm/` | HTTP-клиент с адаптерами Chat Completions и Responses: стриминг SSE, tool calls, retry, пресеты провайдеров, relay/direct, учёт usage ([ADR-0015](adr/0015-llm-three-api-formats.md), [ADR-0022](adr/0022-no-anthropic-messages.md)) | ничего |
 | DM | `src/dm/` | Оркестратор хода, сборка контекста, реестр инструментов, память (ретривер, сводки), промпты | engine, rules, llm |
 | Net | `src/net/` | `StorageAdapter` (local IndexedDB / Firebase), присутствие, аренда хоста, стрим повествования | engine (типы) |
 | Content | `src/content/` | Загрузка шаблонов сеттингов, zod-валидация, i18n контента | engine (типы) |
