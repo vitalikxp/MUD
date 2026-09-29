@@ -15,7 +15,7 @@ test('главный экран: сетка, панели, рамки, шриф�
   else expect(cols).toBeLessThan(80);
   await expect(page.getByRole('region', { name: 'Хроника' })).toBeVisible();
   await expectFramesAligned(page);
-  expect(await page.evaluate(() => document.fonts.check('16px "SWRD PxPlus IBM VGA"', 'Яж█═'))).toBe(true);
+  expect(await page.evaluate(() => document.fonts.check('16px "PxPlus IBM VGA"', 'Яж█═'))).toBe(true);
   expect(errors).toEqual([]);
 });
 

@@ -41,6 +41,7 @@ async function configure(page: Page): Promise<void> {
   await page.keyboard.press('ArrowDown'); // Модели
   await page.keyboard.press('ArrowRight'); // → Приватный
   await expect(page.getByRole('menuitem', { name: /Приватный/ })).toBeVisible();
+  await page.keyboard.press('ArrowDown'); // Модель (выбор из списка)
   await page.keyboard.press('ArrowDown'); // Ключ
   await page.keyboard.press('Enter');
   await page.keyboard.type('sk-test-123');
@@ -113,6 +114,7 @@ test('первый запуск без настроек: только окно �
   await expect(page.getByText('Meta', { exact: false }).first()).toBeVisible();
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('ArrowDown');
   await page.keyboard.press('ArrowDown'); // Обучение (нет согласия)
   await page.keyboard.press('Enter'); // подтвердить
   await expect(page.getByRole('menuitem', { name: /согласен/ })).toBeVisible();
@@ -128,6 +130,7 @@ test('ключ и настройки переживают перезагрузк
   await page.keyboard.press('ArrowDown'); // Провайдер
   await page.keyboard.press('ArrowDown'); // Модели
   await page.keyboard.press('ArrowRight'); // → Приватный
+  await page.keyboard.press('ArrowDown'); // Модель (выбор из списка)
   await page.keyboard.press('ArrowDown'); // Ключ
   await page.keyboard.press('Enter');
   await page.keyboard.type('sk-keep-me');
@@ -135,16 +138,16 @@ test('ключ и настройки переживают перезагрузк
   await page.reload();
   // Настройки есть — окно первого запуска не навязывается, игра открыта.
   await expect(page.getByRole('region', { name: 'Хроника' })).toBeVisible();
-  expect(await page.evaluate(() => localStorage.getItem('swrd.llm.key.v1'))).toBe('sk-keep-me');
+  expect(await page.evaluate(() => localStorage.getItem('mud.llm.key.v1'))).toBe('sk-keep-me');
   await page.keyboard.press('F4');
   await expect(page.getByRole('dialog', { name: 'Настройки LLM' })).toBeVisible();
   await expect(page.getByRole('menu')).toBeFocused();
-  for (let n = 0; n < 4; n++) await page.keyboard.press('ArrowDown'); // до «Запомнить ключ»
+  for (let n = 0; n < 5; n++) await page.keyboard.press('ArrowDown'); // до «Запомнить ключ»
   await page.keyboard.press('Enter'); // выключить
-  expect(await page.evaluate(() => localStorage.getItem('swrd.llm.key.v1'))).toBeNull();
-  expect(await page.evaluate(() => sessionStorage.getItem('swrd.llm.key.v1'))).toBe('sk-keep-me');
+  expect(await page.evaluate(() => localStorage.getItem('mud.llm.key.v1'))).toBeNull();
+  expect(await page.evaluate(() => sessionStorage.getItem('mud.llm.key.v1'))).toBe('sk-keep-me');
   // Ключ не попадает ни в общий блок настроек, ни в текст страницы
-  expect(await page.evaluate(() => localStorage.getItem('swrd.llm.v1'))).not.toContain('sk-keep-me');
+  expect(await page.evaluate(() => localStorage.getItem('mud.llm.v1'))).not.toContain('sk-keep-me');
   expect(await page.locator('body').innerText()).not.toContain('sk-keep-me');
 });
 
@@ -267,7 +270,7 @@ test('настройки LLM — окно по F4: повторное нажат
   await expect(page.getByRole('dialog')).toBeHidden();
   await page.keyboard.press('F4');
   await expect(page.getByRole('menu')).toBeFocused();
-  for (let n = 0; n < 3; n++) await page.keyboard.press('ArrowDown'); // Ключ
+  for (let n = 0; n < 4; n++) await page.keyboard.press('ArrowDown'); // Ключ
   await page.keyboard.press('Enter');
   await page.keyboard.press('Control+A');
   await page.keyboard.press('Backspace');
@@ -280,4 +283,86 @@ test('настройки LLM — окно по F4: повторное нажат
   await input.fill('Привет');
   await input.press('Enter');
   await expect(page.getByRole('log')).toContainText('Мастер не настроен: нет ключа API');
+});
+
+/** Список моделей провайдера: GET /v1/models через фальшивый relay. */
+async function mockModels(page: Page, ids: string[] | 'fail'): Promise<{ requests: string[] }> {
+  const seen = { requests: [] as string[] };
+  await page.route(`${RELAY}/v1/models`, async (route: Route) => {
+    const req = route.request();
+    if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: { ...CORS, 'access-control-allow-methods': 'GET, POST, OPTIONS' } });
+    seen.requests.push(`${req.method()} ${req.headers()['authorization'] ?? ''}`);
+    if (ids === 'fail') return route.fulfill({ status: 500, headers: CORS, body: 'boom' });
+    return route.fulfill({ status: 200, headers: { ...CORS, 'content-type': 'application/json' }, body: JSON.stringify({ object: 'list', data: ids.map((id) => ({ id })) }) });
+  });
+  return seen;
+}
+
+/** Открыть окно выбора модели из настроек (курсор на строке «Модель»). */
+async function openModelPicker(page: Page): Promise<void> {
+  await page.keyboard.press('F4');
+  await expect(page.getByRole('menu')).toBeFocused();
+  await page.keyboard.press('ArrowDown'); // Провайдер
+  await page.keyboard.press('ArrowDown'); // Модели
+  await page.keyboard.press('ArrowDown'); // Модель
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('dialog', { name: 'Выбор модели' })).toBeVisible();
+  await expect(page.getByRole('listbox', { name: 'Выбор модели' })).toBeFocused();
+}
+
+test('выбор модели: проверенные первыми и цветом, остальные из ответа провайдера; выбор сохраняется', async ({ page }) => {
+  const seen = { headers: [] as Record<string, string>[], bodies: [] as Record<string, unknown>[] };
+  await mockRelay(page, seen);
+  const models = await mockModels(page, ['zzz-unknown', 'aaa-unknown', 'longcat-2.0', 'glm-5.3', 'gpt-5.6-luna', 'deepseek-v4-flash', 'mimo-v2.6-flash', 'qwen3.8-max', 'grok-4.7']);
+  await configure(page);
+  await startGame(page);
+  await openModelPicker(page);
+  const options = page.getByRole('option');
+  await expect(options.first()).toContainText('gpt-5.6-luna');
+  await expect(options.first()).toContainText('рекомендуем');
+  // порядок: рекомендуемые, с оговорками, непроверенные по алфавиту, неработающие
+  const names = (await options.allTextContents()).map((t) => t.replace(/[●○×•]/g, '').trim().split(/\s+/)[0]);
+  expect(names.slice(0, 4)).toEqual(['gpt-5.6-luna', 'glm-5.3', 'deepseek-v4-flash', 'mimo-v2.6-flash']);
+  expect(names.indexOf('aaa-unknown')).toBeLessThan(names.indexOf('zzz-unknown'));
+  expect(names.at(-1)).toBe('longcat-2.0');
+  expect(models.requests[0]).toMatch(/^GET Bearer sk-test-123$/);
+  // цвет проверенной модели — токен палитры, непроверенная — обычный
+  const color = (name: string) => page.getByRole('option', { name: new RegExp(name) }).evaluate((el) => getComputedStyle(el).color);
+  expect(await color('deepseek-v4-flash')).not.toBe(await color('aaa-unknown'));
+  // заметка к выбранной строке
+  await page.keyboard.press('ArrowDown');
+  await expect(page.getByRole('dialog', { name: 'Выбор модели' })).toContainText('Богатый язык');
+  // непроверенная модель: предупреждение; формат Messages — «нельзя играть»
+  await page.locator('#menu-item-grok-4\\.7').click(); // непроверенная модель с форматом Responses (его говорит фальшивый relay)
+  await expect(page.getByRole('dialog', { name: 'Настройки LLM' })).toContainText('grok-4.7');
+  await expect(page.getByRole('dialog', { name: 'Выбор модели' })).toHaveCount(0);
+
+  // выбор запомнился и попал в запрос проверки
+  await page.keyboard.press('ArrowDown'); // Ключ
+  await page.keyboard.press('ArrowDown'); // Запомнить
+  await page.keyboard.press('ArrowDown'); // Relay
+  await page.keyboard.press('ArrowDown'); // Адрес relay
+  await page.keyboard.press('ArrowDown'); // Проверить
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('dialog', { name: 'Настройки LLM' }).getByRole('log')).toContainText('Готово');
+  expect(seen.bodies.at(-1)).toMatchObject({ model: 'grok-4.7' });
+  expect(seen.bodies.at(-1)!['reasoning']).toBeUndefined(); // для модели вне пресета усилие рассуждений не задаётся
+  await page.reload();
+  await expect(page.getByRole('textbox')).toBeFocused(); // обработчики F-клавиш подключены
+  await page.keyboard.press('F4');
+  await expect(page.getByRole('dialog', { name: 'Настройки LLM' })).toContainText('grok-4.7');
+});
+
+test('выбор модели: список не получен — показаны проверенные и причина; выбор модели пресета переключает пресет', async ({ page }) => {
+  const seen = { headers: [] as Record<string, string>[], bodies: [] as Record<string, unknown>[] };
+  await mockRelay(page, seen);
+  await mockModels(page, 'fail');
+  await configure(page);
+  await startGame(page);
+  await openModelPicker(page);
+  await expect(page.getByRole('dialog', { name: 'Выбор модели' })).toContainText('Список не получен');
+  await expect(page.getByRole('option').first()).toContainText('gpt-5.6-luna');
+  await page.locator('#menu-item-glm-5\\.3').click();
+  await expect(page.getByRole('menuitem', { name: /Качество/ })).toBeVisible(); // модель пресета «Качество» → пресет
+  await expect(page.getByRole('menuitem', { name: /Модель\s+glm-5.3/ })).toBeVisible();
 });

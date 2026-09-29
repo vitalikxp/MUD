@@ -1,11 +1,12 @@
 import { signal } from '@preact/signals';
-import { useEffect, useRef } from 'preact/hooks';
+import { useEffect, useRef, useState } from 'preact/hooks';
 import * as llm from '../../app/llm';
 import { locale, t, type Key, type Locale } from '../../i18n';
 import { checkProvider, type CheckStep } from '../../llm/check';
 import { CUSTOM, OPENCODE_GO } from '../../llm/presets';
 import type { ApiFormat } from '../../llm/types';
 import { Dialog } from '../tui/Dialog';
+import { ModelPickerDialog } from './ModelPickerDialog';
 import { useFKeys, type FKey } from '../tui/FKeyBar';
 import { Form, type Field } from '../tui/Form';
 import { useScreen } from '../tui/Screen';
@@ -22,10 +23,8 @@ async function runCheck(): Promise<void> {
     return;
   }
   checkState.value = { status: 'running' };
-  const p = llm.preset.value;
-  const target = p
-    ? { model: p.dm.model, maxOutputTokens: p.dm.maxOutputTokens, ...(p.dm.effort ? { effort: p.dm.effort } : {}) }
-    : { model: llm.dmModel.value, maxOutputTokens: 4000 };
+  const role = llm.dmRole.value;
+  const target = { model: role.model, maxOutputTokens: role.maxOutputTokens, ...(role.effort ? { effort: role.effort } : {}) };
   checkState.value = { status: 'done', steps: await checkProvider(llm.providerConfig(), target) };
 }
 
@@ -52,6 +51,7 @@ export function SettingsDialog({ gate, onClose, onStart }: { gate: boolean; onCl
   const { cols, rows } = useScreen();
   const formRef = useRef<HTMLDivElement>(null);
   const notesRef = useRef<ScrollApi | null>(null);
+  const [picking, setPicking] = useState(false);
   useEffect(() => { formRef.current?.focus(); }, []);
   useEffect(() => { checkState.value = { status: 'idle' }; }, []);
 
@@ -78,7 +78,8 @@ export function SettingsDialog({ gate, onClose, onStart }: { gate: boolean; onCl
       : ([
           { id: 'preset', label: t('settings.preset'), kind: 'choice', value: llm.presetId.value,
             options: OPENCODE_GO.presets.map((p) => ({ value: p.id, label: t(`presets.${p.id}`) })),
-            onChange: (v: string) => { llm.presetId.value = v as typeof llm.presetId.value; } },
+            onChange: (v: string) => { llm.presetId.value = v as typeof llm.presetId.value; llm.modelOverride.value = ''; } },
+          { id: 'modelPick', label: t('settings.modelPick'), kind: 'pick', value: llm.dmModel.value, onPick: () => setPicking(true) },
         ] satisfies Field[])),
     ...(llm.trainsOnData.value
       ? ([{ id: 'ack', label: t('settings.ack'), kind: 'toggle', value: llm.trainsAck.value, yes: t('settings.ackYes'), no: t('settings.ackNo'), onChange: (v: boolean) => { llm.trainsAck.value = v; } }] satisfies Field[])
@@ -115,6 +116,7 @@ export function SettingsDialog({ gate, onClose, onStart }: { gate: boolean; onCl
   else if (cs.status === 'done') notes.push(...stepLines(cs.steps));
 
   return (
+    <>
     <Dialog title={t('panels.settings')} w={w} h={h} onClose={onClose} separators={[formH + 1]}>
       {/* PgUp/PgDn листают заметки под формой (фокус остаётся на форме). */}
       {/* oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- перехват PgUp/PgDn до формы */}
@@ -129,5 +131,7 @@ export function SettingsDialog({ gate, onClose, onStart }: { gate: boolean; onCl
           build={(width) => wrapParagraphs(notes, width)} />
       </div>
     </Dialog>
+    {picking ? <ModelPickerDialog onClose={() => setPicking(false)} /> : null}
+    </>
   );
 }

@@ -7,6 +7,7 @@ export type Field =
   | { id: string; label: string; kind: 'choice'; value: string; options: readonly { value: string; label: string }[]; onChange: (v: string) => void }
   | { id: string; label: string; kind: 'text'; value: string; secret?: boolean; placeholder?: string; onChange: (v: string) => void }
   | { id: string; label: string; kind: 'toggle'; value: boolean; yes: string; no: string; onChange: (v: boolean) => void }
+  | { id: string; label: string; kind: 'pick'; value: string; onPick: () => void }
   | { id: string; label: string; kind: 'action'; onRun: () => void };
 
 function display(f: Field): string {
@@ -18,6 +19,7 @@ function display(f: Field): string {
       return f.secret ? '•'.repeat(Math.min(12, chars.length)) + chars.slice(-4).join('') : f.value;
     }
     case 'toggle': return f.value ? `[x] ${f.yes}` : `[ ] ${f.no}`;
+    case 'pick': return `${f.value} …`;
     case 'action': return '';
   }
 }
@@ -48,6 +50,7 @@ export function Form({ fields, width, label, formRef }: {
   const activate = (f: Field) => {
     if (f.kind === 'text') setEditing(true);
     else if (f.kind === 'action') f.onRun();
+    else if (f.kind === 'pick') f.onPick();
     else step(f, 1);
   };
 

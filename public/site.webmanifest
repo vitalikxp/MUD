@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "SWRD — ИИ-мастер настольной ролевой игры",
-  "short_name": "SWRD",
+  "name": "%BRAND_NAME%",
+  "short_name": "%BRAND_NAME%",
   "description": "ИИ ведёт настольную ролевую игру: знает правила, помнит мир, честно бросает кубы. Терминал в духе Norton Commander.",
   "lang": "ru",
   "dir": "ltr",

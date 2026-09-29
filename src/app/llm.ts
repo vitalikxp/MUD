@@ -1,10 +1,12 @@
 // Настройки LLM игрока и сборка конфигурации клиента. Ключ хранится только в браузере (AGENTS.md §4.5).
 import { computed, effect, signal } from '@preact/signals';
-import { CUSTOM, formatFor, getProvider, OPENCODE_GO, type ModelPreset, type ProviderPreset } from '../llm/presets';
+import { storageKey } from '../brand';
+import { modelTrainsOnData } from '../llm/models';
+import { CUSTOM, formatFor, getProvider, OPENCODE_GO, type ModelPreset, type ProviderPreset, type RoleModel } from '../llm/presets';
 import type { ApiFormat, ProviderConfig } from '../llm/types';
 
-const STORAGE_KEY = 'swrd.llm.v1';
-const KEY_STORAGE = 'swrd.llm.key.v1';
+const STORAGE_KEY = storageKey('llm.v1');
+const KEY_STORAGE = storageKey('llm.key.v1');
 
 export type RelayMode = 'default' | 'custom' | 'direct';
 
@@ -14,6 +16,8 @@ export const DEFAULT_RELAY_URL: string = import.meta.env.VITE_RELAY_URL ?? '';
 interface Stored {
   provider?: string;
   preset?: ModelPreset['id'];
+  /** Модель, выбранная в окне выбора поверх пресета (провайдер с каталогом моделей). */
+  model?: string;
   relayMode?: RelayMode;
   relayUrl?: string;
   customBaseUrl?: string;
@@ -43,6 +47,8 @@ function loadKey(): string {
 const s = load();
 export const providerId = signal(getProvider(s.provider ?? OPENCODE_GO.id).id);
 export const presetId = signal<ModelPreset['id']>(s.preset ?? 'economy');
+/** Пусто — модель берётся из пресета. */
+export const modelOverride = signal(s.model ?? '');
 export const relayMode = signal<RelayMode>(s.relayMode ?? 'default');
 export const relayUrl = signal(s.relayUrl ?? '');
 export const customBaseUrl = signal(s.customBaseUrl ?? '');
@@ -56,10 +62,23 @@ export const provider = computed<ProviderPreset>(() => (providerId.value === CUS
 export const preset = computed<ModelPreset | undefined>(() =>
   provider.value.presets.find((p) => p.id === presetId.value) ?? provider.value.presets[0],
 );
-export const trainsOnData = computed(() => preset.value?.trainsOnData ?? false);
+/** Модель Мастера: выбранная вручную или из пресета (для своего API — введённая). */
+export const dmModel = computed(() => {
+  if (provider.value.id === CUSTOM.id) return customModel.value;
+  return modelOverride.value.trim() || (preset.value?.dm.model ?? '');
+});
+/** Параметры роли Мастера. Для модели вне пресета усилие рассуждений не задаётся: часть моделей на нём отвечает пустым текстом. */
+export const dmRole = computed<RoleModel>(() => {
+  const p = preset.value;
+  if (p && dmModel.value === p.dm.model) return p.dm;
+  return { model: dmModel.value, maxOutputTokens: p?.dm.maxOutputTokens ?? 4000 };
+});
+export const trainsOnData = computed(() => (provider.value.id === CUSTOM.id ? false : modelTrainsOnData(provider.value, dmModel.value)));
 
 export const baseUrl = computed(() => (provider.value.id === CUSTOM.id ? customBaseUrl.value : provider.value.baseUrl));
-export const dmModel = computed(() => (provider.value.id === CUSTOM.id ? customModel.value : (preset.value?.dm.model ?? '')));
+
+/** Формат API выбранной модели: у своего API задаётся вручную, у каталога — по таблице провайдера. */
+export const dmFormat = computed<ApiFormat>(() => (provider.value.id === CUSTOM.id ? customFormat.value : formatFor(provider.value, dmModel.value)));
 
 export const effectiveRelay = computed(() => {
   if (relayMode.value === 'direct') return '';
@@ -67,7 +86,7 @@ export const effectiveRelay = computed(() => {
 });
 
 /** Что мешает начать игру: ключ, адрес, модель, relay, согласие. Пустой список — можно играть. */
-export type Problem = 'key' | 'baseUrl' | 'model' | 'relay' | 'consent';
+export type Problem = 'key' | 'baseUrl' | 'model' | 'relay' | 'consent' | 'format';
 export const problems = computed<Problem[]>(() => {
   const out: Problem[] = [];
   if (!apiKey.value.trim()) out.push('key');
@@ -75,6 +94,7 @@ export const problems = computed<Problem[]>(() => {
   if (!dmModel.value.trim()) out.push('model');
   if (provider.value.needsRelay && relayMode.value !== 'direct' && !effectiveRelay.value) out.push('relay');
   if (trainsOnData.value && !trainsAck.value) out.push('consent');
+  if (dmModel.value.trim() && dmFormat.value === 'messages') out.push('format'); // Anthropic Messages пока не поддержан (ADR-0015)
   return out;
 });
 
@@ -89,7 +109,7 @@ export const sessionId = crypto.randomUUID();
 export function providerConfig(): ProviderConfig {
   const relay = effectiveRelay.value;
   return {
-    format: provider.value.id === CUSTOM.id ? customFormat.value : formatFor(provider.value, dmModel.value),
+    format: dmFormat.value,
     baseUrl: baseUrl.value.replace(/\/+$/, ''),
     apiKey: apiKey.value.trim(),
     sessionId,
@@ -100,7 +120,7 @@ export function providerConfig(): ProviderConfig {
 export function startLlmSettings(): void {
   effect(() => {
     const data: Stored = {
-      provider: providerId.value, preset: presetId.value, relayMode: relayMode.value, relayUrl: relayUrl.value,
+      provider: providerId.value, preset: presetId.value, model: modelOverride.value, relayMode: relayMode.value, relayUrl: relayUrl.value,
       customBaseUrl: customBaseUrl.value, customModel: customModel.value, customFormat: customFormat.value,
       remember: remember.value, trainsAck: trainsAck.value,
     };

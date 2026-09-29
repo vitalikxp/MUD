@@ -105,19 +105,20 @@ let queue: Promise<unknown> = Promise.resolve();
 
 /**
  * Ход или действие: события собираются в черновике `Draft`, потом уходят в журнал одним коммитом (атомарно вместе с проекцией).
- * Вызовы выполняются строго по очереди. Если `build` бросит исключение, ничего не записывается.
+ * `build` может быть асинхронным (ход Мастера). Вызовы выполняются строго по очереди: пока идёт ход, другие ждут.
+ * Если `build` бросит исключение или отклонится, ничего не записывается: ни события, ни продвижение генератора кубов.
  */
-export function commitTurn(kind: CommitKind, build: (draft: Draft) => void, opts: CommitOptions = {}): Promise<Session> {
+export function commitTurn(kind: CommitKind, build: (draft: Draft, session: Session) => void | Promise<void>, opts: CommitOptions = {}): Promise<Session> {
   const run = queue.then(() => doCommit(kind, build, opts));
   queue = run.catch(() => undefined);
   return run;
 }
 
-async function doCommit(kind: CommitKind, build: (draft: Draft) => void, opts: CommitOptions): Promise<Session> {
+async function doCommit(kind: CommitKind, build: (draft: Draft, session: Session) => void | Promise<void>, opts: CommitOptions): Promise<Session> {
   const current = session.peek();
   if (!current) throw new Error('Нет открытой кампании');
   const draft = new Draft(current.state, current.rng, crypto.randomUUID());
-  build(draft);
+  await build(draft, current); // ход Мастера сюда приходит асинхронно: черновик живёт, пока идёт разговор с моделью
   const commit = draft.toCommit(current.meta.headSeq + 1, kind, Date.now(), opts.promptVersion);
   try {
     const meta = await storage.commit(current.meta.id, commit, { state: draft.state, ...(opts.phase ? { phase: opts.phase } : {}) });

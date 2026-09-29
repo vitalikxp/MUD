@@ -1,15 +1,17 @@
 // Stateless-relay для LLM-запросов из браузера (ADR-0002, docs/11-quality-ops.md#relay).
-// Пересылает POST /v1/{chat/completions|responses|messages} к провайдеру из allowlist, ничего не хранит и не логирует.
+// Пересылает POST /v1/{chat/completions|responses|messages} и GET /v1/models (список моделей) к провайдеру из allowlist, ничего не хранит и не логирует.
 // Cloudflare Worker (Free): ожидание сети не расходует лимит CPU, потоковые ответы разрешены.
 
+import brand from '../../brand.json';
+
 export interface Env {
-  /** Через запятую. Точное совпадение origin, например `https://swrd.ru,http://localhost:5173`. */
+  /** Через запятую. Точное совпадение origin, например `https://mud.vitalik.dev,http://localhost:5173`. */
   ALLOWED_ORIGINS?: string;
   /** Через запятую: дополнительные хосты провайдеров сверх встроенных. */
   EXTRA_UPSTREAM_HOSTS?: string;
 }
 
-export const DEFAULT_ORIGINS = ['https://swrd.ru', 'https://www.swrd.ru'];
+export const DEFAULT_ORIGINS = [`https://${brand.domain}`];
 export const UPSTREAM_HOSTS = [
   'opencode.ai',
   'openrouter.ai',
@@ -17,13 +19,14 @@ export const UPSTREAM_HOSTS = [
   'api.openai.com',
   'api.anthropic.com',
 ];
-const ENDPOINTS = new Set(['chat/completions', 'responses', 'messages']);
+const POST_ENDPOINTS = new Set(['chat/completions', 'responses', 'messages']);
+const GET_ENDPOINTS = new Set(['models']);
 
 /** Заголовки клиента, которые передаются провайдеру. Остальное (cookie, origin, cf-*) отбрасывается. */
 const FORWARD_REQUEST_HEADERS = ['content-type', 'accept', 'authorization', 'x-api-key', 'anthropic-version', 'x-opencode-session'];
 /** Заголовки ответа, которые возвращаются клиенту. */
 const FORWARD_RESPONSE_HEADERS = ['content-type', 'cache-control', 'retry-after'];
-const USER_AGENT = 'swrd-relay/0.1 (+https://swrd.ru)';
+const USER_AGENT = `${brand.id}-relay/0.1 (+https://${brand.domain})`;
 
 export function isLocalOrigin(origin: string): boolean {
   return /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
@@ -38,7 +41,7 @@ export function allowedOrigin(origin: string | null, env: Env): string | null {
 function cors(origin: string): Record<string, string> {
   return {
     'Access-Control-Allow-Origin': origin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': ['content-type', 'authorization', 'x-api-key', 'anthropic-version', 'x-opencode-session', 'x-upstream', 'accept'].join(', '),
     'Access-Control-Max-Age': '86400',
     'Access-Control-Expose-Headers': 'retry-after',
@@ -68,10 +71,15 @@ export default {
     }
     if (url.pathname === '/health') return new Response('ok', { headers: { 'Content-Type': 'text/plain' } });
     if (!origin) return fail(403, 'origin_not_allowed', 'Origin не разрешён');
-    if (request.method !== 'POST') return fail(405, 'method_not_allowed', 'Только POST', origin);
+    if (request.method !== 'POST' && request.method !== 'GET') return fail(405, 'method_not_allowed', 'Только POST и GET /v1/models', origin);
 
     const endpoint = url.pathname.replace(/^\/v1\//, '');
-    if (!url.pathname.startsWith('/v1/') || !ENDPOINTS.has(endpoint)) return fail(404, 'unknown_endpoint', 'Неизвестный путь', origin);
+    const known = request.method === 'GET' ? GET_ENDPOINTS : POST_ENDPOINTS;
+    if (!url.pathname.startsWith('/v1/') || !known.has(endpoint)) {
+      return endpoint && (POST_ENDPOINTS.has(endpoint) || GET_ENDPOINTS.has(endpoint))
+        ? fail(405, 'method_not_allowed', 'Этот путь не принимает такой метод', origin)
+        : fail(404, 'unknown_endpoint', 'Неизвестный путь', origin);
+    }
 
     const rawUpstream = request.headers.get('X-Upstream');
     let upstream: URL;
@@ -91,7 +99,7 @@ export default {
 
     let response: Response;
     try {
-      response = await fetch(target, { method: 'POST', headers, body: request.body });
+      response = await fetch(target, request.method === 'GET' ? { method: 'GET', headers } : { method: 'POST', headers, body: request.body });
     } catch {
       return fail(502, 'upstream_unreachable', 'Провайдер недоступен', origin);
     }

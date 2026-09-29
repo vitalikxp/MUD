@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import relay, { allowedOrigin, upstreamAllowed } from './index';
 
-const ORIGIN = 'https://swrd.ru';
+const ORIGIN = 'https://mud.vitalik.dev';
 const GO = 'https://opencode.ai/zen/go/v1';
 afterEach(() => vi.unstubAllGlobals());
 
@@ -25,9 +25,9 @@ describe('relay', () => {
 
   it('localhost разрешён, ALLOWED_ORIGINS переопределяет список', () => {
     expect(allowedOrigin('http://localhost:5173', {})).toBe('http://localhost:5173');
-    expect(allowedOrigin('https://swrd.ru', {})).toBe('https://swrd.ru');
+    expect(allowedOrigin('https://mud.vitalik.dev', {})).toBe('https://mud.vitalik.dev');
     expect(allowedOrigin('https://fork.example', { ALLOWED_ORIGINS: 'https://fork.example' })).toBe('https://fork.example');
-    expect(allowedOrigin('https://swrd.ru', { ALLOWED_ORIGINS: 'https://fork.example' })).toBeNull();
+    expect(allowedOrigin('https://mud.vitalik.dev', { ALLOWED_ORIGINS: 'https://fork.example' })).toBeNull();
     expect(allowedOrigin(null, {})).toBeNull();
   });
 
@@ -42,7 +42,7 @@ describe('relay', () => {
     const h = init.headers as Headers;
     expect(h.get('authorization')).toBe('Bearer SECRET');
     expect(h.get('x-opencode-session')).toBe('sess');
-    expect(h.get('user-agent')).toMatch(/^swrd-relay\//);
+    expect(h.get('user-agent')).toMatch(/^mud-relay\//);
     expect(h.get('cookie')).toBeNull();
     expect(h.get('origin')).toBeNull();
     expect(h.get('cf-connecting-ip')).toBeNull();
@@ -84,6 +84,33 @@ describe('relay', () => {
     expect((await relay.fetch(new Request('https://relay.test/health'))).status).toBe(200);
     vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('down')));
     expect((await relay.fetch(post('/v1/responses'))).status).toBe(502);
+  });
+
+  it('GET /v1/models пересылается как GET: без тела, с ключом и сессией, с CORS; чужие методы и пути отвергаются', async () => {
+    const fetchSpy = vi.fn().mockResolvedValue(new Response('{"data":[{"id":"m1"}]}', { status: 200, headers: { 'content-type': 'application/json' } }));
+    vi.stubGlobal('fetch', fetchSpy);
+    const get = (path: string, init: RequestInit = {}, origin: string | null = ORIGIN) =>
+      new Request(`https://relay.test${path}`, { headers: { ...(origin ? { Origin: origin } : {}), 'X-Upstream': GO, Authorization: 'Bearer SECRET', 'x-opencode-session': 'sess-1', Cookie: 'a=b' }, ...init });
+    const res = await relay.fetch(get('/v1/models'));
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ data: [{ id: 'm1' }] });
+    expect(res.headers.get('Access-Control-Allow-Origin')).toBe(ORIGIN);
+    const [target, init] = fetchSpy.mock.calls[0] as [string, RequestInit];
+    expect(target).toBe(`${GO}/models`);
+    expect(init.method).toBe('GET');
+    expect(init.body).toBeUndefined();
+    const sent = init.headers as Headers;
+    expect(sent.get('authorization')).toBe('Bearer SECRET');
+    expect(sent.get('x-opencode-session')).toBe('sess-1');
+    expect(sent.get('cookie')).toBeNull();
+
+    expect((await relay.fetch(post('/v1/models'))).status).toBe(405); // POST на путь только для GET
+    expect((await relay.fetch(get('/v1/embeddings'))).status).toBe(404);
+    expect((await relay.fetch(get('/v1/models', {}, 'https://evil.example'))).status).toBe(403);
+    expect((await relay.fetch(get('/v1/models', {}, null))).status).toBe(403);
+    expect((await relay.fetch(new Request('https://relay.test/v1/models', { headers: { Origin: ORIGIN, 'X-Upstream': 'https://evil.example/v1' } }))).status).toBe(403);
+    expect((await relay.fetch(new Request('https://relay.test/v1/models', { method: 'DELETE', headers: { Origin: ORIGIN } }))).status).toBe(405);
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
   });
 
   it('EXTRA_UPSTREAM_HOSTS расширяет список провайдеров', () => {

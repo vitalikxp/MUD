@@ -1,6 +1,7 @@
 // LocalAdapter: кампании в IndexedDB браузера (соло, без аккаунта и сети).
-// База `swrd`: campaigns, commits [cid, seq], projections [cid, name], settings, debugTurns [cid, turnId] (docs/06-data-model.md).
+// База `mud`: campaigns, commits [cid, seq], projections [cid, name], settings, debugTurns [cid, turnId] (docs/06-data-model.md).
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
+import { BRAND_ID } from '../brand';
 import { foldCommits } from '../engine/commits';
 import { initialState } from '../engine/reducer';
 import type { Commit, GameState } from '../engine/types';
@@ -20,7 +21,7 @@ interface ProjectionRow {
   data: GameState;
 }
 
-interface SwrdDb extends DBSchema {
+interface MudDb extends DBSchema {
   campaigns: { key: string; value: CampaignMeta };
   commits: { key: [string, number]; value: CommitRow };
   projections: { key: [string, string]; value: ProjectionRow };
@@ -28,7 +29,7 @@ interface SwrdDb extends DBSchema {
   debugTurns: { key: [string, string]; value: { cid: string; turnId: string; data: unknown } };
 }
 
-export const DB_NAME = 'swrd';
+export const DB_NAME = BRAND_ID;
 const DB_VERSION = 1;
 const STATE = 'state';
 /** По умолчанию читаем столько последних коммитов: хроника грузится с конца. */
@@ -41,12 +42,12 @@ async function abortTx(tx: { abort(): void; done: Promise<void> }): Promise<void
 }
 
 export class LocalAdapter implements StorageAdapter {
-  private dbPromise: Promise<IDBPDatabase<SwrdDb>> | null = null;
+  private dbPromise: Promise<IDBPDatabase<MudDb>> | null = null;
 
   constructor(private readonly name = DB_NAME) {}
 
-  private db(): Promise<IDBPDatabase<SwrdDb>> {
-    this.dbPromise ??= openDB<SwrdDb>(this.name, DB_VERSION, {
+  private db(): Promise<IDBPDatabase<MudDb>> {
+    this.dbPromise ??= openDB<MudDb>(this.name, DB_VERSION, {
       upgrade(db) {
         db.createObjectStore('campaigns', { keyPath: 'id' });
         db.createObjectStore('commits', { keyPath: ['cid', 'seq'] });

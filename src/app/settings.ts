@@ -1,9 +1,10 @@
 // Настройки игрока: язык и палитра. Хранятся локально (localStorage), в облако не уходят.
 import { effect, signal } from '@preact/signals';
+import { storageKey } from '../brand';
 import { locale, LOCALES, type Locale } from '../i18n';
 import { applyPalette, DEFAULT_PALETTE, getPalette } from '../theme/palettes';
 
-const STORAGE_KEY = 'swrd.settings.v1';
+const STORAGE_KEY = storageKey('settings.v1');
 
 interface Stored {
   locale?: Locale;

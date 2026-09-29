@@ -6,17 +6,17 @@ MVP = вехи **M0–M5**. Каждая веха заканчивается ч�
 ## M0. Фундамент: «терминал, который говорит с LLM»
 
 - [x] Каркас: Vite (`@preact/preset-vite`) + Preact + TypeScript 7 strict + pnpm, oxlint ([ADR-0019](adr/0019-typescript7-oxlint-font-source.md)), Vitest, Playwright. Структура каталогов из [AGENTS.md §5](../AGENTS.md)
-- [x] CI: GitHub Actions (проверки, e2e) → GitHub Pages, `404.html` для SPA, `public/CNAME` = `swrd.ru`
+- [x] CI: GitHub Actions (проверки, e2e) → GitHub Pages, `404.html` для SPA, `public/CNAME` = `mud.vitalik.dev`
 - [x] `LICENSE` (0BSD), `NOTICE.md` (CC0 для контента, OGL для модуля, шрифты)
 - [x] TUI-примитивы: `Screen`, `Panel`, рамки, `TextView`, `Input`, `Menu`, `Dialog`, `FKeyBar`, `Tabs` + страница `/dev/glyphs`
 - [x] Шрифт self-hosted: PxPlus IBM VGA 9x16 (единственный, [ADR-0020](adr/0020-single-font.md)), покрытие кириллицы и псевдографики проверено
 - [x] Палитры: 37 токенов, 11 встроенных, переключение, тест контраста
 - [x] Всплывающие окна палитры (с предпросмотром), состояния и справки; строка состояния LLM. Правая колонка свободна под панели игры
 - [x] i18n RU/EN, тест совпадения ключей
-- [x] `site.webmanifest` и иконки (логотип SWRD): установка как приложение, цвет панели браузера следует за палитрой
+- [x] `site.webmanifest` и иконки (логотип проекта): установка как приложение, цвет панели браузера следует за палитрой
 - [x] Окно настроек LLM (F4; при первом запуске без настроек — единственное, что видно) (FR-LLM-1..5, 9): провайдер, пресеты моделей, ключ (localStorage или только на вкладку), relay, согласие на обучение, «Проверить» (связь, стрим, tool calling, причины отказов)
 - [x] `relay/`: Cloudflare Worker (allowlist хостов и Origin, стриминг, без логов), [инструкция деплоя](../relay/README.md)
-- [x] Деплой relay проекта на Cloudflare: `https://swrd-relay.swrd.workers.dev` (2026-09-29), адрес по умолчанию — `VITE_RELAY_URL` в `.env.default`, переопределяется переменной репозитория `RELAY_URL`
+- [x] Деплой relay проекта на Cloudflare: `https://mud-relay.swrd.workers.dev` (2026-09-29, ранее worker назывался иначе), адрес по умолчанию — `VITE_RELAY_URL` в `.env.default`, переопределяется переменной репозитория `RELAY_URL`
 - [x] `src/llm/`: клиент со стримингом SSE, tool calls, retry, пресеты, адаптеры Chat Completions и OpenAI Responses (модель по умолчанию `muse-spark-1.3-contributor` — Responses), пресеты «Экономный», «Приватный», «Качество», раскрытие про обучение на данных. Проверка на OpenCode Go и одном CORS-дружественном провайдере
 - [x] Заголовки OpenCode Go (`x-opencode-session`; `User-Agent` ставит relay), `reasoning.effort` и `max_output_tokens` по ролям, обработка `incomplete` ([ADR-0018](adr/0018-reasoning-effort-and-go-headers.md))
 
@@ -32,12 +32,12 @@ MVP = вехи **M0–M5**. Каждая веха заканчивается ч�
 - [x] Готовые шаблоны персонажей (по 6 на вариант) и полные каталоги снаряжения из книг (`templates.ts`, `catalog/`)
 - [x] `LocalAdapter` (IndexedDB), список кампаний (создание, продолжение, удаление; экспорт/импорт — M2)
 - [x] Создание персонажа по схеме модуля (шаблон → имя → очки навыков; диалог с Мастером — поверх, в M1.5+)
-- [ ] Оркестратор хода: контекст (блоки 1–3, 6, 9, 10), tool-loop, черновик, атомарный коммит, `end_turn`
-- [ ] Инструменты: `roll`, `check`, `contest`, `apply_damage`, `heal`, `set_condition`, предметы, `award_points`, `end_turn`
+- [x] Оркестратор хода: контекст (блоки 1–3, 6, 9, 10), tool-loop, черновик, атомарный коммит, `end_turn` (ядро без UI: [docs/04](04-ai-dm.md#что-реализовано-в-m15))
+- [x] Инструменты: `roll`, `check`, `contest`, `apply_damage`, `heal`, `set_condition`, предметы, `award_points`, `end_turn` (+ `create_npc`, `find_item`, `set_scene`, `set_flag`, `set_palette`, `rules_lookup`)
 - [ ] Панели: Хроника (стрим, броски, варианты), Лист, Вещи. Бытовые действия
 - [ ] Откат и перегенерация хода, `/`-команды
 - [ ] Адаптер Anthropic Messages ([ADR-0015](adr/0015-llm-three-api-formats.md))
-- [ ] Отладка Мастера. Первые `evals/` и `pnpm eval:dm`, сравнение дешёвых моделей OpenCode Go на русском языке и по надёжности tool calling (кандидаты: `muse-spark-1.3-contributor`, `gpt-5.6-luna`, `gpt-6-luna`, `deepseek-v4.1-flash`, `glm-5.3-flash`, `qwen3.8-flash`, `mimo-v2.6-flash`, `hy3`; эталон — `glm-5.3`), подтверждение или пересмотр [ADR-0017](adr/0017-default-model-muse-spark.md); сравнение `reasoning.effort` `low` и `medium` для Мастера
+- [ ] Отладка Мастера. Первые `evals/` и `pnpm eval:dm`, сравнение дешёвых моделей OpenCode Go на русском языке и по надёжности tool calling (первый ручной проход по 11 моделям сделан 2026-09-29, результаты — [04](04-ai-dm.md#проверенные-модели-и-выбор-модели); осталось автоматизировать в `evals/` и проверить `hy3`, `hy4-preview`, `kimi-k3`, `grok-*`, `minimax-*`), подтверждение или пересмотр [ADR-0017](adr/0017-default-model-muse-spark.md); сравнение `reasoning.effort` `low` и `medium` для Мастера
 
 **Готово, когда**: соло-игрок проходит 30-минутную сцену с проверками и находками, после перезагрузки всё на месте.
 
@@ -49,7 +49,7 @@ MVP = вехи **M0–M5**. Каждая веха заканчивается ч�
 - [ ] Шаблоны сеттингов, `content:check`, первый шаблон «Пограничье» (`opend6`/`fantasy`)
 - [ ] Развитие персонажа за Очки персонажа
 - [ ] Сессия ноль (кузница мира), рейтинг (16+ по умолчанию, 12+/18+), линии и завесы
-- [ ] Экспорт и импорт `.swrd.json`
+- [ ] Экспорт и импорт `.mud.json`
 - [ ] Evals на память: факты из канона через 50+ ходов
 
 **Готово, когда**: в кампании на 2+ часа Мастер корректно возвращается к NPC и решениям первой сцены.

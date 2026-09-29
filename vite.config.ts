@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { loadEnv } from 'vite';
 import { defineConfig } from 'vitest/config';
 import preactPreset from '@preact/preset-vite';
+import { brandPlugin } from './tools/brand';
 import { missingDefaults, parseEnv } from './tools/env-default';
 
 // Значения по умолчанию из .env.default (ниже по приоритету, чем окружение и .env.local).
@@ -12,12 +13,12 @@ function applyEnvDefaults(mode: string): void {
   for (const [key, value] of Object.entries(missingDefaults(defaults, current))) process.env[key] = value;
 }
 
-// Сайт живёт в корне домена swrd.ru, поэтому base: '/'.
+// Сайт живёт в корне домена (brand.json), поэтому base: '/'.
 export default defineConfig(({ mode }) => {
   applyEnvDefaults(mode);
   return {
     base: '/',
-    plugins: [preactPreset()],
+    plugins: [preactPreset(), brandPlugin()],
     build: {
       target: 'es2022',
       sourcemap: true,

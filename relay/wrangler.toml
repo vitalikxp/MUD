@@ -1,8 +1,8 @@
-name = "swrd-relay"
+name = "mud-relay"
 main = "src/index.ts"
 compatibility_date = "2026-09-01"
 
 # Разрешённые сайты (через запятую, точное совпадение). localhost:* разрешён всегда.
 # Для форка: поставьте свой домен.
 [vars]
-ALLOWED_ORIGINS = "https://swrd.ru,https://www.swrd.ru"
+ALLOWED_ORIGINS = "https://mud.vitalik.dev"

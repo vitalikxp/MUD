@@ -1,0 +1,9 @@
+{
+  "name": "AI Dungeon Master",
+  "id": "mud",
+  "domain": "mud.vitalik.dev",
+  "description": {
+    "ru": "ИИ-мастер настольной ролевой игры в терминале",
+    "en": "AI game master for tabletop role-playing in a terminal"
+  }
+}

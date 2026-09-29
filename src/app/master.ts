@@ -38,15 +38,15 @@ export async function ask(playerText: string, handlers: AskHandlers): Promise<st
   busy.value = true;
   lastError.value = null;
   const started = Date.now();
-  const p = llm.preset.value;
+  const role = llm.dmRole.value;
   let text = '';
   try {
     const c = await complete(
       llm.providerConfig(),
       {
         model: llm.dmModel.value,
-        maxOutputTokens: p?.dm.maxOutputTokens ?? 4000,
-        ...(p?.dm.effort ? { reasoningEffort: p.dm.effort } : {}),
+        maxOutputTokens: role.maxOutputTokens,
+        ...(role.effort ? { reasoningEffort: role.effort } : {}),
         messages: [{ role: 'system', content: systemPrompt() }, ...history.slice(-MAX_HISTORY)],
         signal: controller.signal,
       },

@@ -1,6 +1,6 @@
 # NOTICE
 
-SWRD использует несколько лицензий. Подробности и причины: [docs/adr/0012-licensing.md](docs/adr/0012-licensing.md).
+Проект использует несколько лицензий. Подробности и причины: [docs/adr/0012-licensing.md](docs/adr/0012-licensing.md).
 
 | Часть | Лицензия |
 |---|---|
@@ -11,7 +11,7 @@ SWRD использует несколько лицензий. Подробно�
 ## Сторонние материалы
 
 - **OpenD6** — открытая версия D6 System, https://opend6.net. Используется как Open Game Content по OGL v1.0a.
-  «D6 System», товарные знаки и логотипы D6 являются Product Identity и собственностью Purgatory Publishing Inc.; SWRD их не использует.
+  «D6 System», товарные знаки и логотипы D6 являются Product Identity и собственностью Purgatory Publishing Inc.; проект их не использует.
 - **Книги OpenD6** в `ref/OpenD6/*.pdf` — бесплатные OGL-издания West End Games / Purgatory Publishing Inc., хранятся как справочный материал.
   Open Game Content — по OGL v1.0a (текст лицензии в конце каждой книги). Арт, обложки и логотипы в них — Product Identity правообладателя.
 - **Шрифт** (`public/fonts/`):

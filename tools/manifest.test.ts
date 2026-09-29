@@ -16,8 +16,8 @@ function pngSize(file: URL): [number, number] {
 
 describe('site.webmanifest', () => {
   it('заполнен, без значений из шаблона генератора', () => {
-    expect(manifest.name).toContain('SWRD');
-    expect(manifest.short_name).toBe('SWRD');
+    expect(manifest.name).toBe('%BRAND_NAME%');
+    expect(manifest.short_name).toBe('%BRAND_NAME%');
     expect(manifest.description).not.toMatch(/Application description/i);
     expect(`${manifest.name} ${manifest.short_name}`).not.toMatch(/Your Application Name|\bApp\b/);
     expect(manifest.lang).toBe('ru');
@@ -45,5 +45,17 @@ describe('site.webmanifest', () => {
     }
     expect(manifest.icons.some((i) => i.sizes === '192x192')).toBe(true);
     expect(manifest.icons.some((i) => i.sizes === '512x512')).toBe(true);
+  });
+});
+
+describe('brand', () => {
+  it('подставляет имя из brand.json в манифест и index.html', async () => {
+    const { applyBrand, loadBrand } = await import('./brand');
+    const brand = loadBrand();
+    const out = JSON.parse(applyBrand(readFileSync(new URL('site.webmanifest', root), 'utf8'))) as { name: string };
+    expect(out.name).toBe(brand.name);
+    const html = applyBrand(readFileSync(new URL('../index.html', import.meta.url), 'utf8'));
+    expect(html).toContain(`<title>${brand.name}</title>`);
+    expect(html).not.toMatch(/%BRAND_/);
   });
 });

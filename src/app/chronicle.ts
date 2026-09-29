@@ -1,5 +1,6 @@
 // Хроника (лента записей), её прокрутка и действия, которые пишут в неё: реплика игрока → Мастер, смена настроек.
 import { signal } from '@preact/signals';
+import { BRAND_NAME } from '../brand';
 import { locale, t, type Key } from '../i18n';
 import { LlmError } from '../llm/types';
 import { getPalette, type Token } from '../theme/palettes';
@@ -11,7 +12,7 @@ import { paletteId } from './settings';
 export type Entry = { key: Key; params?: Record<string, string>; fg: Token } | { text: string; fg: Token } | { pending: true; fg: Token };
 
 export const INTRO: Entry[] = [
-  { key: 'intro.p1', fg: 'dm' },
+  { key: 'intro.p1', params: { name: BRAND_NAME }, fg: 'dm' },
   { text: '', fg: 'dm' },
   { key: 'intro.p2', fg: 'dm' },
   { text: '', fg: 'dm' },

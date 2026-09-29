@@ -83,23 +83,20 @@ interface StorageAdapter {                                          // src/net/s
 
 | Что | Куда | Как |
 |---|---|---|
-| SPA | GitHub Pages, домен `swrd.ru` (`public/CNAME`) | GitHub Actions: `pnpm i --frozen-lockfile && pnpm test && pnpm build`, для SPA-маршрутов копируется `404.html` |
+| SPA | GitHub Pages, домен `mud.vitalik.dev` (`public/CNAME`) | GitHub Actions: `pnpm i --frozen-lockfile && pnpm test && pnpm build`, для SPA-маршрутов копируется `404.html` |
 | Правила Firebase | Firebase project | `pnpm firebase:deploy-rules` вручную (секреты CI не держим) |
 | Relay | Cloudflare Workers | `pnpm relay:deploy` (wrangler) вручную. Отдельная инструкция для форков |
 | Конфиг Firebase | в сборке | `VITE_FIREBASE_*` из GitHub Secrets. Ключи публичные по природе, защита держится на правилах |
 
 ### Домен и репозиторий
 
-- Репозиторий: `git@github.com:vitalikxp/swrd.ru.git`, основная ветка `master` (деплой по push).
-- Домен: `https://swrd.ru`. Сайт живёт в корне, поэтому в Vite `base: '/'`. В `public/CNAME` одна строка `swrd.ru`.
-- DNS (проверено 2026-09-28):
-  - `swrd.ru` A → `185.199.108–111.153`, AAAA → `2606:50c0:8000–8003::153`. Уже настроено верно.
-  - `www.swrd.ru` CNAME → сейчас `swrd-ru.github.io` (**другой аккаунт GitHub**). Нужно поменять на `vitalikxp.github.io`,
-    иначе `www` не будет перенаправлять на сайт.
-- В настройках репозитория (Settings → Pages): Source = GitHub Actions, Custom domain = `swrd.ru`, Enforce HTTPS.
+- Репозиторий: `git remote -v`, основная ветка `master` (деплой по push).
+- Домен: `https://mud.vitalik.dev` (поддомен `vitalik.dev`, значение задаётся в `brand.json`). Сайт живёт в корне, поэтому в Vite `base: '/'`. В `public/CNAME` одна строка `mud.vitalik.dev`.
+- DNS: у зоны `vitalik.dev` запись `mud` CNAME → `vitalikxp.github.io`. Проверка домена в GitHub — TXT-запись, которую покажет Settings → Pages.
+- В настройках репозитория (Settings → Pages): Source = GitHub Actions, Custom domain = `mud.vitalik.dev`, Enforce HTTPS.
   Рекомендуется подтвердить домен в настройках аккаунта (Settings → Pages → Verified domains), чтобы его не мог занять чужой репозиторий.
-- Firebase Auth → Authorized domains: `swrd.ru` (+ `localhost`).
-- Relay: разрешённый Origin `https://swrd.ru`.
+- Firebase Auth → Authorized domains: `mud.vitalik.dev` (+ `localhost`).
+- Relay: разрешённый Origin `https://mud.vitalik.dev`.
 
 ## Технологии
 

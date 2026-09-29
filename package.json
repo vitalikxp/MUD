@@ -1,8 +1,8 @@
 {
-  "name": "swrd",
+  "name": "mud",
   "private": true,
   "version": "0.1.0",
-  "description": "SWRD — AI Dungeon Master in a Norton Commander-style terminal",
+  "description": "AI Dungeon Master in a Norton Commander-style terminal",
   "license": "0BSD",
   "type": "module",
   "packageManager": "pnpm@11.13.1",

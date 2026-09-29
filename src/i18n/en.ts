@@ -1,8 +1,9 @@
+import { BRAND_NAME } from '../brand';
 import type { Dict } from './types';
 
 export const en: Dict = {
   app: {
-    name: 'SWRD',
+    name: BRAND_NAME,
     tagline: 'AI game master for tabletop role-playing',
   },
   fkeys: {
@@ -91,7 +92,7 @@ export const en: Dict = {
     heroSaved: 'The hero is saved: it survives a page reload.',
   },
   intro: {
-    p1: 'Welcome to SWRD. Here an AI will run a tabletop role-playing game: it knows the rules, remembers the world and rolls the dice honestly.',
+    p1: 'Welcome to {name}. Here an AI will run a tabletop role-playing game: it knows the rules, remembers the world and rolls the dice honestly.',
     p2: 'Right now this is the foundation (milestone M0): character grid, frames, palettes and fonts. The game master arrives in later milestones.',
     roll: '♦ Search 4D+1: 3 5 2 W6→4 +1 = 21 ≥ 15 ✓',
     p3: 'Try it: F8 palettes, F7 status, F4 LLM settings, F1 help. Plain text goes to the game master.',
@@ -152,12 +153,28 @@ export const en: Dict = {
     ackYes: 'agree',
     ackNo: 'no consent',
     check: 'Check',
+    modelPick: 'Model',
     noteTrains: 'The "Economy" model sends your prompts and replies to Meta for training. Choose "Private" for a private game.',
     noteTerms: 'OpenCode Go is built for coding agents. Your key may be restricted under its terms — the risk is yours.',
     noteKey: 'The key stays in this browser and is sent only to the provider (via the relay).',
     noteRelay: 'Direct mode works only with CORS-friendly providers. OpenCode Go needs the relay.',
     hint: '↑↓ field, ←→ or Enter change, Esc close',
     hintFirst: '↑↓ field, ←→ or Enter change',
+  },
+  models: {
+    title: 'Choose a model',
+    loading: 'Fetching the model list…',
+    nokey: 'Enter the API key to fetch the full list: only verified models are shown for now.',
+    error: 'Could not fetch the list: {reason}. Only verified models are shown.',
+    count: 'Models at the provider: {n}',
+    unchecked: 'We have not tested this model: it may write worse or not call tools.',
+    unsupported: 'The Anthropic Messages format is not supported yet: this model cannot be played.',
+    offline: 'This model is not in the provider list.',
+    level: {
+      good: 'recommended',
+      caveats: 'with caveats',
+      bad: 'does not work',
+    },
   },
   presets: {
     economy: 'Economy (Muse)',
@@ -185,6 +202,7 @@ export const en: Dict = {
     model: 'no model',
     relay: 'no relay URL',
     consent: 'no consent to model training on data',
+    format: 'the model format is not supported yet',
   },
   check: {
     running: 'Checking…',

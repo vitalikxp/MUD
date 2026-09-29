@@ -2,11 +2,15 @@
 import type { Entity } from '../../engine/types';
 import type { RulesModule } from '../api';
 import { check, contest } from './checks';
+import { catalogFor, catalogItem, findCatalogEntry } from './catalog';
 import { creation } from './creation';
+import { describeForPrompt } from './describe';
+import { createNpc, NPC_TIERS } from './npc';
 import { deriveStats } from './character';
 import { applyDamage, awardPoints, heal } from './damage';
 import { ADVENTURE, FANTASY } from './data';
-import { lookup, promptPrimer } from './primer';
+import { LOOKUP_TOPICS, lookup, promptPrimer } from './primer';
+import { roll } from './roll';
 import { buildSheet } from './sheet';
 
 export const OPEND6_VERSION = '0.1.0';
@@ -31,14 +35,39 @@ export const opend6: RulesModule = {
   },
   sheet: buildSheet,
 
+  roll,
   check,
   contest,
   applyDamage,
   heal,
   awardPoints,
 
+  npc: { tiers: NPC_TIERS, create: createNpc },
+  describe: describeForPrompt,
+
+  items: {
+    ids: (variant) => catalogFor(variant).map((e) => e.id),
+    make(variant, id, lang, qty) {
+      const entry = findCatalogEntry(variant, id);
+      return entry ? catalogItem(entry, variant, lang, qty) : undefined;
+    },
+    search(variant, query, lang, limit = 8) {
+      const q = query.trim().toLowerCase();
+      if (!q) return [];
+      const words = q.split(/\s+/);
+      return catalogFor(variant)
+        .filter((e) => {
+          const hay = `${e.id} ${e.name.ru} ${e.name.en}`.toLowerCase();
+          return words.every((w) => hay.includes(w));
+        })
+        .slice(0, limit)
+        .map((e) => ({ id: e.id, name: e.name[lang], ...(e.price ? { price: e.price.level } : {}), ...(e.note ? { note: e.note[lang] } : {}) }));
+    },
+  },
+
   promptPrimer: (variant) => promptPrimer(variant),
   lookup,
+  lookupTopics: LOOKUP_TOPICS,
 };
 
 export * from './catalog';

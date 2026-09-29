@@ -1,4 +1,4 @@
-# SWRD: правила для AI-агентов
+# AI Dungeon Master: правила для AI-агентов
 
 Обязательно для всех агентов (Claude Code, OpenCode, Codex, Gemini и др.), работающих с репозиторием.
 `CLAUDE.md` и `GEMINI.md` ссылаются на этот файл. Правила пишутся здесь, а не там.
@@ -13,7 +13,7 @@
 Главное требование к инфраструктуре: **проект должен работать годами без присмотра и без денег**.
 Поэтому здесь только статический сайт, бесплатные тарифы и ключ LLM, который приносит сам игрок (BYOK).
 
-Домен: **https://swrd.ru**. Репозиторий: `git@github.com:vitalikxp/swrd.ru.git`, основная ветка `master`.
+Домен: **https://mud.vitalik.dev**. Рабочее название проекта «AI Dungeon Master» временное: имя и домен лежат в [brand.json](brand.json) (в коде — `src/brand.ts`), литералов имени в коде и UI нет. Технический идентификатор `mud` (ключи localStorage, IndexedDB) при смене имени не меняется. Репозиторий: `git remote -v`, основная ветка `master`.
 
 С документов начинать всегда: [docs/README.md](docs/README.md).
 
@@ -32,7 +32,7 @@
 - LLM-relay: Cloudflare Worker (`relay/`, бесплатный тариф).
 - Модели по умолчанию меняются только новым ADR по методике [ADR-0016](docs/adr/0016-default-models-pareto.md): цены и лимиты — https://opencode.ai/docs/go/, Elo — CSV внутри `https://eqbench.com/creative_writing.js` (HTML-таблица рисуется скриптом, `WebFetch` её не видит).
 - Хостинг: GitHub Pages через GitHub Actions.
-- Внешние сервисы владельца: relay — Cloudflare Worker `swrd-relay` (`pnpm relay:deploy`, нужен `wrangler login`; сертификат нового поддомена выпускается ~1–2 мин); Pages деплоит из `master` (окружение `github-pages` должно разрешать эту ветку).
+- Внешние сервисы владельца: relay — Cloudflare Worker `mud-relay` (`pnpm relay:deploy`, нужен `wrangler login`; сертификат нового поддомена выпускается ~1–2 мин); Pages деплоит из `master` (окружение `github-pages` должно разрешать эту ветку).
 
 Команды (`test:rules` и `eval:dm` появятся в следующих вехах, см. [дорожную карту](docs/10-roadmap.md)):
 
@@ -54,6 +54,7 @@
 | `python3 scripts/ref/extract.py` | пересобрать `ref/OpenD6/text/` и `INDEX.md` после добавления PDF (запись в `CATALOG`) |
 | `python3 scripts/check_docs.py` | проверка документации: ссылки, якоря, ширина ASCII-рамок (код выхода 1 при ошибках) |
 
+- `index.html` и `public/site.webmanifest` содержат плейсхолдеры `%BRAND_NAME%`, `%BRAND_DOMAIN%` и др. Подставляет `tools/brand.ts` (vite-плагин; манифест — в `dist/` после сборки, в dev — middleware). Тест манифеста ждёт плейсхолдеры, а не готовое имя.
 - Ключ LLM для dev и evals: `.env.local` → `OPENCODE_GO_API_KEY` (без префикса `VITE_`, иначе Vite вложит ключ в сборку). Значение ключа не выводить в логи и ответы.
 - Публичные значения по умолчанию (например `VITE_RELAY_URL`) лежат в `.env.default` (в git, **только `VITE_*`, секретов нет** — это проверяет тест). Приоритет: окружение/CI > `.env.local` > `.env.default`.
 - Ручной запрос к Go: `POST https://opencode.ai/zen/go/v1/{chat/completions|responses|messages}` (формат зависит от модели) с заголовками `Authorization: Bearer`, `x-opencode-session: <uuid>` (иначе `400 MissingSessionID`) и `User-Agent`.
@@ -78,6 +79,7 @@
 8. **Сетка символов.** Весь UI рисуется в ячейках (колонки × строки). Никаких пиксельных отступов внутри TUI-панелей.
    Цвета берутся только из токенов палитры. См. [07-ui-tui.md](docs/07-ui-tui.md).
 9. **Все строки UI идут через i18n** (RU и EN). Литералы на русском или английском в JSX запрещены.
+   Имя проекта и домен — только из `brand.json` (`BRAND_NAME`, `BRAND_DOMAIN` в `src/brand.ts`); ключи localStorage — через `storageKey()`. Литералов имени в коде, тестах и UI нет.
 10. **Бесплатные тарифы.** Изменения, из-за которых вырастет число чтений/записей Firestore, проверяются по бюджету из
     [06-data-model.md](docs/06-data-model.md#бюджет-бесплатного-тарифа).
 11. **Секреты Мастера шифруются.** Всё с `visibility: "dm"` (скрытый лор, тайные броски, полные статблоки) уходит в облако только
@@ -87,7 +89,7 @@
 13. **Обучение на данных — только с согласием.** Если модель Мастера отдаёт данные на обучение (`*-contributor`), это раскрывается в UI,
     а участник кооп-кампании подтверждает согласие (`modelConsent`) до отправки заявок. См. FR-LLM-9, [ADR-0017](docs/adr/0017-default-model-muse-spark.md).
 
-## 5. Структура репозитория (целевая; сейчас в `src/` есть `app/`, `engine/`, `i18n/`, `llm/`, `net/`, `rules/`, `theme/`, `ui/`)
+## 5. Структура репозитория (целевая; сейчас в `src/` есть `app/`, `dm/`, `engine/`, `i18n/`, `llm/`, `net/`, `rules/`, `theme/`, `ui/`, `brand.ts`)
 
 ```
 src/
@@ -113,7 +115,7 @@ docs/           документация, ADR
 ref/OpenD6/     книги OpenD6 (PDF, OGL) + постраничный текстовый индекс (§8)
 scripts/ref/    extract.py, search.py — индекс и поиск по книгам
 scripts/        check_docs.py — проверка документации
-tools/          env-default.ts — загрузчик .env.default для vite.config.ts
+tools/          env-default.ts — загрузчик .env.default для vite.config.ts; brand.ts — подстановка brand.json в index.html и манифест
 ```
 
 Направление зависимостей: `ui → app → dm → (engine, rules, llm)`, `app → net → engine`.
@@ -142,7 +144,7 @@ tools/          env-default.ts — загрузчик .env.default для vite.c
 
 1. Прочитай раздел `docs/`, относящийся к задаче, и связанные ADR.
 2. Для engine и rules сначала пиши тест (Vitest), потом код.
-3. Промпты Мастера лежат в `src/dm/prompts/` как версионируемые файлы. Изменил промпт — прогони `pnpm eval:dm`, если есть ключ.
+3. Промпты Мастера лежат в `src/dm/prompts/` как версионируемые файлы. Изменил промпт — подними `SYSTEM_PROMPT_VERSION` и прогони `pnpm eval:dm` (пока его нет — `DM_LIVE=1 pnpm test src/dm/live`, пресет `DM_PRESET=economy|private|quality`), если есть ключ.
    Если ключа нет, так и напиши в отчёте.
 4. Перед завершением: `pnpm typecheck && pnpm lint && pnpm test && pnpm docs:check`; для UI — ещё `pnpm test:e2e`.
    Для UI-изменений нужна визуальная проверка в браузере на ширине 1280 и 390 px.

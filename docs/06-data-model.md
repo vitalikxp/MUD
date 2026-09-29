@@ -111,7 +111,7 @@ campaigns/{cid}/secrets/key             // ключ AES-GCM кампании; ч
 
 ## Локальное хранилище (IndexedDB)
 
-База `swrd` (версия 1, библиотека `idb`, `src/net/local.ts`):
+База `mud` (версия 1, библиотека `idb`, `src/net/local.ts`):
 
 | Хранилище | Ключ | Значение |
 |---|---|---|
@@ -127,10 +127,10 @@ campaigns/{cid}/secrets/key             // ключ AES-GCM кампании; ч
 - При старте приложение просит `navigator.storage.persist()`, чтобы браузер не очищал IndexedDB при нехватке места.
 - Схема та же, что в Firestore, поэтому перенос local → cloud означает загрузку экспорта.
 
-## Экспорт (`.swrd.json`)
+## Экспорт (`.mud.json`)
 
 ```json
-{ "format": "swrd/campaign", "formatVersion": 1, "exportedAt": "...",
+{ "format": "mud/campaign", "formatVersion": 1, "exportedAt": "...",
   "campaign": {...}, "commits": [...], "projections": {...}, "rules": {"id": "opend6", "version": "0.1.0", "variant": "fantasy"} }
 ```
 При импорте кампания пересобирается из `commits`, проекции проверяются сравнением.

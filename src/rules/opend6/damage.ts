@@ -2,7 +2,7 @@
 import { formatDieCode, parseDieCode, rollPool, toPips, fromPips, addCodes, type DieCode } from './dice';
 import type { Entity, GameEvent, Item, Json } from '../../engine/types';
 import { fail, ok, type AwardArgs, type DamageArgs, type HealArgs, type Outcome, type RestQuality, type Result, type RulesCtx } from '../api';
-import { attributeCode, rollBase, woundLevel, ZERO } from './character';
+import { attributeCode, rollBase, strengthDamage, woundLevel, ZERO } from './character';
 import { loadActor } from './checks';
 import { resolveOptions } from './options';
 
@@ -46,7 +46,14 @@ export function applyDamage(ctx: RulesCtx, args: DamageArgs): Result<Outcome> {
     try {
       code = parseDieCode(args.damage);
     } catch {
-      return fail(`Некорректный код урона «${args.damage}» (например 3D, 2D+1)`);
+      return fail(`Некорректный код урона «${args.damage}» (например 3D, 2D+1, +1D)`);
+    }
+    // «+1D» у оружия ближнего боя и лука — прибавка к Силе удара атакующего (OpenD6: adventure p.60–61).
+    if (args.damage.trim().startsWith('+')) {
+      if (!args.attackerId) return fail(`Урон «${args.damage}» прибавляется к Силе удара атакующего: укажите attackerId`);
+      const attacker = loadActor(ctx, args.attackerId);
+      if (!attacker.ok) return attacker;
+      code = addCodes(strengthDamage(attributeCode(attacker.value.data, 'physique')), code);
     }
     if (code.dice < 1) return fail('Урон должен содержать хотя бы 1D');
     const roll = rollPool(ctx.rng, { code, wildOne: resolveOptions(ctx.options).wildOne });

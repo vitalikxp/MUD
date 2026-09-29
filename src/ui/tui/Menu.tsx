@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'preact/hooks';
-import { cssVar } from '../../theme/palettes';
+import { cssVar, type Token } from '../../theme/palettes';
 import { Scrollbar } from './TextView';
 import { fit } from './text';
 
@@ -7,6 +7,8 @@ export interface MenuItem {
   id: string;
   label: string;
   hint?: string;
+  /** Цвет строки, пока она не выделена (например, уровень проверенности модели). */
+  fg?: Token;
 }
 
 /**
@@ -72,7 +74,7 @@ export function Menu({ items, selected, width, height, label, onSelect, onChoose
             tabIndex={-1}
             aria-selected={isSel}
             class="tui-row"
-            style={isSel ? { background: cssVar('selBg'), color: cssVar('selFg') } : undefined}
+            style={isSel ? { background: cssVar('selBg'), color: cssVar('selFg') } : item.fg ? { color: cssVar(item.fg) } : undefined}
             onMouseDown={(e) => { e.preventDefault(); onSelect(index); ref.current?.focus(); }}
             onClick={() => onChoose(index)}
           >

@@ -11,7 +11,7 @@ export interface FontDef {
  * Единственный шрифт проекта: PxPlus IBM VGA 9x16, пиксельный. Целочисленный масштаб, без сглаживания.
  * Смены шрифта нет намеренно: рамки и сетка выверены под его метрики (ADR-0020).
  */
-export const FONT: FontDef = { family: '"SWRD PxPlus IBM VGA"', size: 16, lineHeight: 16 };
+export const FONT: FontDef = { family: '"PxPlus IBM VGA"', size: 16, lineHeight: 16 };
 
 /** Минимальная сетка десктоп-раскладки; уже — мобильная. */
 export const MIN_COLS = 80;

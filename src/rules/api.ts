@@ -1,7 +1,7 @@
 // Интерфейс модуля правил (docs/05-rules-engine.md). Ядро и Мастер обращаются к правилам только через него.
 // Функции модуля чистые: случайность приходит в `ctx.rng`, состояние — в `ctx.state`, результат — события и краткий отчёт для LLM.
 import type { Rng } from '../engine/rng';
-import type { Entity, EntityId, GameEvent, GameState, Json } from '../engine/types';
+import type { Entity, EntityId, GameEvent, GameState, Item, Json } from '../engine/types';
 
 export type Lang = 'ru' | 'en';
 export interface LocalizedText {
@@ -81,6 +81,15 @@ export interface DamageArgs {
   zone?: string;
   /** Персонаж прикрылся щитом от этой атаки: только тогда щит добавляет защиту. */
   shielded?: boolean;
+  /** Кто наносит урон. Обязателен для оружия с «+» в коде (`+1D`): такой урон прибавляется к Силе удара атакующего. */
+  attackerId?: EntityId;
+}
+
+export interface RollArgs {
+  /** Классическая формула («2d6+1») или код кубов системы («4D+1»). */
+  expr: string;
+  reason: string;
+  visibility?: 'all' | 'dm';
 }
 
 export type RestQuality = 'full' | 'light' | 'hard';
@@ -179,6 +188,17 @@ export interface CreationInput {
   skills: Record<string, number>;
 }
 
+/** Уровень простого NPC (M1, без бестиария). */
+export type NpcTier = 'weak' | 'average' | 'strong' | 'elite';
+
+export interface NpcInput {
+  id: string;
+  name: string;
+  tier: NpcTier;
+  /** Кто это (стражник, торговец) — коротко, для листа и промпта. */
+  role?: string;
+}
+
 export interface CharacterCreation {
   templates(variant: string): CreationTemplate[];
   budget(variant: string): CreationBudget;
@@ -197,14 +217,34 @@ export interface RulesModule {
   derive(entity: Entity): DerivedStats;
   sheet(entity: Entity, lang: Lang): SheetView;
 
+  roll(ctx: RulesCtx, args: RollArgs): Result<Outcome>;
   check(ctx: RulesCtx, args: CheckArgs): Result<Outcome>;
   contest(ctx: RulesCtx, args: ContestArgs): Result<Outcome>;
   applyDamage(ctx: RulesCtx, args: DamageArgs): Result<Outcome>;
   heal(ctx: RulesCtx, args: HealArgs): Result<Outcome>;
   awardPoints(ctx: RulesCtx, args: AwardArgs): Result<Outcome>;
 
+  /** Простые NPC для проверок и урона (полноценный бестиарий — позже). */
+  npc: {
+    tiers: NpcTier[];
+    create(variant: string, input: NpcInput): Result<Entity>;
+  };
+  /** Компактное описание персонажа для промпта Мастера (английский, с id навыков). */
+  describe(entity: Entity): string;
+
+  /** Каталог снаряжения: Мастер выдаёт предметы по id, а не выдумывает свойства. */
+  items: {
+    ids(variant: string): string[];
+    /** Предмет для инвентаря из каталога; `undefined`, если такого id нет. */
+    make(variant: string, id: string, lang: Lang, qty: number): Item | undefined;
+    /** Поиск по id и названиям (RU и EN) — Мастер не помнит id каталога наизусть. */
+    search(variant: string, query: string, lang: Lang, limit?: number): { id: string; name: string; price?: string; note?: string }[];
+  };
+
   /** Короткое описание правил для системного промпта Мастера. */
   promptPrimer(variant: string, lang: Lang): string;
   /** Справка по теме (`rules_lookup`). */
   lookup(topic: string, lang: Lang): string | null;
+  /** Темы справки. */
+  lookupTopics: string[];
 }
