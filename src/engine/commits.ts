@@ -25,7 +25,10 @@ export function foldCommits(initial: GameState, commits: readonly Commit[]): Gam
   return effectiveCommits(commits).reduce((s, c) => reduceAll(s, c.events), initial);
 }
 
-/** RNG продолжается с последнего коммита (в том числе отменённого): после отката броски новые, а не те же самые. */
+/**
+ * RNG продолжается с последнего коммита. Коммит-откат хранит состояние генератора на начало отменённого шага (`undoLastAction`),
+ * поэтому повторный ход после отката бросает те же кубы; откат, записанный иначе, оставил бы генератор там, где он был.
+ */
 export function rngAfter(seed: string, commits: readonly Commit[]): Rng {
   const last = commits.at(-1);
   return last ? rngFromState(last.rngState) : createRng(seed);

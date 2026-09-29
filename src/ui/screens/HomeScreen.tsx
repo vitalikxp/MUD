@@ -1,7 +1,7 @@
 import { useSignalEffect } from '@preact/signals';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { session } from '../../app/campaigns';
-import { askMaster, campaignEntries, chronicle, enterChronicle, INTRO, playTurn, push, reducedMotion, scrollOffset, setLang, setPalette, thinkingTick } from '../../app/chronicle';
+import { askMaster, campaignEntries, chronicle, enterChronicle, INTRO, playTurn, push, reducedMotion, retryTurn, scrollOffset, setLang, setPalette, thinkingTick, undoTurn } from '../../app/chronicle';
 import { parseCommand } from '../../app/commands';
 import * as llm from '../../app/llm';
 import { abort, busy, lastError, lastUsage } from '../../app/master';
@@ -89,6 +89,8 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
     switch (cmd.kind) {
       case 'say': if (game) void playTurn({ kind: 'player', text: cmd.text }); else void askMaster(cmd.text); break;
       case 'start': if (game) void playTurn({ kind: 'opening' }); else push({ key: 'msg.noCampaign', fg: 'warning' }); break;
+      case 'undo': if (game) void undoTurn(); else push({ key: 'msg.noCampaign', fg: 'warning' }); break;
+      case 'retry': if (game) void retryTurn(); else push({ key: 'msg.noCampaign', fg: 'warning' }); break;
       case 'settings': setDialog('settings'); break;
       case 'help': setDialog('help'); break;
       case 'palette': setPalette(cmd.id); break;

@@ -1,8 +1,9 @@
 // Кампании и текущая игровая сессия: список, создание, удаление, загрузка, коммит хода, создание героя.
 // Состояние кампании — свёртка журнала (docs/06-data-model.md); здесь оно держится в сигналах, а пишется только через `commitTurn`.
 import { signal } from '@preact/signals';
-import { Draft, rngAfter } from '../engine/commits';
-import { rngFromState, type Rng } from '../engine/rng';
+import { Draft, effectiveCommits, foldCommits, revertCommit, rngAfter } from '../engine/commits';
+import { initialState } from '../engine/reducer';
+import { createRng, rngFromState, type Rng } from '../engine/rng';
 import type { Commit, CommitKind, Entity, GameState } from '../engine/types';
 import { LocalAdapter } from '../net/local';
 import { StorageConflictError, type CampaignMeta, type StorageAdapter } from '../net/storage';
@@ -129,6 +130,56 @@ async function doCommit(kind: CommitKind, build: (draft: Draft, session: Session
     if (e instanceof StorageConflictError) await openSession(current.meta.id); // другая вкладка продвинула журнал: берём её состояние
     throw e;
   }
+}
+
+/** Что можно отменить: ход Мастера и бытовое действие игрока. Создание героя и служебные коммиты не отменяются. */
+const UNDOABLE: readonly CommitKind[] = ['turn', 'ui_action'];
+
+/** Последний действующий (не отменённый) коммит, который можно откатить. */
+export function lastUndoable(commits: readonly Commit[]): Commit | undefined {
+  return effectiveCommits(commits).findLast((c) => UNDOABLE.includes(c.kind));
+}
+
+/**
+ * Что повторит `/retry`: последний действующий коммит должен быть ходом Мастера; вернётся его реплика игрока или открытие игры.
+ * Если после хода было бытовое действие, повторять нечего: сначала его откатывают.
+ */
+export function lastRetryAction(commits: readonly Commit[]): { kind: 'player'; text: string } | { kind: 'opening' } | null {
+  const last = effectiveCommits(commits).at(-1);
+  if (!last || last.kind !== 'turn') return null;
+  const intent = last.events.find((e) => e.t === 'intent');
+  return intent ? { kind: 'player', text: intent.text } : { kind: 'opening' };
+}
+
+/**
+ * Откат последнего хода или бытового действия (`/undo`). Пишет коммит `revert`, состояние пересчитывается по журналу,
+ * а генератор кубов возвращается на начало отменённого шага: повторный ход бросит те же кубы. Вызывает очередь коммитов, как ход.
+ * Возвращает отменённый коммит; `null`, если отменять нечего.
+ */
+export function undoLastAction(): Promise<Commit | null> {
+  const run = queue.then(async () => {
+    const current = session.peek();
+    if (!current) return null;
+    const full = await storage.loadCampaign(current.meta.id, { recent: Number.MAX_SAFE_INTEGER });
+    if (!full) return null;
+    const target = lastUndoable(full.commits);
+    if (!target) return null;
+    const effective = effectiveCommits(full.commits);
+    const before = effective[effective.findIndex((c) => c.seq === target.seq) - 1];
+    const rngState = before?.rngState ?? createRng(full.meta.seed).state();
+    const commit = revertCommit(full.meta.headSeq + 1, target.seq, crypto.randomUUID(), Date.now(), rngState);
+    const state = foldCommits(initialState(full.meta.rules), [...full.commits, commit]);
+    try {
+      const meta = await storage.commit(current.meta.id, commit, { state });
+      if (session.peek()?.meta.id === meta.id) session.value = { meta, state, rng: rngFromState(rngState), commits: [...current.commits, commit] };
+      return target;
+    } catch (e) {
+      if (e instanceof StorageConflictError) await openSession(current.meta.id);
+      throw e;
+    }
+  });
+  queue = run.catch(() => undefined);
+  return run;
 }
 
 /** Создаёт героя из шаблона и переводит кампанию в игру. */

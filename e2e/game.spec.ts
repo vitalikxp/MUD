@@ -12,12 +12,13 @@ test.beforeEach(async ({ page }) => {
 });
 
 /** Фальшивый Мастер (формат Responses): пишет повествование и закрывает ход через end_turn с вариантами. */
-async function mockMaster(page: Page, bodies: Record<string, unknown>[], firstDelayMs = 0, extraCalls: { name: string; arguments: string }[] = [], narration = 'Дождь стучит по крыше таверны «Последний Порог».'): Promise<void> {
+async function mockMaster(page: Page, bodies: Record<string, unknown>[], firstDelayMs = 0, extraCalls: { name: string; arguments: string }[] = [], narration = 'Дождь стучит по крыше таверны «Последний Порог».', failFirst = false): Promise<void> {
   await page.route(`${RELAY}/**`, async (route: Route) => {
     const req = route.request();
     if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: CORS });
     if (req.method() === 'GET') return route.fulfill({ status: 404, headers: CORS, body: 'no models' });
     bodies.push(req.postDataJSON() as Record<string, unknown>);
+    if (failFirst && bodies.length === 1) return route.fulfill({ status: 401, headers: CORS, body: '{"error":"bad key"}' }); // ход не удаётся
     if (bodies.length === 1 && firstDelayMs) await new Promise((r) => setTimeout(r, firstDelayMs));
     const body = sse([
       { event: 'response.output_text.delta', data: { delta: narration.slice(0, 12) } },
@@ -211,6 +212,67 @@ test('пустая сумка: F3 и вкладка всё равно откры
   await expect(dialog).toContainText('Сумка пуста');
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
+});
+
+/** Отправить строку в поле ввода (десктоп: фокус уже там). */
+async function send(page: Page, text: string): Promise<void> {
+  await page.keyboard.type(text);
+  await page.keyboard.press('Enter');
+}
+
+test('/undo и /retry: откат хода по одному шагу, ход заново без дубля строк', async ({ page }) => {
+  const bodies: Record<string, unknown>[] = [];
+  await mockMaster(page, bodies);
+  await openGame(page);
+  const log = page.getByRole('log');
+  const count = async () => ((await log.innerText()).match(/Дождь стучит/g) ?? []).length;
+
+  await send(page, '/start');
+  await expect(log).toContainText('Дождь стучит');
+  await send(page, '/retry');
+  await expect(async () => expect(bodies).toHaveLength(2)).toPass();
+  await expect(log).toContainText('Дождь стучит');
+  expect(await count()).toBe(1); // старый ответ убран, новый один
+
+  await send(page, '/undo');
+  await expect(log).toContainText('Отменён последний ход');
+  await expect(log).not.toContainText('Дождь стучит');
+  await expect(log).toContainText('/start'); // игра снова не начата
+  await send(page, '/undo');
+  await expect(log).toContainText('Отменять нечего');
+  await send(page, '/retry');
+  await expect(log).toContainText('Повторять нечего');
+  expect(bodies).toHaveLength(2); // откат и пустой /retry Мастера не вызывают
+});
+
+test('/retry после неудавшегося хода отправляет ту же реплику заново, строка игрока не дублируется', async ({ page }) => {
+  const bodies: Record<string, unknown>[] = [];
+  await mockMaster(page, bodies, 0, [], undefined, true);
+  await openGame(page);
+  const log = page.getByRole('log');
+  await send(page, 'Оглядываюсь');
+  await expect(log).toContainText('ключ'); // причина отказа провайдера
+  await send(page, '/retry');
+  await expect(log).toContainText('Дождь стучит');
+  expect(bodies).toHaveLength(2);
+  expect(JSON.stringify(bodies[1])).toContain('Оглядываюсь');
+  expect(((await log.innerText()).match(/Вы> Оглядываюсь/g) ?? []).length).toBe(1);
+});
+
+test('/undo отменяет и бытовое действие с вещами', async ({ page }) => {
+  test.skip(test.info().project.name !== 'desktop', 'фокус в строке ввода: сценарий десктопной раскладки');
+  await mockMaster(page, []);
+  await openGame(page);
+  const list = page.getByRole('listbox', { name: 'Вещи' });
+  await openInventory(page);
+  await pickAction(page, 'Кинжал');
+  await expect(list).toContainText('[основная рука]');
+  await page.keyboard.press('Escape'); // фокус из панели в строку ввода
+  await expect(page.getByRole('textbox')).toBeFocused();
+  await send(page, '/undo');
+  await expect(page.getByRole('log')).toContainText('Отменено последнее действие с вещами');
+  await expect(list).not.toContainText('[основная рука]');
+  await expect(page.getByRole('log')).not.toContainText('берёт «Кинжал»');
 });
 
 test('Markdown в ответе Мастера: разметка не попадает на экран, заголовок, жирный, курсив и список выглядят как текст', async ({ page }) => {

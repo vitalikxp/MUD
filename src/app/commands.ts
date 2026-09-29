@@ -9,6 +9,8 @@ export type Command =
   | { kind: 'glyphs' }
   | { kind: 'settings' }
   | { kind: 'start' }
+  | { kind: 'undo' }
+  | { kind: 'retry' }
   | { kind: 'unknown'; raw: string };
 
 export function parseCommand(input: string, knownPalettes: readonly string[]): Command {
@@ -29,6 +31,10 @@ export function parseCommand(input: string, knownPalettes: readonly string[]): C
       return { kind: 'settings' };
     case 'start':
       return { kind: 'start' };
+    case 'undo':
+      return { kind: 'undo' };
+    case 'retry':
+      return { kind: 'retry' };
     default:
       return { kind: 'unknown', raw: text };
   }

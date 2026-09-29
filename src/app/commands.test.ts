@@ -15,6 +15,8 @@ describe('parseCommand', () => {
     expect(parseCommand('/glyphs', P)).toEqual({ kind: 'glyphs' });
     expect(parseCommand('/settings', P)).toEqual({ kind: 'settings' });
     expect(parseCommand('/start', P)).toEqual({ kind: 'start' });
+    expect(parseCommand('/UNDO', P)).toEqual({ kind: 'undo' });
+    expect(parseCommand('/retry', P)).toEqual({ kind: 'retry' });
   });
   it('неизвестные команды и аргументы', () => {
     expect(parseCommand('/palette neon', P).kind).toBe('unknown');
