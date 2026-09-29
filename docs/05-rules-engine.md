@@ -32,6 +32,7 @@ export interface RulesModule<Stats = unknown, Item = unknown> {
   };
   derive(stats: Stats): DerivedStats;              // защита, макс. Тело, штрафы ран — то, что считается
   sheetLayout(variant): SheetLayout;               // как рисовать лист в TUI
+  inventory(entity, lang): InventoryView;          // вещи героя для панели: название, количество, надето, сводка свойств (реализовано, `src/rules/opend6/inventory.ts`)
   advancement: { options(stats): Improvement[]; apply(stats, imp): Result<Stats> }; // рост персонажа
 
   // Предметы

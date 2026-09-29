@@ -47,4 +47,18 @@ describe('sheetLines', () => {
     for (const line of out) expect(Array.from(line).length).toBeLessThanOrEqual(20);
     expect(out.slice(1).join(' ')).toBe('Бонус к навыку: эйдетическая память R1 · Способность');
   });
+
+  it('briefFirst: важные разделы идут первыми, порядок остальных сохраняется', () => {
+    const view: SheetView = {
+      title: 'Ирма',
+      sections: [
+        { heading: 'Навыки', rows: [{ label: 'лазание', value: '4D' }] },
+        { heading: 'Здоровье', brief: true, rows: [{ label: 'Очки тела', value: '30/30' }] },
+        { heading: 'Очки', brief: true, rows: [{ label: 'CP', value: '5' }] },
+      ],
+    };
+    const heads = (o?: { briefFirst?: boolean }) => text(sheetLines(view, 40, o)).filter((l) => /^(Навыки|Здоровье|Очки)$/.test(l));
+    expect(heads()).toEqual(['Навыки', 'Здоровье', 'Очки']);
+    expect(heads({ briefFirst: true })).toEqual(['Здоровье', 'Очки', 'Навыки']);
+  });
 });

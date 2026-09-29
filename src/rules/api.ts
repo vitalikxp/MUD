@@ -117,7 +117,24 @@ export interface SheetRow {
 
 export interface SheetView {
   title: string;
-  sections: { heading: string; rows: SheetRow[] }[];
+  /** `brief` — раздел важен в тесной панели (здоровье, очки): он идёт первым, остальные ниже и прокручиваются. */
+  sections: { heading: string; rows: SheetRow[]; brief?: boolean }[];
+}
+
+export interface InventoryRow {
+  name: string;
+  qty: number;
+  /** Надето или удерживается (в слоте), а не лежит в сумке. */
+  worn: boolean;
+  /** Краткая сводка свойств предмета на языке интерфейса (урон, броня, описание). */
+  detail?: string;
+}
+
+export interface InventoryView {
+  title: string;
+  /** Деньги и прочее, что показывается над списком: «Серебро 14». */
+  summary: { label: string; value: string }[];
+  rows: InventoryRow[];
 }
 
 export interface AttributeInfo {
@@ -216,6 +233,8 @@ export interface RulesModule {
 
   derive(entity: Entity): DerivedStats;
   sheet(entity: Entity, lang: Lang): SheetView;
+  /** Вещи героя для панели «Вещи»: список с количеством, слотом и сводкой свойств. */
+  inventory(entity: Entity, lang: Lang): InventoryView;
 
   roll(ctx: RulesCtx, args: RollArgs): Result<Outcome>;
   check(ctx: RulesCtx, args: CheckArgs): Result<Outcome>;

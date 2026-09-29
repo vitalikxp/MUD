@@ -62,6 +62,7 @@ export function buildSheet(entity: Entity, lang: Lang): SheetView {
       { heading: L.skills[lang], rows: skillRows },
       {
         heading: L.health[lang],
+        brief: true,
         rows: [
           { label: L.body[lang], value: `${data.body.points}/${data.body.max}` },
           { label: L.wound[lang], value: `${WOUND_NAMES[level.id][lang]}${penalty}` },
@@ -69,6 +70,7 @@ export function buildSheet(entity: Entity, lang: Lang): SheetView {
       },
       {
         heading: L.points[lang],
+        brief: true,
         rows: [
           { label: L.cp[lang], value: String(data.points.cp) },
           { label: L.fp[lang], value: String(data.points.fp) },

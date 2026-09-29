@@ -178,7 +178,7 @@ test('второй вариант правил и английский: камп
   await page.keyboard.press('F10');
   await expect(page.getByRole('region', { name: /Chronicle · Campaign/ })).toBeVisible();
   await expect(page.getByRole('log')).toContainText('Hero: Boris');
-  await expect(page.locator('.tui-fkeys, .tui-tabs')).toContainText('Character'); // F2 / вкладка «Character»
+  await expect(page.locator('.tui-fkeys, .tui-tabs')).toContainText(/Character|Sheet/); // F2 (десктоп) / вкладка (телефон)
   await expect(page.locator('.tui-fkeys, .tui-tabs')).not.toContainText('Glyph'); // раздела «Глифы» в меню больше нет
   await page.keyboard.press('F2');
   const sheet = page.getByRole('dialog', { name: 'Boris — Bodyguard' });

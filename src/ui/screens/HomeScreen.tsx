@@ -16,14 +16,21 @@ import { Panel } from '../tui/Panel';
 import { cellBox, type ScreenInfo } from '../tui/Screen';
 import { StatusBar } from '../tui/StatusBar';
 import { Tabs } from '../tui/Tabs';
+import { InventoryPanel } from '../panels/InventoryPanel';
+import { SheetPanel } from '../panels/SheetPanel';
 import { clampOffset, followOffset, thinkingBar } from '../tui/scroll';
 import { Scrollbar, TextView, wrapParagraphs } from '../tui/TextView';
 import type { Paragraph, Segment } from '../tui/types';
 import { HelpDialog, PaletteDialog, StatusDialog } from './dialogs';
 import { SettingsDialog } from './SettingsDialog';
+import { InventoryDialog } from './InventoryDialog';
 import { SheetDialog } from './SheetDialog';
 
-type DialogId = 'help' | 'palette' | 'status' | 'settings' | 'sheet';
+type DialogId = 'help' | 'palette' | 'status' | 'settings' | 'sheet' | 'inventory';
+
+/** Правая колонка с панелями «Персонаж» и «Вещи» (в кампании): ширина и порог по ширине экрана; уже — только окна F2/F3 и вкладки. */
+const SIDE_W = 40;
+const SIDE_MIN_COLS = 110;
 
 const dot = (fg: Token): Segment => ({ text: '● ', fg });
 
@@ -80,7 +87,7 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
 
   const fkeys: FKey[] = [
     { n: 1, label: t('fkeys.help'), action: () => toggle('help') },
-    ...(game ? [{ n: 2, label: t('fkeys.sheet'), action: () => toggle('sheet') } satisfies FKey] : []),
+    ...(game ? [{ n: 2, label: t('fkeys.sheet'), action: () => toggle('sheet') } satisfies FKey, { n: 3, label: t('fkeys.inventory'), action: () => toggle('inventory') } satisfies FKey] : []),
     { n: 4, label: t('fkeys.settings'), action: () => toggle('settings') },
     { n: 7, label: t('fkeys.status'), action: () => toggle('status') },
     { n: 8, label: t('fkeys.palette'), action: () => toggle('palette') },
@@ -124,7 +131,10 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
 
   // Хроника занимает всё, кроме строки состояния и F-клавиш (десктоп) или вкладок (телефон).
   const chronH = mobile ? rows - 3 : rows - 2;
-  const chronBodyW = cols - 2;
+  const side = game && !mobile && cols >= SIDE_MIN_COLS;
+  const chronW = side ? cols - SIDE_W : cols;
+  const sheetH = Math.max(6, Math.min(chronH - 8, Math.round(chronH * 0.6)));
+  const chronBodyW = chronW - 2;
   const chronTextH = Math.max(1, chronH - 4);
   const chronLines = wrapParagraphs(paragraphs, chronBodyW - 1); // 1 столбец справа — под полосу прокрутки
   const total = chronLines.length;
@@ -161,7 +171,7 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
 
   return (
     <>
-      <Panel x={0} y={0} w={cols} h={chronH} title={current ? `${t('panels.chronicle')} · ${current.meta.title}` : t('panels.chronicle')} active separators={[chronH - 3]}
+      <Panel x={0} y={0} w={chronW} h={chronH} title={current ? `${t('panels.chronicle')} · ${current.meta.title}` : t('panels.chronicle')} active separators={[chronH - 3]}
         onActivate={() => inputRef.current?.focus()} id="panel-chronicle">
         {/* Колесо мыши и жест пальцем прокручивают хронику; с клавиатуры — PgUp/PgDn. */}
         <div class="tui-scroll-area" style={cellBox(0, 0, chronBodyW, chronTextH)}
@@ -181,6 +191,13 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
           label={t('input.placeholder')} onSubmit={onSubmit} inputRef={inputRef} />
       </Panel>
 
+      {side ? (
+        <>
+          <SheetPanel x={chronW} y={0} w={SIDE_W} h={sheetH} />
+          <InventoryPanel x={chronW} y={sheetH} w={SIDE_W} h={chronH - sheetH} />
+        </>
+      ) : null}
+
       <StatusBar line={statusLine} y={statusY} cols={cols} label={t('panels.status')} />
 
       {mobile ? (
@@ -189,6 +206,7 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
           tabs={game
             ? [
                 { id: 'sheet', label: t('tabs.sheet') },
+                { id: 'inventory', label: t('tabs.inventory') },
                 { id: 'palette', label: t('tabs.palettes') },
                 { id: 'settings', label: t('tabs.settings') },
                 { id: 'menu', label: t('tabs.menu') },
@@ -211,6 +229,7 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
       {dialog === 'status' ? <StatusDialog onClose={close} /> : null}
       {dialog === 'settings' ? <SettingsDialog gate={false} onClose={close} onStart={close} /> : null}
       {dialog === 'sheet' ? <SheetDialog onClose={close} /> : null}
+      {dialog === 'inventory' ? <InventoryDialog onClose={close} /> : null}
     </>
   );
 }

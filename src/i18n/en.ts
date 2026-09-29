@@ -16,6 +16,7 @@ export const en: Dict = {
     status: 'Status',
     new: 'New',
     sheet: 'Character',
+    inventory: 'Items',
     campaigns: 'Campaigns',
     create: 'Create',
   },
@@ -28,12 +29,14 @@ export const en: Dict = {
     swatches: 'Palette tokens',
     settings: 'LLM settings',
     sheet: 'Character',
+    inventory: 'Inventory',
   },
   tabs: {
     palettes: 'Palette',
     status: 'Status',
     settings: 'LLM',
-    sheet: 'Character',
+    sheet: 'Sheet',
+    inventory: 'Items',
     menu: 'Menu',
     new: 'New',
     delete: 'Delete',
@@ -77,6 +80,9 @@ export const en: Dict = {
     traits: 'Traits',
     saving: 'Saving…',
     nameTooLong: 'The name is at most {max} characters',
+  },
+  inventory: {
+    empty: 'The bag is empty.',
   },
   sheet: {
     title: 'Character',

@@ -5,10 +5,12 @@ import type { Line, Segment } from '../tui/types';
 /**
  * Лист персонажа в строках. Обычная запись — «название  значение  подсказка» в одну строку.
  * Запись с `block` (особенности) — в одну колонку: строка «название · значение», под ней описание абзацем с отступом.
+ * С `briefFirst` (тесная панель) разделы, важные в бою (`brief`: здоровье, очки), идут первыми.
  */
-export function sheetLines(sheet: SheetView, width: number): Line[] {
+export function sheetLines(sheet: SheetView, width: number, opts: { briefFirst?: boolean } = {}): Line[] {
   const lines: Line[] = [];
-  for (const section of sheet.sections) {
+  const sections = opts.briefFirst ? [...sheet.sections.filter((s) => s.brief), ...sheet.sections.filter((s) => !s.brief)] : sheet.sections;
+  for (const section of sections) {
     if (section.rows.length === 0) continue;
     if (lines.length > 0) lines.push([{ text: '' }]);
     lines.push([{ text: section.heading, fg: 'accent', bold: true }]);

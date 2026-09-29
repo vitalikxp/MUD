@@ -16,6 +16,7 @@ export const ru = {
     status: 'Состояние',
     new: 'Новая',
     sheet: 'Персонаж',
+    inventory: 'Вещи',
     campaigns: 'Кампании',
     create: 'Создать',
   },
@@ -28,12 +29,14 @@ export const ru = {
     swatches: 'Токены палитры',
     settings: 'Настройки LLM',
     sheet: 'Персонаж',
+    inventory: 'Вещи',
   },
   tabs: {
     palettes: 'Палитра',
     status: 'Состояние',
     settings: 'LLM',
-    sheet: 'Персонаж',
+    sheet: 'Лист',
+    inventory: 'Вещи',
     menu: 'Меню',
     new: 'Новая',
     delete: 'Удалить',
@@ -77,6 +80,9 @@ export const ru = {
     traits: 'Особенности',
     saving: 'Сохраняю…',
     nameTooLong: 'Имя не длиннее {max} символов',
+  },
+  inventory: {
+    empty: 'Сумка пуста.',
   },
   sheet: {
     title: 'Персонаж',

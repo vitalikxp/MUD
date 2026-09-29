@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 /** Фальшивый Мастер (формат Responses): пишет повествование и закрывает ход через end_turn с вариантами. */
-async function mockMaster(page: Page, bodies: Record<string, unknown>[], firstDelayMs = 0): Promise<void> {
+async function mockMaster(page: Page, bodies: Record<string, unknown>[], firstDelayMs = 0, extraCalls: { name: string; arguments: string }[] = []): Promise<void> {
   await page.route(`${RELAY}/**`, async (route: Route) => {
     const req = route.request();
     if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: CORS });
@@ -22,6 +22,7 @@ async function mockMaster(page: Page, bodies: Record<string, unknown>[], firstDe
     const body = sse([
       { event: 'response.output_text.delta', data: { delta: 'Дождь стучит по крыше ' } },
       { event: 'response.output_text.delta', data: { delta: 'таверны «Последний Порог».' } },
+      ...extraCalls.map((c, i) => ({ event: 'response.output_item.done', data: { item: { type: 'function_call', call_id: `x${i}`, name: c.name, arguments: c.arguments } } })),
       { event: 'response.output_item.done', data: { item: { type: 'function_call', call_id: 'c1', name: 'end_turn', arguments: '{"suggestions":["Осмотреть зал","Заказать эль"]}' } } },
       { event: 'response.completed', data: { response: { usage: { input_tokens: 50, output_tokens: 20 } } } },
     ]);
@@ -99,4 +100,28 @@ test('уход в другую кампанию во время хода: ход
   await page.waitForTimeout(4000); // поздний ответ A не должен ничего дописать в ленту B
   expect((await log.innerText()).match(/Дождь стучит/g)).toHaveLength(1);
   expect(bodies).toHaveLength(2);
+});
+
+test('вещи и лист героя: панели справа (десктоп) обновляются после хода, F3 и вкладка открывают окно вещей', async ({ page }) => {
+  const desktop = test.info().project.name === 'desktop';
+  await mockMaster(page, [], 0, [{ name: 'give_item', arguments: JSON.stringify({ targetId: 'hero', name: 'Ржавый ключ', note: 'Тяжёлый, с зазубриной' }) }]);
+  await openGame(page);
+  if (desktop) {
+    await expect(page.getByRole('region', { name: 'Персонаж' })).toContainText('Очки тела');
+    await expect(page.getByRole('region', { name: 'Вещи' })).toContainText('Серебро');
+    await expect(page.getByRole('region', { name: 'Вещи' })).not.toContainText('Ржавый ключ');
+  } else {
+    await expect(page.getByRole('region', { name: 'Персонаж' })).toHaveCount(0); // на телефоне панелей нет, есть вкладки
+  }
+  await page.keyboard.type('/start');
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('log')).toContainText('Дождь стучит');
+  if (desktop) await expect(page.getByRole('region', { name: 'Вещи' })).toContainText('Ржавый ключ'); // панель обновилась по журналу
+  if (desktop) await page.keyboard.press('F3');
+  else await page.getByRole('tab', { name: 'Вещи' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Вещи' });
+  await expect(dialog).toContainText('Ржавый ключ');
+  await expect(dialog).toContainText('Тяжёлый');
+  await page.keyboard.press('Escape');
+  await expect(dialog).toHaveCount(0);
 });

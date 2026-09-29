@@ -11,6 +11,7 @@ import { applyDamage, awardPoints, heal } from './damage';
 import { ADVENTURE, FANTASY } from './data';
 import { LOOKUP_TOPICS, lookup, promptPrimer } from './primer';
 import { roll } from './roll';
+import { buildInventory } from './inventory';
 import { buildSheet } from './sheet';
 
 export const OPEND6_VERSION = '0.1.0';
@@ -34,6 +35,7 @@ export const opend6: RulesModule = {
     return r.value;
   },
   sheet: buildSheet,
+  inventory: buildInventory,
 
   roll,
   check,
