@@ -63,6 +63,7 @@ export const ru = {
     busy: 'Мастер ещё отвечает. Esc — прервать.',
     aborted: 'Ответ прерван.',
     master: 'Мастер',
+    thinking: 'Мастер думает',
     echo: '{text}',
   },
   settings: {
@@ -144,6 +145,7 @@ export const ru = {
     title: 'Помощь',
     lines: [
       'Tab / Shift+Tab — сменить активную панель',
+      'PgUp / PgDn или колесо мыши — прокрутка хроники',
       'F1 или Alt+1 — эта справка',
       'F2 или Alt+2 — язык (RU/EN)',
       'F3 или Alt+3 — шрифт',

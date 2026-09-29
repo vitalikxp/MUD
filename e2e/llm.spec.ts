@@ -5,13 +5,14 @@ const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers
 const sse = (events: { event: string; data: object }[]): string => events.map((e) => `event: ${e.event}\ndata: ${JSON.stringify({ type: e.event, ...e.data })}\n\n`).join('');
 
 /** Фальшивый relay в формате Responses: с tools — вызов ping, без tools — потоковый текст. */
-async function mockRelay(page: Page, seen: { headers: Record<string, string>[]; bodies: Record<string, unknown>[] }): Promise<void> {
+async function mockRelay(page: Page, seen: { headers: Record<string, string>[]; bodies: Record<string, unknown>[] }, delayMs = 0): Promise<void> {
   await page.route(`${RELAY}/**`, async (route: Route) => {
     const req = route.request();
     if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: CORS });
     seen.headers.push(req.headers());
     const body = req.postDataJSON() as Record<string, unknown>;
     seen.bodies.push(body);
+    if (delayMs) await new Promise((r) => setTimeout(r, delayMs));
     const reply = body['tools']
       ? sse([
           { event: 'response.output_item.done', data: { item: { type: 'function_call', call_id: 'c1', name: 'ping', arguments: '{"word":"pong"}' } } },
@@ -128,4 +129,76 @@ test('ошибка провайдера показывается понятны�
   await page.keyboard.press('Enter');
   await expect(page.getByRole('log')).toContainText('✗ Связь и ответ модели: ошибка');
   await expect(page.getByRole('log')).toContainText('неверный ключ или нет доступа');
+});
+
+/** Строки хроники (только видимые). */
+const chronicleRows = (page: Page): Promise<string[]> => page.$$eval('.tui-scroll-area .tui-row', (rows) => rows.map((r) => r.textContent ?? ''));
+
+async function askAndFinish(page: Page, text: string, answerPart: string): Promise<void> {
+  const input = page.getByRole('textbox');
+  await input.fill(text);
+  await input.press('Enter');
+  await expect(page.getByRole('status')).toHaveText('');
+  await expect.poll(async () => (await chronicleRows(page)).join('\n')).toContain(answerPart);
+}
+
+test('пока Мастер думает — анимация, потом ответ; между репликой и ответом пустая строка', async ({ page }) => {
+  await mockRelay(page, { headers: [], bodies: [] }, 1500);
+  await configure(page);
+  await page.keyboard.press('Escape');
+  const input = page.getByRole('textbox');
+  await input.fill('Вхожу в склеп');
+  await input.press('Enter');
+
+  const thinking = page.locator('.tui-scroll-area').getByText(/Мастер думает \[/);
+  await expect(thinking).toBeVisible();
+  await expect(page.getByRole('status')).toHaveText('Мастер думает…'); // для скринридеров
+  const frame1 = await thinking.textContent();
+  await expect.poll(async () => thinking.textContent()).not.toBe(frame1); // кадр меняется
+  expect(await page.$eval('.tui-scroll-area [aria-hidden="true"]', (el) => el.textContent)).toContain('Мастер думает'); // декоративная строка скрыта от скринридеров
+
+  await expect(page.getByText('пахнет воском.')).toBeVisible();
+  await expect(thinking).toHaveCount(0);
+  await expect(page.getByRole('status')).toHaveText('');
+
+  const rows = await chronicleRows(page);
+  const i = rows.findIndex((r) => r.startsWith('Вы> Вхожу в склеп'));
+  expect(i).toBeGreaterThanOrEqual(0);
+  expect(rows[i + 1]!.trim()).toBe(''); // пустая строка-отступ
+  expect(rows[i + 2]).toContain('Сырой воздух');
+});
+
+test('хроника прокручивается: PgUp/PgDn, колесо, полоса; своя реплика возвращает к концу', async ({ page }) => {
+  await mockRelay(page, { headers: [], bodies: [] });
+  await configure(page);
+  await page.keyboard.press('Escape');
+  await expect(page.locator('.tui-scrollbar')).toHaveCount(0); // пока всё помещается — полосы нет
+  for (let n = 1; n <= 14; n++) await askAndFinish(page, `Ход ${n}`, 'пахнет воском.');
+  const scrollbar = page.locator('.tui-scrollbar');
+  await expect(scrollbar).toBeVisible();
+
+  const bottom = await chronicleRows(page);
+  expect(bottom.join('\n')).toContain('Вы> Ход 14');
+  const thumbTop = async () => scrollbar.locator('.tui-row').evaluateAll((rows) => rows.findIndex((r) => r.textContent === '█'));
+  const thumbAtBottom = await thumbTop();
+
+  await page.keyboard.press('PageUp');
+  const up = await chronicleRows(page);
+  expect(up).not.toEqual(bottom);
+  expect(up.join('\n')).not.toContain('Вы> Ход 14');
+  expect(await thumbTop()).toBeLessThan(thumbAtBottom); // ползунок поднялся
+
+  await page.keyboard.press('PageDown');
+  expect(await chronicleRows(page)).toEqual(bottom);
+
+  await page.locator('.tui-scroll-area').hover();
+  await page.mouse.wheel(0, -300);
+  await expect.poll(async () => (await chronicleRows(page)).join('\n')).not.toContain('Вы> Ход 14');
+  await page.mouse.wheel(0, 3000);
+  await expect.poll(async () => chronicleRows(page)).toEqual(bottom);
+
+  // Прокрутили вверх и отправили реплику — снова видим конец.
+  await page.keyboard.press('PageUp');
+  await askAndFinish(page, 'Ход 15', 'пахнет воском.');
+  expect((await chronicleRows(page)).join('\n')).toContain('Вы> Ход 15');
 });

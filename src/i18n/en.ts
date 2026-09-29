@@ -64,6 +64,7 @@ export const en: Dict = {
     busy: 'The game master is still answering. Esc to interrupt.',
     aborted: 'Answer interrupted.',
     master: 'GM',
+    thinking: 'The GM is thinking',
     echo: '{text}',
   },
   settings: {
@@ -145,6 +146,7 @@ export const en: Dict = {
     title: 'Help',
     lines: [
       'Tab / Shift+Tab — switch the active panel',
+      'PgUp / PgDn or mouse wheel — scroll the chronicle',
       'F1 or Alt+1 — this help',
       'F2 or Alt+2 — language (RU/EN)',
       'F3 or Alt+3 — font',

@@ -6,6 +6,8 @@ export interface Segment {
   fg?: Token;
   bg?: Token;
   bold?: boolean;
+  /** Чисто визуальный отрезок (анимация): скрывается от скринридеров. */
+  decorative?: boolean;
 }
 
 export type Line = readonly Segment[];
@@ -14,4 +16,5 @@ export type Line = readonly Segment[];
 export interface Paragraph {
   text: string;
   fg?: Token;
+  decorative?: boolean;
 }

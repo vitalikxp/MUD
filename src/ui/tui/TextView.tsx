@@ -1,4 +1,6 @@
 import { cssVar } from '../../theme/palettes';
+import { cellBox } from './Screen';
+import { scrollThumb } from './scroll';
 import { fit, wrapToWidth } from './text';
 import type { Line, Paragraph, Segment } from './types';
 
@@ -6,7 +8,7 @@ import type { Line, Paragraph, Segment } from './types';
 export function wrapParagraphs(paragraphs: readonly Paragraph[], width: number): Line[] {
   const out: Line[] = [];
   for (const p of paragraphs) {
-    for (const text of wrapToWidth(p.text, width)) out.push([p.fg ? { text, fg: p.fg } : { text }]);
+    for (const text of wrapToWidth(p.text, width)) out.push([{ text, ...(p.fg ? { fg: p.fg } : {}), ...(p.decorative ? { decorative: true } : {}) }]);
   }
   return out;
 }
@@ -26,6 +28,7 @@ export function Row({ line, width }: { line: Line; width?: number }) {
       {segs.map((s, i) => (
         <span
           key={i}
+          {...(s.decorative ? { 'aria-hidden': true } : {})}
           style={{
             ...(s.fg ? { color: cssVar(s.fg) } : {}),
             ...(s.bg ? { background: cssVar(s.bg) } : {}),
@@ -58,6 +61,21 @@ export function TextView({ lines, width, height, offset = 0, anchor = 'bottom', 
     <div class="tui-text" aria-live={live ? 'polite' : undefined} role={live ? 'log' : undefined}>
       {visible.map((line, i) => (
         <Row key={start + i} line={line} width={width} />
+      ))}
+    </div>
+  );
+}
+
+/** Полоса прокрутки в один столбец: `░` — дорожка, `█` — ползунок. Только для глаз, скринридеры её пропускают. */
+export function Scrollbar({ total, height, offset, x }: { total: number; height: number; offset: number; x: number }) {
+  const thumb = scrollThumb(total, height, offset);
+  if (!thumb) return null;
+  return (
+    <div class="tui-scrollbar" aria-hidden="true" style={{ ...cellBox(x, 0, 1, height), color: cssVar('frame') }}>
+      {Array.from({ length: height }, (_, i) => (
+        <div class="tui-row" key={i} style={i >= thumb.start && i < thumb.start + thumb.size ? { color: cssVar('frameActive') } : undefined}>
+          {i >= thumb.start && i < thumb.start + thumb.size ? '█' : '░'}
+        </div>
       ))}
     </div>
   );

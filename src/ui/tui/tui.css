@@ -145,3 +145,39 @@ body {
     animation: none;
   }
 }
+
+.tui-scrollbar {
+  pointer-events: none;
+}
+
+/* Видно только скринридерам. */
+.tui-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Курсор мыши-блок (DOS): клетка с инверсией цветов под ней. Системный курсор скрыт, пока блок на экране. */
+.tui-screen.has-mouse-cursor,
+.tui-screen.has-mouse-cursor * {
+  cursor: none;
+}
+
+.tui-mouse-cursor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  z-index: 1000;
+  transition: none !important;
+}
+
+/* Нажатая кнопка — нижняя половина клетки. */
+.tui-mouse-cursor.is-pressed {
+  clip-path: inset(50% 0 0 0);
+}

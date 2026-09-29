@@ -1,7 +1,8 @@
 import { createContext, type ComponentChildren, type JSX } from 'preact';
-import { useContext, useEffect, useState } from 'preact/hooks';
+import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { computeMetrics, loadFont, measureCharWidth, MIN_COLS, type CellMetrics, type FontDef } from '../../theme/fonts';
 import { cssVar } from '../../theme/palettes';
+import { MouseCursor } from './MouseCursor';
 
 export interface ScreenInfo extends CellMetrics {
   mobile: boolean;
@@ -34,6 +35,7 @@ function viewport(): { w: number; h: number } {
 /** Корень символьной сетки: меряет шрифт, считает cols × rows и масштаб, раздаёт их потомкам. */
 export function Screen({ font, children }: { font: FontDef; children: (info: ScreenInfo) => ComponentChildren }) {
   const [info, setInfo] = useState<ScreenInfo | null>(null);
+  const screenRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let alive = true;
@@ -67,8 +69,9 @@ export function Screen({ font, children }: { font: FontDef; children: (info: Scr
 
   return (
     <ScreenContext.Provider value={info}>
-      <div class={`tui-screen${font.pixel ? ' tui-pixel' : ''}`} style={style} data-cols={info.cols} data-rows={info.rows}>
+      <div ref={screenRef} class={`tui-screen${font.pixel ? ' tui-pixel' : ''}`} style={style} data-cols={info.cols} data-rows={info.rows}>
         {children(info)}
+        <MouseCursor screenRef={screenRef} />
       </div>
     </ScreenContext.Provider>
   );

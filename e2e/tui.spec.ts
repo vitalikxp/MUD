@@ -88,3 +88,35 @@ test('/dev/glyphs открывается по прямой ссылке, рам�
   await expectFramesAligned(page);
   expect(errors).toEqual([]);
 });
+
+test('курсор мыши: блок в клетке сетки, системный курсор скрыт; на сенсорном экране его нет', async ({ page }, info) => {
+  await page.goto('/');
+  await expect(page.getByRole('region', { name: 'Хроника' })).toBeVisible();
+  const cursor = page.locator('.tui-mouse-cursor');
+  if (info.project.name === 'mobile') {
+    await expect(cursor).toBeHidden();
+    await expect(page.locator('.tui-screen')).not.toHaveClass(/has-mouse-cursor/);
+    return;
+  }
+  await expect(cursor).toBeHidden(); // до первого движения — системный курсор
+  await page.mouse.move(305, 203);
+  await expect(cursor).toBeVisible();
+  await expect(page.locator('.tui-screen')).toHaveClass(/has-mouse-cursor/);
+  const { cellW, cellH, screenLeft, screenTop } = await page.evaluate(() => {
+    const s = document.querySelector('.tui-screen')!;
+    const r = s.getBoundingClientRect();
+    const cs = getComputedStyle(s);
+    return { cellW: parseFloat(cs.getPropertyValue('--cw')), cellH: parseFloat(cs.getPropertyValue('--ch')), screenLeft: r.left, screenTop: r.top };
+  });
+  const box = (await cursor.boundingBox())!;
+  expect(box.width).toBeCloseTo(cellW, 1);
+  expect(box.height).toBeCloseTo(cellH, 1);
+  expect((box.x - screenLeft) / cellW).toBeCloseTo(Math.floor((305 - screenLeft) / cellW), 1); // привязан к клетке
+  expect((box.y - screenTop) / cellH).toBeCloseTo(Math.floor((203 - screenTop) / cellH), 1);
+  expect(await page.locator('.tui-panel').first().evaluate((el) => getComputedStyle(el).cursor)).toBe('none');
+  await page.mouse.down();
+  await expect(cursor).toHaveClass(/is-pressed/);
+  await page.mouse.up();
+  await expect(cursor).not.toHaveClass(/is-pressed/);
+  await expect(page.locator('.tui-mouse-cursor')).toHaveCSS('mix-blend-mode', 'difference');
+});
