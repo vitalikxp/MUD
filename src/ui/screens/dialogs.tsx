@@ -8,16 +8,21 @@ import { getPalette, PALETTES } from '../../theme/palettes';
 import { Dialog } from '../tui/Dialog';
 import { Menu } from '../tui/Menu';
 import { useScreen } from '../tui/Screen';
-import { TextView, wrapParagraphs } from '../tui/TextView';
+import { ScrollText } from '../tui/ScrollText';
+import { wrapParagraphs } from '../tui/TextView';
 import type { Paragraph } from '../tui/types';
 import { setPalette } from '../../app/chronicle';
 
 /** Справка (F1). */
 export function HelpDialog({ onClose }: { onClose: () => void }) {
+  const { cols, rows } = useScreen();
   const lines = tList('help.lines');
+  const w = Math.min(cols - 2, Math.max(...lines.map((l) => Array.from(l).length)) + 4);
+  const textH = Math.max(1, Math.min(lines.length, rows - 4));
   return (
-    <Dialog title={t('help.title')} w={Math.max(...lines.map((l) => Array.from(l).length)) + 4} h={lines.length + 2} onClose={onClose}>
-      <TextView lines={lines.map((text) => [{ text }])} width={200} height={lines.length} anchor="top" />
+    <Dialog title={t('help.title')} w={w} h={textH + 2} onClose={onClose}>
+      <ScrollText focusable focusOnMount label={t('help.title')} width={w - 2} height={textH}
+        build={(width) => wrapParagraphs(lines.map((text) => ({ text })), width)} />
     </Dialog>
   );
 }
@@ -72,10 +77,10 @@ export function StatusDialog({ onClose }: { onClose: () => void }) {
     { text: usage ? `${t('status.last')}: ↑${formatTokens(usage.inputTokens)} ↓${formatTokens(usage.outputTokens)} · ${formatSeconds(usage.ms)}` : `${t('status.last')}: —` },
   ];
   const w = Math.min(cols - 2, 56);
-  const wrapped = wrapParagraphs(lines, w - 2);
+  const textH = Math.max(1, Math.min(wrapParagraphs(lines, w - 2).length, rows - 4));
   return (
-    <Dialog title={t('panels.status')} w={w} h={wrapped.length + 2} onClose={onClose}>
-      <TextView lines={wrapped} width={w - 2} height={wrapped.length} anchor="top" />
+    <Dialog title={t('panels.status')} w={w} h={textH + 2} onClose={onClose}>
+      <ScrollText focusable focusOnMount label={t('panels.status')} width={w - 2} height={textH} build={(width) => wrapParagraphs(lines, width)} />
     </Dialog>
   );
 }

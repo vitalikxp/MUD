@@ -15,8 +15,8 @@ export function Tabs({ tabs, active, y, cols, onChange, extra }: {
   onChange: (id: string) => void;
   extra?: { label: string; action: () => void; ariaLabel: string };
 }) {
-  const count = tabs.length + (extra ? 1 : 0);
-  const slot = Math.max(3, Math.floor(cols / count));
+  const extraW = extra ? 3 : 0; // «≡» узкий, вкладкам остаётся больше места под подписи
+  const slot = Math.max(3, Math.floor((cols - extraW) / Math.max(1, tabs.length)));
   return (
     <div class="tui-tabs" style={cellBox(0, y, cols, 2)} role="tablist">
       {tabs.map((t, i) => {

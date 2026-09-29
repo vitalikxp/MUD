@@ -1,6 +1,7 @@
 import { useSignalEffect } from '@preact/signals';
 import { useEffect, useRef, useState } from 'preact/hooks';
-import { askMaster, chronicle, push, reducedMotion, scrollOffset, setLang, setPalette, thinkingTick } from '../../app/chronicle';
+import { session } from '../../app/campaigns';
+import { askMaster, chronicle, enterChronicle, INTRO, push, reducedMotion, scrollOffset, setLang, setPalette, thinkingTick, type Entry } from '../../app/chronicle';
 import { parseCommand } from '../../app/commands';
 import * as llm from '../../app/llm';
 import { abort, busy, lastError, lastUsage } from '../../app/master';
@@ -20,8 +21,9 @@ import { Scrollbar, TextView, wrapParagraphs } from '../tui/TextView';
 import type { Paragraph, Segment } from '../tui/types';
 import { HelpDialog, PaletteDialog, StatusDialog } from './dialogs';
 import { SettingsDialog } from './SettingsDialog';
+import { SheetDialog } from './SheetDialog';
 
-type DialogId = 'help' | 'palette' | 'status' | 'settings';
+type DialogId = 'help' | 'palette' | 'status' | 'settings' | 'sheet';
 
 const dot = (fg: Token): Segment => ({ text: '● ', fg });
 
@@ -47,8 +49,14 @@ function llmSegments(): Segment[] {
   }
 }
 
-export function HomeScreen({ screen }: { screen: ScreenInfo }) {
+/**
+ * Игровой экран. С `game` показывает кампанию из `session` (лист героя, возврат к списку кампаний), без него — черновой чат с моделью.
+ * До M1.5 (Мастер с инструментами) чат в кампании не сохраняется.
+ */
+export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?: boolean }) {
   const { cols, rows, mobile } = screen;
+  const current = game ? session.value : null;
+  const campaignId = current?.meta.id;
   const [dialog, setDialog] = useState<DialogId | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -64,21 +72,41 @@ export function HomeScreen({ screen }: { screen: ScreenInfo }) {
       case 'help': setDialog('help'); break;
       case 'palette': setPalette(cmd.id); break;
       case 'lang': setLang(cmd.locale); break;
-      case 'glyphs': navigate('glyphs'); break;
+      case 'glyphs': navigate({ page: 'glyphs' }); break;
       case 'unknown': push({ key: 'msg.unknown', params: { cmd: cmd.raw }, fg: 'warning' }); break;
     }
   };
 
   const fkeys: FKey[] = [
     { n: 1, label: t('fkeys.help'), action: () => toggle('help') },
-    { n: 2, label: t('fkeys.lang'), action: () => setLang(locale.value === 'ru' ? 'en' : 'ru') },
+    ...(game ? [{ n: 2, label: t('fkeys.sheet'), action: () => toggle('sheet') } satisfies FKey] : []),
     { n: 4, label: t('fkeys.settings'), action: () => toggle('settings') },
     { n: 7, label: t('fkeys.status'), action: () => toggle('status') },
     { n: 8, label: t('fkeys.palette'), action: () => toggle('palette') },
-    { n: 9, label: t('fkeys.glyphs'), action: () => navigate('glyphs') },
+    { n: 9, label: t('fkeys.lang'), action: () => setLang(locale.value === 'ru' ? 'en' : 'ru') },
+    ...(game ? [{ n: 10, label: t('fkeys.campaigns'), action: () => navigate({ page: 'title' }) } satisfies FKey] : []),
   ];
-  const gate = llm.setupPending.value; // первый запуск без настроек: только окно настроек
-  useFKeys(fkeys, !gate);
+  useFKeys(fkeys);
+
+  // Лента зависит от режима: в кампании — её вступление, в черновом чате — приветствие M0.
+  const campaignTitle = current?.meta.title;
+  const heroName = current ? Object.values(current.state.entities).find((e) => e.kind === 'pc')?.name : undefined;
+  useEffect(() => {
+    if (campaignTitle === undefined) {
+      enterChronicle('chat', INTRO);
+      return;
+    }
+    const intro: Entry[] = [
+      { key: 'game.intro', params: { title: campaignTitle, hero: heroName ?? '—' }, fg: 'accent' },
+      { text: '', fg: 'dm' },
+      { key: 'game.preview', fg: 'dm' },
+      { text: '', fg: 'dm' },
+      { key: 'game.heroSaved', fg: 'success' },
+      { text: '', fg: 'dm' },
+      { key: 'game.tryIt', fg: 'fgDim' },
+    ];
+    enterChronicle(`campaign:${campaignId}`, intro);
+  }, [campaignId, campaignTitle, heroName]);
 
   // Анимация «думает»: тикаем, пока идёт запрос; при prefers-reduced-motion кадр не меняется.
   useSignalEffect(() => {
@@ -93,7 +121,7 @@ export function HomeScreen({ screen }: { screen: ScreenInfo }) {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
-  useEffect(() => { if (!gate) inputRef.current?.focus(); }, [gate]);
+  useEffect(() => { inputRef.current?.focus(); }, []);
 
   const paragraphs: Paragraph[] = chronicle.value.map((e) =>
     'pending' in e
@@ -138,19 +166,9 @@ export function HomeScreen({ screen }: { screen: ScreenInfo }) {
   const statusLine = layoutStatus(llmSegments(), rightStatus, cols);
   const statusY = mobile ? rows - 3 : rows - 2;
 
-  if (gate) {
-    return (
-      <>
-        {/* Ничего, кроме окна: ни хроники, ни строки состояния, ни F-клавиш. Закрыть окно нельзя, пока не выбрано «Начать игру». */}
-        <SettingsDialog gate onClose={() => {}} onStart={() => { llm.setupPending.value = false; }} />
-        <div class="tui-sr-only" role="status" />
-      </>
-    );
-  }
-
   return (
     <>
-      <Panel x={0} y={0} w={cols} h={chronH} title={t('panels.chronicle')} active separators={[chronH - 3]}
+      <Panel x={0} y={0} w={cols} h={chronH} title={current ? `${t('panels.chronicle')} · ${current.meta.title}` : t('panels.chronicle')} active separators={[chronH - 3]}
         onActivate={() => inputRef.current?.focus()} id="panel-chronicle">
         {/* Колесо мыши и жест пальцем прокручивают хронику; с клавиатуры — PgUp/PgDn. */}
         <div class="tui-scroll-area" style={cellBox(0, 0, chronBodyW, chronTextH)}
@@ -174,12 +192,19 @@ export function HomeScreen({ screen }: { screen: ScreenInfo }) {
 
       {mobile ? (
         <Tabs y={rows - 2} cols={cols} active=""
-          onChange={(id) => toggle(id as DialogId)}
-          tabs={[
-            { id: 'palette', label: t('tabs.palettes') },
-            { id: 'status', label: t('tabs.status') },
-            { id: 'settings', label: t('tabs.settings') },
-          ]}
+          onChange={(id) => { if (id === 'menu') navigate({ page: 'title' }); else toggle(id as DialogId); }}
+          tabs={game
+            ? [
+                { id: 'sheet', label: t('tabs.sheet') },
+                { id: 'palette', label: t('tabs.palettes') },
+                { id: 'settings', label: t('tabs.settings') },
+                { id: 'menu', label: t('tabs.menu') },
+              ]
+            : [
+                { id: 'palette', label: t('tabs.palettes') },
+                { id: 'status', label: t('tabs.status') },
+                { id: 'settings', label: t('tabs.settings') },
+              ]}
           extra={{ label: '≡', ariaLabel: t('fkeys.help'), action: () => toggle('help') }} />
       ) : (
         <FKeyBar keys={fkeys} y={rows - 1} cols={cols} />
@@ -192,6 +217,7 @@ export function HomeScreen({ screen }: { screen: ScreenInfo }) {
       {dialog === 'palette' ? <PaletteDialog onClose={close} /> : null}
       {dialog === 'status' ? <StatusDialog onClose={close} /> : null}
       {dialog === 'settings' ? <SettingsDialog gate={false} onClose={close} onStart={close} /> : null}
+      {dialog === 'sheet' ? <SheetDialog onClose={close} /> : null}
     </>
   );
 }

@@ -30,7 +30,9 @@ export function Input({ x, y, w, prompt, placeholder, label, onSubmit, inputRef,
   const ownRef = useRef<HTMLInputElement>(null);
   const ref = inputRef ?? ownRef;
 
-  const room = Math.max(1, w - Array.from(prompt).length - 2);
+  // Приглашение занимает свои символы и пробел после них; без приглашения (поле формы) отступа нет.
+  const promptW = prompt ? Array.from(prompt).length + 1 : 0;
+  const room = Math.max(1, w - promptW - 1);
   const chars = Array.from(mask ? '•'.repeat(Array.from(value).length) : sanitize(value));
   const shown = chars.slice(Math.max(0, chars.length - room)).join('');
 
@@ -64,7 +66,7 @@ export function Input({ x, y, w, prompt, placeholder, label, onSubmit, inputRef,
   return (
     <div class="tui-input" style={cellBox(x, y, w, 1)}>
       <div class="tui-row" aria-hidden="true">
-        <span style={{ color: cssVar('player') }}>{prompt} </span>
+        {prompt ? <span style={{ color: cssVar('player') }}>{prompt} </span> : null}
         {value ? <span>{shown}</span> : !focused ? <span style={{ color: cssVar('fgDim') }}>{placeholder.slice(0, room)}</span> : null}
         <span class={focused ? 'tui-cursor' : undefined} style={{ color: cssVar('cursor') }}>{focused ? '█' : ''}</span>
       </div>

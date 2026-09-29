@@ -1,29 +1,13 @@
-import { expect, test, type Page } from '@playwright/test';
-import { preconfigured } from './helpers';
+import { expect, test } from '@playwright/test';
+import { expectFramesAligned, preconfigured, trackErrors } from './helpers';
 
 test.beforeEach(async ({ page }) => {
   await preconfigured(page); // без настроек показывается только окно первого запуска
 });
 
-function trackErrors(page: Page): string[] {
-  const errors: string[] = [];
-  page.on('pageerror', (e) => errors.push(e.message));
-  page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
-  return errors;
-}
-
-/** Все строки каждой рамки одной длины — рамки смыкаются в сетке. */
-async function expectFramesAligned(page: Page): Promise<void> {
-  const widths = await page.$$eval('.tui-frame', (frames) =>
-    frames.map((f) => [...new Set([...f.querySelectorAll('.tui-row')].map((r) => Array.from(r.textContent ?? '').length))]),
-  );
-  expect(widths.length).toBeGreaterThan(0);
-  for (const w of widths) expect(w).toHaveLength(1);
-}
-
 test('главный экран: сетка, панели, рамки, шрифт, без ошибок', async ({ page }, info) => {
   const errors = trackErrors(page);
-  await page.goto('/');
+  await page.goto('/dev/chat');
   const screen = page.locator('.tui-screen');
   await expect(screen).toBeVisible();
   const cols = Number(await screen.getAttribute('data-cols'));
@@ -36,7 +20,7 @@ test('главный экран: сетка, панели, рамки, шриф�
 });
 
 test('команды: /palette меняет палитру, /help открывает справку, неизвестная команда даёт подсказку', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/dev/chat');
   const input = page.getByRole('textbox');
   await input.fill('/palette amber');
   await input.press('Enter');
@@ -52,7 +36,7 @@ test('команды: /palette меняет палитру, /help открыва
 });
 
 test('язык переключается командой и сохраняется после перезагрузки', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/dev/chat');
   const input = page.getByRole('textbox');
   await input.fill('/lang en');
   await input.press('Enter');
@@ -64,7 +48,7 @@ test('язык переключается командой и сохраняет
 
 test('десктоп: F1 открывает справку, Esc закрывает; F8 — палитры с клавиатуры', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'F-клавиши — десктопная раскладка');
-  await page.goto('/');
+  await page.goto('/dev/chat');
   await expect(page.getByRole('region', { name: 'Хроника' })).toBeVisible(); // экран смонтирован, обработчики клавиш зарегистрированы
   await page.keyboard.press('F1');
   const dialog = page.getByRole('dialog');
@@ -86,7 +70,7 @@ test('десктоп: F1 открывает справку, Esc закрывае
 
 test('палитра в окне: Esc возвращает прежнюю; на главном экране боковых панелей нет', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'F-клавиши — десктопная раскладка');
-  await page.goto('/');
+  await page.goto('/dev/chat');
   await expect(page.getByRole('region', { name: 'Хроника' })).toBeVisible();
   await expect(page.getByRole('listbox')).toHaveCount(0); // палитра больше не висит сбоку
   await expect(page.getByRole('region', { name: 'Состояние' })).toHaveCount(0);
@@ -102,7 +86,7 @@ test('палитра в окне: Esc возвращает прежнюю; на 
 
 test('окно состояния (F7): сетка, палитра, модель', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'F-клавиши — десктопная раскладка');
-  await page.goto('/');
+  await page.goto('/dev/chat');
   await expect(page.getByRole('region', { name: 'Хроника' })).toBeVisible();
   await page.keyboard.press('F7');
   const dialog = page.getByRole('dialog', { name: 'Состояние' });
@@ -115,7 +99,7 @@ test('окно состояния (F7): сетка, палитра, модель
 });
 
 test('строка состояния: готов, модель; помещается в одну строку сетки', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/dev/chat');
   const bar = page.locator('.tui-statusbar');
   await expect(bar).toContainText('● готов · gpt-5.6-luna');
   const overflow = await bar.evaluate((el) => el.querySelector('.tui-row')!.scrollWidth > el.clientWidth + 0.5);
@@ -125,7 +109,7 @@ test('строка состояния: готов, модель; помещае�
 
 test('мобильная раскладка: вкладки вместо F-клавиш', async ({ page }, info) => {
   test.skip(info.project.name !== 'mobile', 'только узкий экран');
-  await page.goto('/');
+  await page.goto('/dev/chat');
   await expect(page.getByRole('tablist')).toBeVisible();
   await page.getByRole('tab', { name: 'Палитра' }).click();
   await expect(page.getByRole('dialog', { name: 'Палитра' })).toBeVisible();
@@ -145,7 +129,7 @@ test('/dev/glyphs открывается по прямой ссылке, рам�
 });
 
 test('курсор мыши: блок в клетке сетки, системный курсор скрыт; на сенсорном экране его нет', async ({ page }, info) => {
-  await page.goto('/');
+  await page.goto('/dev/chat');
   await expect(page.getByRole('region', { name: 'Хроника' })).toBeVisible();
   const cursor = page.locator('.tui-mouse-cursor');
   if (info.project.name === 'mobile') {
@@ -178,7 +162,7 @@ test('курсор мыши: блок в клетке сетки, системн
 
 test('F1/F7/F8: повторное нажатие закрывает своё окно, а не уходит браузеру; другая клавиша переключает окно', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'F-клавиши — десктопная раскладка');
-  await page.goto('/');
+  await page.goto('/dev/chat');
   await expect(page.getByRole('region', { name: 'Хроника' })).toBeVisible();
   // Слушатель, зарегистрированный ПОСЛЕ приложения: увидит, погасило ли оно событие (иначе клавишу получит браузер).
   await page.evaluate(() => {
@@ -210,7 +194,7 @@ test('F1/F7/F8: повторное нажатие закрывает своё о
 
 test('палитра: закрытие без выбора любым способом откатывает предпросмотр; выбор — сохраняет', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'F-клавиши — десктопная раскладка');
-  await page.goto('/');
+  await page.goto('/dev/chat');
   await expect(page.getByRole('region', { name: 'Хроника' })).toBeVisible();
   const palette = page.locator('html');
 
@@ -238,4 +222,31 @@ test('палитра: закрытие без выбора любым спосо
   await expect(page.getByRole('dialog')).toBeHidden();
   await expect(palette).toHaveAttribute('data-palette', 'amber');
   await expect(page.getByRole('log')).toContainText('Палитра: Янтарь');
+});
+
+test('черновой чат: лента не теряется после захода на другой экран и возврата назад', async ({ page }) => {
+  await page.goto('/dev/chat');
+  const input = page.getByRole('textbox');
+  await expect(input).toBeFocused();
+  await input.fill('/palette amber');
+  await input.press('Enter');
+  await expect(page.getByRole('log')).toContainText('Палитра: Янтарь');
+  await input.fill('/glyphs');
+  await input.press('Enter');
+  await expect(page).toHaveURL(/\/dev\/glyphs$/);
+  await page.goBack();
+  await expect(page).toHaveURL(/\/dev\/chat$/);
+  await expect(page.getByRole('log')).toContainText('Палитра: Янтарь');
+});
+
+test('окно, закрытое сразу после открытия (до первого кадра), возвращает фокус в поле ввода', async ({ page }, info) => {
+  test.skip(info.project.name !== 'desktop', 'F-клавиши — десктопная раскладка');
+  await page.goto('/dev/chat');
+  await expect(page.getByRole('textbox')).toBeFocused();
+  for (let i = 0; i < 5; i++) {
+    await page.keyboard.press('F1');
+    await page.keyboard.press('F1'); // без ожиданий между нажатиями
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await expect(page.getByRole('textbox')).toBeFocused();
+  }
 });

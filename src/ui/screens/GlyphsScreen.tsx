@@ -24,7 +24,7 @@ export function GlyphsScreen({ screen }: { screen: ScreenInfo }) {
       const i = PALETTES.findIndex((p) => p.id === paletteId.value);
       paletteId.value = PALETTES[(i + 1) % PALETTES.length]!.id;
     } },
-    { n: 10, label: t('fkeys.back'), action: () => navigate('home') },
+    { n: 10, label: t('fkeys.back'), action: () => navigate({ page: 'title' }) },
   ];
   useFKeys(fkeys);
 

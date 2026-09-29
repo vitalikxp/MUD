@@ -102,6 +102,8 @@ export interface SheetRow {
   value: string;
   /** Подсказка (например, «навык +1D над характеристикой»). */
   hint?: string;
+  /** Длинная запись в одну колонку: заголовок «название · значение», подсказка ниже абзацем (особенности, описания). */
+  block?: boolean;
 }
 
 export interface SheetView {
@@ -135,11 +137,62 @@ export interface DerivedStats {
   strengthDamage: string;
 }
 
+/** Навык в форме создания персонажа: база (код характеристики) и название. */
+export interface CreationSkill {
+  id: string;
+  name: LocalizedText;
+  attribute: LocalizedText;
+  /** База навыка как её показывает система (для OpenD6 — код характеристики, «3D+1»). */
+  base: string;
+}
+
+/** Готовый шаблон персонажа для выбора при создании. */
+export interface CreationTemplate {
+  id: string;
+  name: LocalizedText;
+  description: LocalizedText;
+  /** Характеристики шаблона в порядке листа. */
+  attributes: { name: LocalizedText; code: string }[];
+  /** Особенности (преимущества, недостатки, способности) с рангом. */
+  traits: LocalizedText[];
+  /** Навыки, между которыми игрок распределяет очки. */
+  skills: CreationSkill[];
+}
+
+/** Как распределяются очки навыков: `total` очков всего, не больше `maxPerSkill` в один навык, шаг — одно очко. */
+export interface CreationBudget {
+  total: number;
+  maxPerSkill: number;
+  /** Самое длинное имя героя (в символах). */
+  maxNameLength: number;
+  /** Очки → запись в системе правил (OpenD6: 5 → «1D+2»). */
+  format(points: number): string;
+}
+
+export interface CreationInput {
+  variant: string;
+  templateId: string;
+  name: string;
+  ownerUid?: string;
+  lang: Lang;
+  /** Очки навыков по id навыка; нули можно опускать. */
+  skills: Record<string, number>;
+}
+
+export interface CharacterCreation {
+  templates(variant: string): CreationTemplate[];
+  budget(variant: string): CreationBudget;
+  /** Собирает персонажа из шаблона и проверяет по правилам; ошибки — понятным текстом на языке ввода. */
+  build(input: CreationInput): Result<Entity>;
+}
+
 export interface RulesModule {
   id: string;
   version: string;
   name: LocalizedText;
   variants: VariantInfo[];
+
+  creation: CharacterCreation;
 
   derive(entity: Entity): DerivedStats;
   sheet(entity: Entity, lang: Lang): SheetView;

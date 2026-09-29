@@ -10,7 +10,7 @@ import { paletteId } from './settings';
 /** Запись хроники: ключ словаря (перерисуется при смене языка), готовый текст или заглушка «Мастер думает». */
 export type Entry = { key: Key; params?: Record<string, string>; fg: Token } | { text: string; fg: Token } | { pending: true; fg: Token };
 
-const INTRO: Entry[] = [
+export const INTRO: Entry[] = [
   { key: 'intro.p1', fg: 'dm' },
   { text: '', fg: 'dm' },
   { key: 'intro.p2', fg: 'dm' },
@@ -21,6 +21,19 @@ const INTRO: Entry[] = [
 ];
 
 export const chronicle = signal<Entry[]>(INTRO);
+
+let chronicleOwner = 'chat';
+
+/**
+ * Лента принадлежит черновому чату (`chat`) или кампании (`campaign:<id>`). При смене владельца она заменяется вступлением
+ * и прокручивается в конец; тот же владелец (вернулись из другого экрана) свою ленту не теряет.
+ */
+export function enterChronicle(owner: string, entries: Entry[]): void {
+  if (owner === chronicleOwner) return;
+  chronicleOwner = owner;
+  chronicle.value = entries;
+  scrollOffset.value = 0;
+}
 /** На сколько строк хроника прокручена вверх от низа (0 — внизу, следим за новым текстом). */
 export const scrollOffset = signal(0);
 /** Кадр анимации «Мастер думает»; тикает только пока Мастер отвечает. */

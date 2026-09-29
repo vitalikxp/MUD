@@ -3,7 +3,7 @@
 import { z } from 'zod';
 import { addCodes, formatDieCode, fromPips, parseDieCode, toPips, type DieCode } from './dice';
 import type { Entity, Json } from '../../engine/types';
-import { fail, ok, type DerivedStats, type Result } from '../api';
+import { fail, ok, type DerivedStats, type Lang, type Result } from '../api';
 import { findAttribute, findSkill, getVariant, type VariantDef } from './data';
 
 export const ZERO: DieCode = { dice: 0, pips: 0 };
@@ -170,35 +170,60 @@ export interface CreationReport {
 
 export const CREATION_ATTRIBUTE_PIPS = 18 * 3;
 export const CREATION_SKILL_PIPS = 7 * 3;
+/** Не больше +3D над характеристикой в один навык при создании. */
+export const CREATION_SKILL_MAX_PIPS = 3 * 3;
+
+/** Проверка характеристик: 18D всего, каждая обычная 1D…5D (экстранормальная без границ). Ошибки на языке `lang`. */
+export function validateAttributes(data: CharacterData, lang: Lang = 'ru'): { errors: string[]; pips: number } {
+  const variant = getVariant(data.variant)!;
+  const errors: string[] = [];
+  let pips = 0;
+  for (const attr of variant.attributes) {
+    const code = attributeCode(data, attr.id);
+    const total = toPips(code);
+    pips += total;
+    if (attr.extranormal) continue;
+    if (code.dice < 1) errors.push(lang === 'ru' ? `${attr.name.ru}: минимум 1D` : `${attr.name.en}: at least 1D`);
+    if (total > 5 * 3) errors.push(lang === 'ru' ? `${attr.name.ru}: максимум 5D` : `${attr.name.en}: at most 5D`);
+  }
+  if (pips !== CREATION_ATTRIBUTE_PIPS) {
+    const got = formatDieCode(fromPips(pips));
+    errors.push(lang === 'ru' ? `На характеристики нужно ровно 18D, распределено ${got}` : `Attributes must total exactly 18D, got ${got}`);
+  }
+  return { errors, pips };
+}
+
+/** Проверка навыков: до 7D всего, не больше +3D в один, положительные надбавки, экстранормальным нужны кубы. */
+export function validateSkills(data: CharacterData, lang: Lang = 'ru'): { errors: string[]; pips: number } {
+  const variant = getVariant(data.variant)!;
+  const errors: string[] = [];
+  let pips = 0;
+  for (const [id, adds] of Object.entries(data.skills)) {
+    const ref = findSkill(variant, id)!;
+    const name = ref.skill.name[lang];
+    const total = toPips(parseDieCode(adds));
+    pips += total;
+    if (total < 1) errors.push(lang === 'ru' ? `${name}: надбавка должна быть положительной` : `${name}: the bonus must be positive`);
+    if (total > CREATION_SKILL_MAX_PIPS) errors.push(lang === 'ru' ? `${name}: не больше +3D над характеристикой при создании` : `${name}: at most +3D over the attribute at creation`);
+    if (ref.attribute.extranormal && toPips(attributeCode(data, ref.attribute.id)) < 3) {
+      errors.push(lang === 'ru' ? `${name}: у характеристики «${ref.attribute.name.ru}» нет кубов` : `${name}: the attribute "${ref.attribute.name.en}" has no dice`);
+    }
+  }
+  if (pips > CREATION_SKILL_PIPS) {
+    const got = formatDieCode(fromPips(pips));
+    errors.push(lang === 'ru' ? `На навыки не больше 7D, распределено ${got}` : `At most 7D for skills, got ${got}`);
+  }
+  return { errors, pips };
+}
 
 /**
  * Проверка «своего» персонажа по правилам «Defined Limits»: 18D на характеристики (1D…5D, экстранормальная без границ),
- * 7D на навыки (не больше +3D в навык). Шаблоны книги эти правила уже соблюдают.
+ * 7D на навыки (не больше +3D в навык). Шаблоны книги характеристики уже распределили (у Телохранителя 18D+1, см. templates.ts).
  */
 export function validateCreation(data: CharacterData): CreationReport {
-  const variant = getVariant(data.variant)!;
-  const errors: string[] = [];
-  let attributePips = 0;
-  for (const attr of variant.attributes) {
-    const code = attributeCode(data, attr.id);
-    const pips = toPips(code);
-    attributePips += pips;
-    if (attr.extranormal) continue;
-    if (code.dice < 1) errors.push(`${attr.name.ru}: минимум 1D`);
-    if (pips > 5 * 3) errors.push(`${attr.name.ru}: максимум 5D`);
-  }
-  let skillPips = 0;
-  for (const [id, adds] of Object.entries(data.skills)) {
-    const ref = findSkill(variant, id)!;
-    const pips = toPips(parseDieCode(adds));
-    skillPips += pips;
-    if (pips < 1) errors.push(`${ref.skill.name.ru}: надбавка должна быть положительной`);
-    if (pips > 3 * 3) errors.push(`${ref.skill.name.ru}: не больше +3D над характеристикой при создании`);
-    if (ref.attribute.extranormal && toPips(attributeCode(data, ref.attribute.id)) < 3) errors.push(`${ref.skill.name.ru}: у характеристики «${ref.attribute.name.ru}» нет кубов`);
-  }
-  if (attributePips !== CREATION_ATTRIBUTE_PIPS) errors.push(`На характеристики нужно ровно 18D, распределено ${formatDieCode(fromPips(attributePips))}`);
-  if (skillPips > CREATION_SKILL_PIPS) errors.push(`На навыки не больше 7D, распределено ${formatDieCode(fromPips(skillPips))}`);
-  return { errors, attributePips, skillPips };
+  const attributes = validateAttributes(data);
+  const skills = validateSkills(data);
+  return { errors: [...attributes.errors, ...skills.errors], attributePips: attributes.pips, skillPips: skills.pips };
 }
 
 /** Данные для `entity.created` из готового описания. */

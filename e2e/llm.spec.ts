@@ -29,7 +29,7 @@ async function mockRelay(page: Page, seen: { headers: Record<string, string>[]; 
 
 /** Первый запуск без настроек: на экране только окно настроек, форма смонтирована и в фокусе (иначе клавиши уйдут в никуда). */
 async function openSettings(page: Page): Promise<void> {
-  await page.goto('/');
+  await page.goto('/dev/chat');
   await expect(page.getByRole('dialog', { name: 'Настройки LLM' })).toBeVisible();
   await expect(page.getByRole('menu')).toBeFocused();
 }

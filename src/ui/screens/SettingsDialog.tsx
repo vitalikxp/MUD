@@ -9,7 +9,8 @@ import { Dialog } from '../tui/Dialog';
 import { useFKeys, type FKey } from '../tui/FKeyBar';
 import { Form, type Field } from '../tui/Form';
 import { useScreen } from '../tui/Screen';
-import { TextView, wrapParagraphs } from '../tui/TextView';
+import { ScrollText, type ScrollApi } from '../tui/ScrollText';
+import { wrapParagraphs } from '../tui/TextView';
 import type { Paragraph } from '../tui/types';
 
 type CheckState = { status: 'idle' } | { status: 'running' } | { status: 'done'; steps: CheckStep[] } | { status: 'blocked' };
@@ -50,6 +51,7 @@ function stepLines(steps: readonly CheckStep[]): Paragraph[] {
 export function SettingsDialog({ gate, onClose, onStart }: { gate: boolean; onClose: () => void; onStart: () => void }) {
   const { cols, rows } = useScreen();
   const formRef = useRef<HTMLDivElement>(null);
+  const notesRef = useRef<ScrollApi | null>(null);
   useEffect(() => { formRef.current?.focus(); }, []);
   useEffect(() => { checkState.value = { status: 'idle' }; }, []);
 
@@ -112,12 +114,19 @@ export function SettingsDialog({ gate, onClose, onStart }: { gate: boolean; onCl
   else if (cs.status === 'blocked') notes.push({ text: t('check.fixFirst', { problems: llm.problems.value.map((p) => t(`problems.${p}` as Key)).join(', ') }), fg: 'warning' });
   else if (cs.status === 'done') notes.push(...stepLines(cs.steps));
 
-  const lines = wrapParagraphs(notes, bodyW);
   return (
     <Dialog title={t('panels.settings')} w={w} h={h} onClose={onClose} separators={[formH + 1]}>
-      <Form fields={fields} width={bodyW} label={t('panels.settings')} formRef={formRef} />
-      <div style={{ position: 'absolute', left: 0, right: 0, top: `calc(var(--ch) * ${formH + 1})` }}>
-        <TextView lines={lines} width={bodyW} height={Math.max(1, h - 2 - formH - 1)} anchor="top" live />
+      {/* PgUp/PgDn листают заметки под формой (фокус остаётся на форме). */}
+      {/* oxlint-disable-next-line jsx-a11y/no-static-element-interactions -- перехват PgUp/PgDn до формы */}
+      <div onKeyDownCapture={(e) => {
+        if (e.key !== 'PageUp' && e.key !== 'PageDown') return;
+        notesRef.current?.page(e.key === 'PageUp' ? -1 : 1);
+        e.preventDefault();
+        e.stopPropagation();
+      }}>
+        <Form fields={fields} width={bodyW} label={t('panels.settings')} formRef={formRef} />
+        <ScrollText apiRef={notesRef} y={formH + 1} width={bodyW} height={Math.max(1, h - 2 - formH - 1)} live
+          build={(width) => wrapParagraphs(notes, width)} />
       </div>
     </Dialog>
   );

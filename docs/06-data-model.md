@@ -111,8 +111,21 @@ campaigns/{cid}/secrets/key             // ключ AES-GCM кампании; ч
 
 ## Локальное хранилище (IndexedDB)
 
-База `swrd`: `campaigns`, `commits`, `projections` (ключ `[cid, name]`), `settings`, `debugTurns`.
-Схема та же, что в Firestore, поэтому перенос local → cloud означает загрузку экспорта.
+База `swrd` (версия 1, библиотека `idb`, `src/net/local.ts`):
+
+| Хранилище | Ключ | Значение |
+|---|---|---|
+| `campaigns` | `id` | метаданные: `title`, `rules {id, version, variant}`, `narrationLang`, `seed` (зерно RNG), `phase` (`creation` \| `play`), `headSeq`, `createdAt`, `updatedAt`, `schemaVersion` |
+| `commits` | `[cid, seq]` | `{ cid, seq, commit }` — журнал, только добавление |
+| `projections` | `[cid, name]` | `{ cid, name: "state", atSeq, data }` — проекция состояния на коммите `atSeq` |
+| `settings` | `key` | зарезервировано |
+| `debugTurns` | `[cid, turnId]` | зарезервировано под отладку Мастера |
+
+- Коммит пишется **одной транзакцией** (коммит + проекция + `headSeq`/`phase`/`updatedAt`). Номер обязан быть `headSeq + 1`, иначе `StorageConflictError`: так две вкладки не записывают один `seq`.
+- Проекция, чей `atSeq` не равен `headSeq` (или потерянная), при загрузке пересчитывается из журнала — журнал источник истины.
+- Метаданные проверяются схемой Zod; испорченная запись не показывается в списке и не удаляется.
+- При старте приложение просит `navigator.storage.persist()`, чтобы браузер не очищал IndexedDB при нехватке места.
+- Схема та же, что в Firestore, поэтому перенос local → cloud означает загрузку экспорта.
 
 ## Экспорт (`.swrd.json`)
 

@@ -66,12 +66,14 @@
 ## Хранилище: два адаптера
 
 ```ts
-interface StorageAdapter {
-  loadCampaign(id): Promise<CampaignSnapshot>;
-  commit(c: Commit, projections: ProjectionPatch): Promise<void>; // атомарно
-  subscribe(id, handlers): Unsubscribe; // коммиты, проекции, заявки
-  submitIntent(i: Intent): Promise<void>;
-  // ...
+interface StorageAdapter {                                          // src/net/storage.ts
+  listCampaigns(): Promise<CampaignMeta[]>;
+  createCampaign(meta: CampaignMeta): Promise<void>;
+  loadCampaign(id, opts?: { recent?: number }): Promise<CampaignSnapshot | null>;  // мета + состояние + последние коммиты
+  commit(campaignId, commit: Commit, patch: { state; phase? }): Promise<CampaignMeta>; // атомарно; StorageConflictError, если seq не следующий
+  allCommits(campaignId): Promise<Commit[]>;
+  deleteCampaign(id): Promise<void>;
+  // позже (M3): subscribe(id, handlers) — коммиты, проекции, заявки; submitIntent(i)
 }
 ```
 - `LocalAdapter`: IndexedDB. Нужен для соло, работает без аккаунта и без сети (кроме LLM).

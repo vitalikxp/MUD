@@ -2,6 +2,7 @@
 import type { Entity } from '../../engine/types';
 import type { RulesModule } from '../api';
 import { check, contest } from './checks';
+import { creation } from './creation';
 import { deriveStats } from './character';
 import { applyDamage, awardPoints, heal } from './damage';
 import { ADVENTURE, FANTASY } from './data';
@@ -20,6 +21,8 @@ export const opend6: RulesModule = {
     initiativeAttribute: v.initiativeAttribute,
     attributes: v.attributes.map((a) => ({ id: a.id, name: a.name, extranormal: a.extranormal ?? false, skills: a.skills })),
   })),
+
+  creation,
 
   derive(entity: Entity) {
     const r = deriveStats(entity);

@@ -84,7 +84,7 @@ export function buildSheet(entity: Entity, lang: Lang): SheetView {
         ],
       },
       ...(data.traits.length > 0
-        ? [{ heading: L.traits[lang], rows: data.traits.map((t) => ({ label: `${t.name[lang]}${t.rank ? ` R${t.rank}` : ''}`, value: L[t.kind][lang], hint: t.text[lang] })) }]
+        ? [{ heading: L.traits[lang], rows: data.traits.map((t) => ({ label: `${t.name[lang]}${t.rank ? ` R${t.rank}` : ''}`, value: L[t.kind][lang], hint: t.text[lang], block: true })) }]
         : []),
     ],
   };

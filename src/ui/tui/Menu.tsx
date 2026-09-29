@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'preact/hooks';
 import { cssVar } from '../../theme/palettes';
+import { Scrollbar } from './TextView';
 import { fit } from './text';
 
 export interface MenuItem {
@@ -8,7 +9,10 @@ export interface MenuItem {
   hint?: string;
 }
 
-/** Вертикальное меню: ↑/↓/Home/End — выбор, Enter или клик — действие. Прокручивается под выделение. */
+/**
+ * Вертикальное меню: ↑/↓/Home/End — выбор, Enter или клик — действие, колесо мыши сдвигает выбор.
+ * Прокручивается под выделение; когда пунктов больше, чем строк, справа рисуется полоса прокрутки.
+ */
 export function Menu({ items, selected, width, height, label, onSelect, onChoose, menuRef }: {
   items: readonly MenuItem[];
   selected: number;
@@ -24,6 +28,8 @@ export function Menu({ items, selected, width, height, label, onSelect, onChoose
   // Прокрутка без состояния: окно сдвигается так, чтобы выделенный пункт был виден.
   const first = Math.min(Math.max(0, selected - height + 1), Math.max(0, items.length - height));
   const visible = items.slice(first, first + height);
+  const overflow = items.length > height;
+  const textW = overflow ? width - 1 : width; // последний столбец — под полосу прокрутки
 
   useEffect(() => {
     ref.current?.setAttribute('aria-activedescendant', `menu-item-${items[selected]?.id ?? ''}`);
@@ -49,12 +55,14 @@ export function Menu({ items, selected, width, height, label, onSelect, onChoose
   };
 
   return (
-    <div ref={ref} class="tui-menu" role="listbox" aria-label={label} tabIndex={0} onKeyDown={onKeyDown}>
+    // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- колесо мыши двигает выбор, клавиатура — на этом же listbox
+    <div ref={ref} class="tui-menu" role="listbox" aria-label={label} tabIndex={0} onKeyDown={onKeyDown} style={{ position: 'relative' }}
+      onWheel={(e) => { if (overflow) { e.preventDefault(); onSelect(Math.min(items.length - 1, Math.max(0, selected + (e.deltaY < 0 ? -3 : 3)))); } }}>
       {visible.map((item, i) => {
         const index = first + i;
         const isSel = index === selected;
         const hint = item.hint ? ` ${item.hint}` : '';
-        const text = fit(`${item.label}`, Math.max(0, width - Array.from(hint).length)) + hint;
+        const text = fit(`${item.label}`, Math.max(0, textW - Array.from(hint).length)) + hint;
         return (
           // oxlint-disable-next-line jsx-a11y/click-events-have-key-events -- клавиатура обрабатывается на listbox (aria-activedescendant)
           <div
@@ -68,10 +76,11 @@ export function Menu({ items, selected, width, height, label, onSelect, onChoose
             onMouseDown={(e) => { e.preventDefault(); onSelect(index); ref.current?.focus(); }}
             onClick={() => onChoose(index)}
           >
-            {fit(text, width)}
+            {fit(text, textW)}
           </div>
         );
       })}
+      {overflow ? <Scrollbar total={items.length} height={height} offset={items.length - height - first} x={width - 1} /> : null}
     </div>
   );
 }

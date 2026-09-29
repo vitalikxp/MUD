@@ -1,5 +1,5 @@
 import type { ComponentChildren } from 'preact';
-import { useEffect, useRef } from 'preact/hooks';
+import { useLayoutEffect, useRef } from 'preact/hooks';
 import { Panel } from './Panel';
 import { cellBox, useScreen } from './Screen';
 
@@ -21,7 +21,9 @@ export function Dialog({ title, w, h, onClose, separators, children }: {
   const ref = useRef<HTMLDivElement>(null);
   const previous = useRef<Element | null>(document.activeElement); // до того, как потомки заберут фокус
 
-  useEffect(() => {
+  // useLayoutEffect, а не useEffect: очистка должна быть зарегистрирована сразу. Иначе окно, закрытое раньше первого кадра,
+  // не вернёт фокус (потомок вроде ScrollText забирает его синхронно при монтировании).
+  useLayoutEffect(() => {
     if (!ref.current?.contains(document.activeElement)) ref.current?.focus();
     const back = previous.current as HTMLElement | null;
     return () => back?.focus?.();

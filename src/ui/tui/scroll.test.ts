@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { clampOffset, followOffset, maxOffset, scrollThumb, thinkingBar } from './scroll';
+import { clampOffset, followOffset, layoutScroll, maxOffset, scrollThumb, thinkingBar } from './scroll';
 
 describe('прокрутка', () => {
   it('максимальный сдвиг и ограничение', () => {
@@ -46,5 +46,25 @@ describe('thinkingBar', () => {
     expect(frames[9]!.indexOf('█')).toBe(9);
     expect(frames[10]!.indexOf('█')).toBe(8); // обратный ход
     expect(thinkingBar(18)).toBe(frames[0]); // период 18
+  });
+});
+
+/** «Перенос» по ширине: строка режется на куски. */
+const build = (text: string) => (width: number): string[] => Array.from({ length: Math.ceil(text.length / width) }, (_, i) => text.slice(i * width, (i + 1) * width));
+
+describe('layoutScroll', () => {
+  it('помещается — на всю ширину, без полосы', () => {
+    expect(layoutScroll(build('abcdefghij'), 10, 2)).toEqual({ lines: ['abcdefghij'], width: 10, overflow: false });
+    expect(layoutScroll(build('abcdefghij'), 5, 2)).toMatchObject({ width: 5, overflow: false });
+  });
+
+  it('не помещается — перенос заново без одного столбца под полосу прокрутки', () => {
+    const r = layoutScroll(build('abcdefghij'), 5, 1);
+    expect(r).toEqual({ lines: ['abcd', 'efgh', 'ij'], width: 4, overflow: true });
+  });
+
+  it('пустой текст и узкая область не ломаются', () => {
+    expect(layoutScroll(() => [], 10, 3)).toEqual({ lines: [], width: 10, overflow: false });
+    expect(layoutScroll(build('abc'), 1, 1)).toMatchObject({ width: 1 });
   });
 });

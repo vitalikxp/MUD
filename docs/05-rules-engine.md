@@ -25,8 +25,11 @@ export interface RulesModule<Stats = unknown, Item = unknown> {
 
   // Персонажи
   characterSchema(variant): ZodType<Stats>;        // что лежит в entity.stats
-  creationSteps(variant): CreationStep[];          // для UI-мастера создания (FR-CHR-1)
-  createCharacter(variant, input: unknown, rng: Rng): Result<Stats>;
+  creation: {                                      // реализовано (src/rules/api.ts, FR-CHR-1)
+    templates(variant): CreationTemplate[];        //   готовые шаблоны: описание, характеристики, особенности, навыки для раскладки
+    budget(variant): { total; maxPerSkill; format(points) }; // очки навыков (OpenD6: 7D = 21 очко, не больше +3D в навык)
+    build(input): Result<Entity>;                  //   шаблон + имя + очки навыков → персонаж, проверенный правилами
+  };
   derive(stats: Stats): DerivedStats;              // защита, макс. Тело, штрафы ран — то, что считается
   sheetLayout(variant): SheetLayout;               // как рисовать лист в TUI
   advancement: { options(stats): Improvement[]; apply(stats, imp): Result<Stats> }; // рост персонажа

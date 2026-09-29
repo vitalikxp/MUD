@@ -27,6 +27,24 @@ export function scrollThumb(total: number, height: number, offset: number): { st
   return { start: max === 0 ? 0 : Math.round((fromTop / max) * travel), size };
 }
 
+export interface ScrollLayout<L> {
+  lines: L[];
+  /** Ширина текста: на одну ячейку меньше, если справа нужна полоса прокрутки. */
+  width: number;
+  overflow: boolean;
+}
+
+/**
+ * Раскладка прокручиваемого текста: сначала на всю ширину; если не помещается по высоте, переносим заново
+ * на ширину без одного столбца — он уйдёт под полосу прокрутки.
+ */
+export function layoutScroll<L>(build: (width: number) => L[], width: number, height: number): ScrollLayout<L> {
+  const full = build(width);
+  if (full.length <= height || width < 2) return { lines: full, width, overflow: false };
+  const narrow = build(width - 1);
+  return { lines: narrow, width: width - 1, overflow: narrow.length > height };
+}
+
 /** Кадр анимации «Мастер думает»: полоса из `width` ячеек, по которой бегает блок с «шлейфом». */
 export function thinkingBar(tick: number, width = 10): string {
   const period = Math.max(1, 2 * (width - 1));
