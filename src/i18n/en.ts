@@ -83,6 +83,17 @@ export const en: Dict = {
   },
   inventory: {
     empty: 'The bag is empty.',
+    useText: 'I use “{name}”.',
+    actions: {
+      equip: 'Equip / wield',
+      unequip: 'Unequip',
+      use: 'Use',
+      drop: 'Drop',
+      dropOne: 'Drop 1',
+      dropAll: 'Drop all ({qty})',
+      cancel: 'Cancel',
+    },
+    hint: '↑↓ select, Enter — actions, Esc — back',
   },
   sheet: {
     title: 'Character',

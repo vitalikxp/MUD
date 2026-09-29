@@ -102,7 +102,23 @@ test('уход в другую кампанию во время хода: ход
   expect(bodies).toHaveLength(2);
 });
 
-test('вещи и лист героя: панели справа (десктоп) обновляются после хода, F3 и вкладка открывают окно вещей', async ({ page }) => {
+/** Меню действий над выбранным предметом: Enter открывает его, `downs` раз вниз, Enter — выполнить. Каждый шаг ждёт готовности окна. */
+async function pickAction(page: Page, item: string, downs = 0): Promise<void> {
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('listbox', { name: item })).toBeFocused();
+  for (let i = 0; i < downs; i++) await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  await expect(page.getByRole('dialog', { name: item })).toHaveCount(0);
+}
+
+/** Открыть вещи: десктоп — F3 переводит фокус в панель справа, телефон — вкладка «Вещи» открывает окно со списком. Возвращает область списка. */
+async function openInventory(page: Page): Promise<void> {
+  if (test.info().project.name === 'desktop') await page.keyboard.press('F3');
+  else await page.getByRole('tab', { name: 'Вещи' }).click();
+  await expect(page.getByRole('listbox', { name: 'Вещи' })).toBeFocused();
+}
+
+test('вещи и лист героя: панели справа (десктоп) обновляются после хода, у выбранного предмета видны свойства', async ({ page }) => {
   const desktop = test.info().project.name === 'desktop';
   await mockMaster(page, [], 0, [{ name: 'give_item', arguments: JSON.stringify({ targetId: 'hero', name: 'Ржавый ключ', note: 'Тяжёлый, с зазубриной' }) }]);
   await openGame(page);
@@ -117,11 +133,82 @@ test('вещи и лист героя: панели справа (десктоп
   await page.keyboard.press('Enter');
   await expect(page.getByRole('log')).toContainText('Дождь стучит');
   if (desktop) await expect(page.getByRole('region', { name: 'Вещи' })).toContainText('Ржавый ключ'); // панель обновилась по журналу
-  if (desktop) await page.keyboard.press('F3');
-  else await page.getByRole('tab', { name: 'Вещи' }).click();
+  await openInventory(page);
+  await page.keyboard.press('End'); // последний предмет — выданный ключ
+  const scope = desktop ? page.getByRole('region', { name: 'Вещи' }) : page.getByRole('dialog', { name: 'Вещи' });
+  await expect(scope).toContainText('Ржавый ключ');
+  await expect(scope).toContainText('Тяжёлый');
+  await page.keyboard.press('Escape'); // панель: фокус назад в строку ввода; окно: закрывается
+  if (desktop) await expect(page.getByRole('textbox')).toBeFocused();
+  else await expect(page.getByRole('dialog', { name: 'Вещи' })).toHaveCount(0);
+});
+
+test('бытовые действия с вещами: надеть, снять, выбросить без Мастера; запись в хронике и журнале, «Использовать» — заявка Мастеру', async ({ page }) => {
+  const bodies: Record<string, unknown>[] = [];
+  await mockMaster(page, bodies);
+  await openGame(page);
+  const log = page.getByRole('log');
+  const list = page.getByRole('listbox', { name: 'Вещи' });
+  await openInventory(page);
+
+  // Кинжал — первый предмет: надеть (первое действие меню)
+  await pickAction(page, 'Кинжал');
+  await expect(list).toContainText('[основная рука]');
+  await expect(list).toBeFocused();
+  await expect(log).toContainText('Ирма берёт «Кинжал» в руку.');
+  expect(bodies).toHaveLength(0); // Мастер не вызывался
+
+  // снять
+  await pickAction(page, 'Кинжал');
+  await expect(list).not.toContainText('[основная рука]');
+  await expect(log).toContainText('Ирма убирает «Кинжал» в рюкзак.');
+
+  // выбросить: в меню третье действие
+  await pickAction(page, 'Кинжал', 2);
+  await expect(log).toContainText('Ирма выбрасывает «Кинжал».');
+  await expect(list).not.toContainText('Кинжал');
+  expect(bodies).toHaveLength(0);
+
+  // после перезагрузки записи и состояние на месте
+  await page.reload();
+  await expect(page.getByRole('log')).toContainText('Ирма выбрасывает «Кинжал».');
+
+  // использовать: реплика уходит Мастеру
+  await openInventory(page);
+  await pickAction(page, 'Кожаная куртка (защита +2)', 1); // первый предмет теперь — куртка; второе действие — «Использовать»
+  await expect(async () => expect(bodies).toHaveLength(1)).toPass();
+  expect(JSON.stringify(bodies[0])).toContain('Использую «Кожаная куртка (защита +2)»');
+  expect(JSON.stringify(bodies[0])).toContain('Player actions since your last turn'); // и Мастер узнал о снятом/выброшенном
+  await expect(page.getByRole('log')).toContainText('Дождь стучит');
+});
+
+test('пустая сумка: F3 и вкладка всё равно открывают окно вещей', async ({ page }) => {
+  await mockMaster(page, []);
+  await openGame(page);
+  await openInventory(page);
+  for (const name of ['Кинжал', 'Кожаная куртка (защита +2)', 'Бумага', 'Перо и чернила', 'Тубус для свитков']) {
+    await page.keyboard.press('Enter');
+    const menu = page.getByRole('listbox', { name });
+    await expect(menu).toBeFocused();
+    // у стопки два пункта «Выбросить» (1 / все): нужен последний из них
+    const stack = (await menu.getByRole('option').count()) === 5;
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('ArrowDown');
+    if (stack) await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('dialog', { name })).toHaveCount(0);
+    await expect(page.getByRole('option', { name: new RegExp(`^.\\s${name.split(' ')[0]}`) })).toHaveCount(0); // предмет ушёл из списка: коммит завершён
+  }
+  await page.keyboard.press('Escape'); // панель: фокус в строку ввода (Esc работает, хотя список исчез); окно: закрывается
+  if (test.info().project.name === 'desktop') {
+    await expect(page.getByRole('textbox')).toBeFocused();
+    await page.keyboard.press('F3');
+  } else {
+    await expect(page.getByRole('dialog', { name: 'Вещи' })).toHaveCount(0);
+    await page.getByRole('tab', { name: 'Вещи' }).click();
+  }
   const dialog = page.getByRole('dialog', { name: 'Вещи' });
-  await expect(dialog).toContainText('Ржавый ключ');
-  await expect(dialog).toContainText('Тяжёлый');
+  await expect(dialog).toContainText('Сумка пуста');
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
 });

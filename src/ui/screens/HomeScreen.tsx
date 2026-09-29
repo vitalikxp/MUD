@@ -25,6 +25,7 @@ import type { Line, Segment } from '../tui/types';
 import { HelpDialog, PaletteDialog, StatusDialog } from './dialogs';
 import { SettingsDialog } from './SettingsDialog';
 import { InventoryDialog } from './InventoryDialog';
+import { ItemActionDialog } from './ItemActionDialog';
 import { SheetDialog } from './SheetDialog';
 
 type DialogId = 'help' | 'palette' | 'status' | 'settings' | 'sheet' | 'inventory';
@@ -64,13 +65,24 @@ function llmSegments(): Segment[] {
 export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?: boolean }) {
   const { cols, rows, mobile } = screen;
   const current = game ? session.value : null;
+  const side = game && !mobile && cols >= SIDE_MIN_COLS;
   const campaignId = current?.meta.id;
   const [dialog, setDialog] = useState<DialogId | null>(null);
+  const [actionItem, setActionItem] = useState<string | null>(null); // предмет, для которого открыто меню действий
   const inputRef = useRef<HTMLInputElement>(null);
+  const invListRef = useRef<HTMLDivElement | null>(null);
 
   const close = () => setDialog(null);
   // Та же клавиша закрывает своё окно, другая — переключает на своё. Без этого клавиша уходит браузеру (F1 — справка браузера).
   const toggle = (id: DialogId) => setDialog((cur) => (cur === id ? null : id));
+  // F3: на широком экране фокус уходит в панель «Вещи» (повторно — назад в строку ввода), на узком открывается окно.
+  // Пустая сумка списка не рисует, фокусировать нечего: тогда тоже открывается окно («Сумка пуста»).
+  const focusInventory = () => {
+    const list = invListRef.current;
+    if (!side || !list) return toggle('inventory');
+    if (document.activeElement === list) inputRef.current?.focus();
+    else list.focus();
+  };
 
   const onSubmit = (text: string) => {
     const cmd = parseCommand(text, PALETTES.map((p) => p.id));
@@ -88,7 +100,7 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
 
   const fkeys: FKey[] = [
     { n: 1, label: t('fkeys.help'), action: () => toggle('help') },
-    ...(game ? [{ n: 2, label: t('fkeys.sheet'), action: () => toggle('sheet') } satisfies FKey, { n: 3, label: t('fkeys.inventory'), action: () => toggle('inventory') } satisfies FKey] : []),
+    ...(game ? [{ n: 2, label: t('fkeys.sheet'), action: () => toggle('sheet') } satisfies FKey, { n: 3, label: t('fkeys.inventory'), action: focusInventory } satisfies FKey] : []),
     { n: 4, label: t('fkeys.settings'), action: () => toggle('settings') },
     { n: 7, label: t('fkeys.status'), action: () => toggle('status') },
     { n: 8, label: t('fkeys.palette'), action: () => toggle('palette') },
@@ -126,7 +138,6 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
 
   // Хроника занимает всё, кроме строки состояния и F-клавиш (десктоп) или вкладок (телефон).
   const chronH = mobile ? rows - 3 : rows - 2;
-  const side = game && !mobile && cols >= SIDE_MIN_COLS;
   const chronW = side ? cols - SIDE_W : cols;
   const sheetH = Math.max(6, Math.min(chronH - 8, Math.round(chronH * 0.6)));
   const chronBodyW = chronW - 2;
@@ -193,7 +204,7 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
       {side ? (
         <>
           <SheetPanel x={chronW} y={0} w={SIDE_W} h={sheetH} />
-          <InventoryPanel x={chronW} y={sheetH} w={SIDE_W} h={chronH - sheetH} />
+          <InventoryPanel x={chronW} y={sheetH} w={SIDE_W} h={chronH - sheetH} listRef={invListRef} onOpen={setActionItem} onEscape={() => inputRef.current?.focus()} />
         </>
       ) : null}
 
@@ -228,7 +239,8 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
       {dialog === 'status' ? <StatusDialog onClose={close} /> : null}
       {dialog === 'settings' ? <SettingsDialog gate={false} onClose={close} onStart={close} /> : null}
       {dialog === 'sheet' ? <SheetDialog onClose={close} /> : null}
-      {dialog === 'inventory' ? <InventoryDialog onClose={close} /> : null}
+      {dialog === 'inventory' ? <InventoryDialog onClose={close} onOpen={setActionItem} /> : null}
+      {actionItem !== null ? <ItemActionDialog itemId={actionItem} onClose={() => setActionItem(null)} onUse={() => { setActionItem(null); close(); }} /> : null}
     </>
   );
 }

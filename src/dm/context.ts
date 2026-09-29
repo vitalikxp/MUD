@@ -75,16 +75,28 @@ export function recentMechanics(commits: readonly Commit[]): string[] {
   return lines.slice(-MECHANICS_LINES);
 }
 
+/** Бытовые действия игрока (надел, выбросил) после последнего хода Мастера: состояние уже изменено, Мастеру нужно об этом знать. */
+export function pendingPlayerNotes(commits: readonly Commit[]): string[] {
+  const effective = effectiveCommits(commits);
+  const lastTurn = effective.findLastIndex((c) => c.kind === 'turn');
+  return effective
+    .slice(lastTurn + 1)
+    .filter((c) => c.kind === 'ui_action')
+    .flatMap((c) => c.events.flatMap((e) => (e.t === 'note' ? [e.text] : [])));
+}
+
 /** Блоки 6–7: отряд и сцена в текущем состоянии. */
 export function stateBlock(rules: RulesModule, state: GameState, commits: readonly Commit[]): string {
   const scene = state.scene ? `${state.scene.name}${state.scene.description ? ` — ${state.scene.description}` : ''}` : 'not set';
   const entities = Object.values(state.entities);
   const mechanics = recentMechanics(commits);
+  const notes = pendingPlayerNotes(commits);
   return [
     'CURRENT STATE',
     `Scene: ${scene}`,
     'Characters:',
     entities.map((e) => rules.describe(e)).join('\n') || '(none)',
+    ...(notes.length > 0 ? ['Player actions since your last turn (already applied to the state; do not repeat their effects):', ...notes.map((n) => `- ${n}`)] : []),
     ...(mechanics.length > 0 ? ['Mechanics of the previous turn:', ...mechanics] : []),
   ].join('\n');
 }

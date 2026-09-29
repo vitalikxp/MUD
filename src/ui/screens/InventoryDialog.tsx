@@ -1,18 +1,17 @@
-import { heroOf, session } from '../../app/campaigns';
-import { rulesModule } from '../../app/rules';
-import { locale, t } from '../../i18n';
+import { useEffect, useRef } from 'preact/hooks';
+import { t } from '../../i18n';
+import { InventoryList } from '../panels/InventoryList';
 import { Dialog } from '../tui/Dialog';
 import { cellBox, useScreen } from '../tui/Screen';
-import { ScrollText } from '../tui/ScrollText';
 import { fit } from '../tui/text';
 import { TextView } from '../tui/TextView';
-import { inventoryLines } from './inventoryLines';
 
-/** Вещи (F3): полный список с прокруткой; на узких экранах и на телефоне панель «Вещи» заменяет это окно. Esc закрывает. */
-export function InventoryDialog({ onClose }: { onClose: () => void }) {
+/** Вещи (F3 на узком экране, вкладка «Вещи» на телефоне): тот же список с действиями, что в панели. Esc закрывает. */
+export function InventoryDialog({ onClose, onOpen }: { onClose: () => void; onOpen: (itemId: string) => void }) {
   const { cols, rows } = useScreen();
-  const hero = session.value ? heroOf(session.value.state) : undefined;
-  const view = hero ? rulesModule.inventory(hero, locale.value) : null;
+  const listRef = useRef<HTMLDivElement | null>(null);
+  const boxRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => { listRef.current?.focus(); }, []);
   const w = Math.min(cols - 2, 64);
   const h = Math.min(rows - 2, 30);
   const bodyW = w - 2;
@@ -20,10 +19,12 @@ export function InventoryDialog({ onClose }: { onClose: () => void }) {
 
   return (
     <Dialog title={t('panels.inventory')} w={w} h={h} onClose={onClose} separators={[h - 3]}>
-      <ScrollText focusable focusOnMount label={t('panels.inventory')} width={bodyW} height={textH}
-        build={(width) => (view ? inventoryLines(view, width, t('inventory.empty')) : [[{ text: t('sheet.noHero'), fg: 'warning' }]])} />
+      {/* Обёртка забирает фокус, когда список опустел: Esc окна работает, пока фокус внутри окна. */}
+      <div ref={boxRef} tabIndex={-1} style={{ outline: 'none' }}>
+        <InventoryList width={bodyW} height={textH} listRef={listRef} onOpen={onOpen} onEmpty={() => boxRef.current?.focus()} />
+      </div>
       <div style={cellBox(0, h - 3, bodyW, 1)}>
-        <TextView lines={[[{ text: fit(t('sheet.hint'), bodyW), fg: 'fgDim' }]]} width={bodyW} height={1} anchor="top" />
+        <TextView lines={[[{ text: fit(t('inventory.hint'), bodyW), fg: 'fgDim' }]]} width={bodyW} height={1} anchor="top" />
       </div>
     </Dialog>
   );

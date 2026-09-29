@@ -28,6 +28,7 @@ type Commit = {
 type GameEvent =
   | { t: "narration"; text: string; speaker?: "dm" | EntityId }
   | { t: "intent"; uid: string; charId: string; text: string }       // копия заявок раунда
+  | { t: "note"; text: string }                                     // запись о бытовом действии игрока (commit kind `ui_action`), состояние не меняет
   | { t: "roll"; code: string;            // "4D+1" или "2d6+1"
       dice: number[]; wild?: number[];     // обычные кубы; цепочка Wild Die (6 → перебросы)
       cpWild?: number[][];                 // доп. Wild Die за каждое потраченное CP (свои цепочки, 1 без осложнения)

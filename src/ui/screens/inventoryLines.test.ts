@@ -1,32 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import type { InventoryView } from '../../rules/api';
-import { inventoryLines } from './inventoryLines';
+import type { InventoryRow, InventoryView } from '../../rules/api';
+import { detailLines, itemLabel, summaryLines } from './inventoryLines';
 
-const text = (lines: ReturnType<typeof inventoryLines>): string[] => lines.map((l) => l.map((s) => s.text).join(''));
+const text = (lines: ReturnType<typeof summaryLines>): string[] => lines.map((l) => l.map((s) => s.text).join(''));
 
-const view: InventoryView = {
-  title: 'Ирма',
-  summary: [{ label: 'Серебро', value: '14' }],
-  rows: [
-    { name: 'Короткий меч', qty: 1, worn: true, detail: 'урон +1D' },
-    { name: 'Факел', qty: 3, worn: false },
-    { name: 'Очень длинное название вещи из сумки странника', qty: 1, worn: false, detail: 'Клетчатая, с чернильным пятном на углу' },
-  ],
-};
+const sword: InventoryRow = { id: 'sword', name: 'Короткий меч', qty: 1, worn: true, slotLabel: 'основная рука', detail: 'урон +1D' };
+const torch: InventoryRow = { id: 'torch', name: 'Факел', qty: 3, worn: false };
 
 describe('inventoryLines', () => {
-  it('сводка, потом предметы: надето ●, в сумке ○, количество, свойства под названием', () => {
-    const out = text(inventoryLines(view, 40, 'пусто'));
-    expect(out.slice(0, 6)).toEqual(['Серебро  14', '', '● Короткий меч', '  урон +1D', '○ Факел ×3', '○ Очень длинное название вещи из сумки']);
+  it('сводка: подпись и значение, подписи выровнены', () => {
+    const view: InventoryView = { title: 'Ирма', summary: [{ label: 'Серебро', value: '14' }, { label: 'Средства', value: '2D' }], rows: [] };
+    expect(text(summaryLines(view))).toEqual(['Серебро   14', 'Средства  2D']);
+    expect(summaryLines({ title: 'Ирма', summary: [], rows: [] })).toEqual([]);
   });
 
-  it('ничего не выходит за ширину; продолжение названия и свойства с отступом', () => {
-    const out = text(inventoryLines(view, 20, 'пусто'));
-    for (const line of out) expect(Array.from(line).length).toBeLessThanOrEqual(20);
-    expect(out.join('\n')).toContain('  чернильным');
+  it('строка предмета: надето ●, в сумке ○, количество', () => {
+    expect(itemLabel(sword)).toBe('● Короткий меч');
+    expect(itemLabel(torch)).toBe('○ Факел ×3');
   });
 
-  it('пустая сумка — подсказка, без сводки — без пустой строки сверху', () => {
-    expect(text(inventoryLines({ title: 'Ирма', summary: [], rows: [] }, 30, 'Сумка пуста'))).toEqual(['Сумка пуста']);
+  it('свойства выбранного предмета переносятся по ширине; без свойств — пусто', () => {
+    expect(text(detailLines(sword, 30))).toEqual(['урон +1D']);
+    expect(detailLines(torch, 30)).toEqual([]);
+    expect(detailLines(undefined, 30)).toEqual([]);
+    const long: InventoryRow = { id: 'map', name: 'Карта', qty: 1, worn: false, detail: 'Клетчатая, с чернильным пятном на углу' };
+    for (const line of text(detailLines(long, 14))) expect(Array.from(line).length).toBeLessThanOrEqual(14);
   });
 });

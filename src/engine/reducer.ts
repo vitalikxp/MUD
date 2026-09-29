@@ -134,6 +134,7 @@ export function reduce(state: GameState, event: GameEvent): GameState {
       return { ...state, turn: state.turn + 1 };
     // Повествование, заявки, броски и откат состояние не меняют: они живут в журнале (хроника — вид на него).
     case 'narration':
+    case 'note':
     case 'intent':
     case 'roll':
     case 'revert':

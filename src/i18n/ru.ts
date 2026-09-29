@@ -83,6 +83,17 @@ export const ru = {
   },
   inventory: {
     empty: 'Сумка пуста.',
+    useText: 'Использую «{name}».',
+    actions: {
+      equip: 'Надеть / взять',
+      unequip: 'Снять',
+      use: 'Использовать',
+      drop: 'Выбросить',
+      dropOne: 'Выбросить 1',
+      dropAll: 'Выбросить все ({qty})',
+      cancel: 'Отмена',
+    },
+    hint: '↑↓ выбор, Enter — действия, Esc — назад',
   },
   sheet: {
     title: 'Персонаж',

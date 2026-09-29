@@ -5,6 +5,7 @@ import type { Commit, GameEvent } from '../engine/types';
 import type { Entry } from './chronicle';
 
 const BLANK: Entry = { text: '', fg: 'dm' };
+const NOTE_MARK = '· ';
 
 function rollLine(e: Extract<GameEvent, { t: 'roll' }>): Entry {
   const code = typeof e.roll['code'] === 'string' ? e.roll['code'] : typeof e.roll['expr'] === 'string' ? e.roll['expr'] : '';
@@ -13,15 +14,22 @@ function rollLine(e: Extract<GameEvent, { t: 'roll' }>): Entry {
   return { text: `♦ ${e.reason}${code ? ` ${code}` : ''}${total}${verdict}`, fg: e.success === undefined ? 'accent' : e.success ? 'success' : 'failure' };
 }
 
-/** Записи хроники по журналу. `prompt` — приглашение перед репликой игрока («Вы>»). Броски Мастера (`visibility: 'dm'`) не показываются. */
+/** Записи хроники по журналу: ходы Мастера и заметки о бытовых действиях игрока. `prompt` — приглашение перед репликой игрока («Вы>»). Броски Мастера (`visibility: 'dm'`) не показываются. */
 export function entriesFromCommits(commits: readonly Commit[], prompt: string): Entry[] {
-  const turns = effectiveCommits(commits).filter((c) => c.kind === 'turn');
+  const effective = effectiveCommits(commits);
+  const turns = effective.filter((c) => c.kind === 'turn');
   const out: Entry[] = [];
-  for (const c of turns) {
+  for (const c of effective) {
+    if (c.kind !== 'turn' && c.kind !== 'ui_action') continue;
     for (const e of c.events) {
       if (e.t === 'intent') out.push(BLANK, { text: `${prompt} ${e.text}`, fg: 'player' });
       else if (e.t === 'narration' && (e.speaker === undefined || e.speaker === 'dm')) out.push(BLANK, { text: e.text, fg: 'dm', md: true });
       else if (e.t === 'roll' && e.visibility === 'all') out.push(rollLine(e));
+      else if (e.t === 'note') {
+        const last = out.at(-1);
+        if (!last || !('text' in last) || !last.text.startsWith(NOTE_MARK)) out.push(BLANK);
+        out.push({ text: `${NOTE_MARK}${e.text}`, fg: 'system' });
+      }
     }
   }
   const suggestions = turns.at(-1)?.events.flatMap((e) => (e.t === 'turn.ended' ? e.suggestions : [])) ?? [];

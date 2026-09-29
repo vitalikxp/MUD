@@ -1,19 +1,25 @@
-import { heroOf, session } from '../../app/campaigns';
-import { rulesModule } from '../../app/rules';
-import { locale, t } from '../../i18n';
-import { inventoryLines } from '../screens/inventoryLines';
+import { useState } from 'preact/hooks';
+import { t } from '../../i18n';
+import { cellBox } from '../tui/Screen';
 import { Panel } from '../tui/Panel';
-import { ScrollText } from '../tui/ScrollText';
-import type { Line } from '../tui/types';
+import { InventoryList } from './InventoryList';
 
-/** Панель «Вещи» в правой колонке: деньги и предметы героя (● надето, ○ в сумке). Полный список — окно F3. */
-export function InventoryPanel({ x, y, w, h }: { x: number; y: number; w: number; h: number }) {
-  const hero = session.value ? heroOf(session.value.state) : undefined;
-  const view = hero ? rulesModule.inventory(hero, locale.value) : null;
-  const build = (width: number): Line[] => (view ? inventoryLines(view, width, t('inventory.empty')) : [[{ text: t('sheet.noHero'), fg: 'warning' }]]);
+/**
+ * Панель «Вещи» в правой колонке: деньги и предметы героя (● надето, ○ в сумке). F3 переводит на неё фокус, Enter открывает меню действий
+ * (надеть, снять, использовать, выбросить), Esc возвращает фокус в строку ввода. Полный список — окно F3 на узком экране.
+ */
+export function InventoryPanel({ x, y, w, h, listRef, onOpen, onEscape }: {
+  x: number; y: number; w: number; h: number;
+  listRef: { current: HTMLDivElement | null };
+  onOpen: (itemId: string) => void;
+  onEscape: () => void;
+}) {
+  const [focused, setFocused] = useState(false);
   return (
-    <Panel x={x} y={y} w={w} h={h} title={t('panels.inventory')} id="panel-inventory">
-      <ScrollText width={w - 2} height={h - 2} label={t('panels.inventory')} build={build} />
+    <Panel x={x} y={y} w={w} h={h} title={t('panels.inventory')} active={focused} id="panel-inventory">
+      <div style={cellBox(0, 0, w - 2, h - 2)} onFocusIn={() => setFocused(true)} onFocusOut={() => setFocused(false)}>
+        <InventoryList width={w - 2} height={h - 2} listRef={listRef} onOpen={onOpen} onEscape={onEscape} onEmpty={onEscape} />
+      </div>
     </Panel>
   );
 }

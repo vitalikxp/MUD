@@ -7,6 +7,7 @@ import { buildMessages, historyMessages, recentMechanics, stateBlock, systemMess
 import { heroDraft } from './testing';
 
 const turn = (seq: number, events: GameEvent[]): Commit => ({ seq, turnId: `t${seq}`, kind: 'turn', createdAt: seq, rngState: 'x', events });
+const note = (seq: number, text: string): Commit => ({ seq, turnId: `u${seq}`, kind: 'ui_action', createdAt: 0, rngState: '', events: [{ t: 'note', text }] });
 const say = (text: string): GameEvent => ({ t: 'narration', text, speaker: 'dm' });
 const ask = (text: string): GameEvent => ({ t: 'intent', uid: 'local', charId: 'hero', text });
 
@@ -73,6 +74,17 @@ describe('состояние и заявка (блоки 6, 7, 10)', () => {
     expect(block).toContain('- взлом: 6D = 21 vs 15: success');
     expect(stateBlock(opend6, state, [])).toContain('Scene: not set');
     expect(recentMechanics([])).toEqual([]);
+  });
+
+  it('бытовые действия игрока с прошлого хода попадают в контекст один раз: после хода Мастера они уже учтены', () => {
+    const { state } = heroDraft(scriptedRng([]));
+    const past = [turn(1, []), note(2, 'Ирма надевает «Кольчуга».'), note(3, 'Ирма выбрасывает «Факел».')];
+    const block = stateBlock(opend6, state, past);
+    expect(block).toContain('Player actions since your last turn');
+    expect(block).toContain('- Ирма надевает «Кольчуга».');
+    expect(block).toContain('- Ирма выбрасывает «Факел».');
+    expect(stateBlock(opend6, state, [...past, turn(4, [])])).not.toContain('Player actions since');
+    expect(stateBlock(opend6, state, [turn(1, [])])).not.toContain('Player actions since');
   });
 
   it('заявка игрока подписана именем героя; открытие игры — инструкция', () => {

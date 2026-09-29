@@ -82,6 +82,8 @@ export type GameEvent =
   | { t: 'palette.set'; paletteId: string; reason: string }
   | { t: 'flag.set'; key: string; value: Json }
   | { t: 'turn.ended'; suggestions: string[] }
+  /** Короткая запись о бытовом действии игрока («Ирма надевает…»): видна в хронике, Мастеру идёт в контекст следующего хода. Состояние не меняет. */
+  | { t: 'note'; text: string }
   | { t: 'revert'; targetSeq: number };
 
 export type CommitKind = 'turn' | 'ui_action' | 'maintenance' | 'revert' | 'system';

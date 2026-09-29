@@ -89,6 +89,7 @@ describe('reduce', () => {
     const s1 = reduce(s0, created());
     for (const e of [
       { t: 'narration', text: 'Тихо.' },
+      { t: 'note', text: 'Ирма надевает куртку.' },
       { t: 'intent', uid: 'u1', charId: 'irma', text: 'иду' },
       { t: 'revert', targetSeq: 1 },
     ] as GameEvent[]) expect(reduce(s1, e)).toBe(s1);

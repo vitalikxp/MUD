@@ -2,6 +2,7 @@
 import type { Entity, Item } from '../../engine/types';
 import type { InventoryRow, InventoryView, Lang } from '../api';
 import { readCharacter } from './character';
+import { slotName } from './equipment';
 
 const L = {
   funds: { ru: 'Средства', en: 'Funds' },
@@ -36,7 +37,7 @@ export function buildInventory(entity: Entity, lang: Lang): InventoryView {
   }
   const rows = entity.items.map<InventoryRow>((item) => {
     const detail = detailOf(item, lang);
-    return { name: item.name, qty: item.qty, worn: Boolean(item.slot), ...(detail ? { detail } : {}) };
+    return { id: item.id, name: item.name, qty: item.qty, worn: Boolean(item.slot), ...(item.slot ? { slotLabel: slotName(item.slot, lang) } : {}), ...(detail ? { detail } : {}) };
   });
   return { title: entity.name, summary, rows };
 }

@@ -112,6 +112,12 @@ export function campaignEntries(current: Session): Entry[] {
   ];
 }
 
+/** Перестроить ленту открытой кампании по журналу (после бытового действия). Чужую ленту не трогаем. */
+export function refreshCampaignChronicle(): void {
+  const now = session.peek();
+  if (now && chronicleOwner === `campaign:${now.meta.id}`) chronicle.value = campaignEntries(now);
+}
+
 function turnFailure(e: unknown): string {
   if (e instanceof TurnError) return t('msg.turnFailed', { reason: e.message });
   return errorText(e);

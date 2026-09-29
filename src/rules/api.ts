@@ -122,10 +122,14 @@ export interface SheetView {
 }
 
 export interface InventoryRow {
+  /** Идентификатор предмета в инвентаре героя (для действий). */
+  id: string;
   name: string;
   qty: number;
   /** Надето или удерживается (в слоте), а не лежит в сумке. */
   worn: boolean;
+  /** Название слота, если предмет надет: «доспех», «основная рука». */
+  slotLabel?: string;
   /** Краткая сводка свойств предмета на языке интерфейса (урон, броня, описание). */
   detail?: string;
 }
@@ -135,6 +139,15 @@ export interface InventoryView {
   /** Деньги и прочее, что показывается над списком: «Серебро 14». */
   summary: { label: string; value: string }[];
   rows: InventoryRow[];
+}
+
+/** Бытовые действия игрока с вещами (без Мастера): валидирует модуль, результат — события. Язык — язык записи-заметки (язык кампании). */
+export interface EquipmentActions {
+  /** Надеть или взять в руку. Без `slot` модуль выбирает подходящий сам; занятый слот освобождается (прежний предмет уходит в рюкзак). */
+  equip(ctx: RulesCtx, args: { entityId: EntityId; itemId: string; slot?: string; lang: Lang }): Result<Outcome>;
+  unequip(ctx: RulesCtx, args: { entityId: EntityId; itemId: string; lang: Lang }): Result<Outcome>;
+  /** Выбросить всю стопку или `qty` штук. */
+  drop(ctx: RulesCtx, args: { entityId: EntityId; itemId: string; qty?: number; lang: Lang }): Result<Outcome>;
 }
 
 export interface AttributeInfo {
@@ -235,6 +248,7 @@ export interface RulesModule {
   sheet(entity: Entity, lang: Lang): SheetView;
   /** Вещи героя для панели «Вещи»: список с количеством, слотом и сводкой свойств. */
   inventory(entity: Entity, lang: Lang): InventoryView;
+  equipment: EquipmentActions;
 
   roll(ctx: RulesCtx, args: RollArgs): Result<Outcome>;
   check(ctx: RulesCtx, args: CheckArgs): Result<Outcome>;

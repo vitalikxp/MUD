@@ -5,6 +5,24 @@ import { entriesFromCommits } from './chronicleLog';
 const commit = (seq: number, events: GameEvent[], kind: Commit['kind'] = 'turn'): Commit => ({ seq, turnId: `t${seq}`, kind, createdAt: 0, rngState: '', events });
 const texts = (commits: Commit[]): string[] => entriesFromCommits(commits, 'Вы>').flatMap((e) => ('text' in e ? [e.text] : 'key' in e ? [`[${e.key}]`] : []));
 
+describe('entriesFromCommits: бытовые действия', () => {
+  it('заметки ui_action идут по порядку между ходами, подряд без пустых строк; откатанные пропускаются', () => {
+    const lines = texts([
+      commit(1, [{ t: 'narration', text: 'Первый ход.', speaker: 'dm' }]),
+      commit(2, [{ t: 'note', text: 'Ирма надевает «Кольчуга».' }], 'ui_action'),
+      commit(3, [{ t: 'note', text: 'Ирма выбрасывает «Факел».' }], 'ui_action'),
+      commit(4, [{ t: 'note', text: 'Отменённое.' }], 'ui_action'),
+      commit(5, [{ t: 'revert', targetSeq: 4 }], 'revert'),
+      commit(6, [{ t: 'narration', text: 'Второй ход.', speaker: 'dm' }]),
+    ]);
+    expect(lines).toEqual(['', 'Первый ход.', '', '· Ирма надевает «Кольчуга».', '· Ирма выбрасывает «Факел».', '', 'Второй ход.']);
+  });
+
+  it('заметка — системного цвета', () => {
+    expect(entriesFromCommits([commit(1, [{ t: 'note', text: 'x' }], 'ui_action')], '>')).toEqual([{ text: '', fg: 'dm' }, { text: '· x', fg: 'system' }]);
+  });
+});
+
 describe('entriesFromCommits', () => {
   it('реплика, повествование, открытый бросок и варианты последнего хода', () => {
     const lines = texts([
