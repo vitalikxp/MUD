@@ -20,7 +20,7 @@ export function entriesFromCommits(commits: readonly Commit[], prompt: string): 
   for (const c of turns) {
     for (const e of c.events) {
       if (e.t === 'intent') out.push(BLANK, { text: `${prompt} ${e.text}`, fg: 'player' });
-      else if (e.t === 'narration' && (e.speaker === undefined || e.speaker === 'dm')) out.push(BLANK, { text: e.text, fg: 'dm' });
+      else if (e.t === 'narration' && (e.speaker === undefined || e.speaker === 'dm')) out.push(BLANK, { text: e.text, fg: 'dm', md: true });
       else if (e.t === 'roll' && e.visibility === 'all') out.push(rollLine(e));
     }
   }

@@ -6,6 +6,8 @@ export interface Segment {
   fg?: Token;
   bg?: Token;
   bold?: boolean;
+  underline?: boolean;
+  strike?: boolean;
   /** Чисто визуальный отрезок (анимация): скрывается от скринридеров. */
   decorative?: boolean;
 }

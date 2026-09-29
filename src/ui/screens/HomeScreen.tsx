@@ -19,8 +19,9 @@ import { Tabs } from '../tui/Tabs';
 import { InventoryPanel } from '../panels/InventoryPanel';
 import { SheetPanel } from '../panels/SheetPanel';
 import { clampOffset, followOffset, thinkingBar } from '../tui/scroll';
+import { markdownLines } from '../tui/markdown';
 import { Scrollbar, TextView, wrapParagraphs } from '../tui/TextView';
-import type { Paragraph, Segment } from '../tui/types';
+import type { Line, Segment } from '../tui/types';
 import { HelpDialog, PaletteDialog, StatusDialog } from './dialogs';
 import { SettingsDialog } from './SettingsDialog';
 import { InventoryDialog } from './InventoryDialog';
@@ -123,12 +124,6 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
 
   useEffect(() => { inputRef.current?.focus(); }, []);
 
-  const paragraphs: Paragraph[] = chronicle.value.map((e) =>
-    'pending' in e
-      ? { text: `${t('msg.thinking')} [${thinkingBar(thinkingTick.value)}]`, fg: 'info', decorative: true }
-      : { text: 'key' in e ? t(e.key, e.params ?? {}) : e.text, fg: e.fg },
-  );
-
   // Хроника занимает всё, кроме строки состояния и F-клавиш (десктоп) или вкладок (телефон).
   const chronH = mobile ? rows - 3 : rows - 2;
   const side = game && !mobile && cols >= SIDE_MIN_COLS;
@@ -136,7 +131,11 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
   const sheetH = Math.max(6, Math.min(chronH - 8, Math.round(chronH * 0.6)));
   const chronBodyW = chronW - 2;
   const chronTextH = Math.max(1, chronH - 4);
-  const chronLines = wrapParagraphs(paragraphs, chronBodyW - 1); // 1 столбец справа — под полосу прокрутки
+  const chronLines = chronicle.value.flatMap<Line>((e) => { // ширина без 1 столбца справа — под полосу прокрутки
+    if ('pending' in e) return wrapParagraphs([{ text: `${t('msg.thinking')} [${thinkingBar(thinkingTick.value)}]`, fg: 'info', decorative: true }], chronBodyW - 1);
+    if ('key' in e) return wrapParagraphs([{ text: t(e.key, e.params ?? {}), fg: e.fg }], chronBodyW - 1);
+    return e.md ? markdownLines(e.text, chronBodyW - 1, e.fg) : wrapParagraphs([{ text: e.text, fg: e.fg }], chronBodyW - 1);
+  });
   const total = chronLines.length;
   const offset = clampOffset(scrollOffset.value, total, chronTextH);
   const scrollState = useRef({ total, textH: chronTextH });

@@ -14,7 +14,11 @@ import { paletteId } from './settings';
 import { takeTurn, type PlayerAction } from './turn';
 
 /** Запись хроники: ключ словаря (перерисуется при смене языка), готовый текст или заглушка «Мастер думает». */
-export type Entry = { key: Key; params?: Record<string, string>; fg: Token } | { text: string; fg: Token } | { pending: true; fg: Token };
+export type Entry =
+  | { key: Key; params?: Record<string, string>; fg: Token }
+  /** `md` — текст Мастера: разбирается как Markdown (модели иногда отвечают с разметкой). */
+  | { text: string; fg: Token; md?: boolean }
+  | { pending: true; fg: Token };
 
 export const INTRO: Entry[] = [
   { key: 'intro.p1', params: { name: BRAND_NAME }, fg: 'dm' },
@@ -85,7 +89,7 @@ export async function askMaster(text: string): Promise<void> {
   push({ text: `${t('input.prompt')} ${text}`, fg: 'player' }, { text: '', fg: 'dm' }, { pending: true, fg: 'dm' });
   const index = chronicle.value.length - 1;
   const replace = (body: string, fg: Token = 'dm') => {
-    chronicle.value = chronicle.value.map((e, i) => (i === index ? { text: body, fg } : e));
+    chronicle.value = chronicle.value.map((e, i) => (i === index ? { text: body, fg, ...(fg === 'dm' ? { md: true } : {}) } : e));
   };
   try {
     const answer = await ask(text, { onText: (full) => replace(full) });
@@ -139,7 +143,7 @@ export async function playTurn(action: PlayerAction): Promise<void> {
   const owner = chronicleOwner;
   const replace = (body: string, fg: Token = 'dm') => {
     if (chronicleOwner !== owner) return;
-    chronicle.value = chronicle.value.map((e, i) => (i === index ? { text: body, fg } : e));
+    chronicle.value = chronicle.value.map((e, i) => (i === index ? { text: body, fg, ...(fg === 'dm' ? { md: true } : {}) } : e));
   };
   let streamed = '';
   const started = Date.now();

@@ -12,7 +12,7 @@ test.beforeEach(async ({ page }) => {
 });
 
 /** Фальшивый Мастер (формат Responses): пишет повествование и закрывает ход через end_turn с вариантами. */
-async function mockMaster(page: Page, bodies: Record<string, unknown>[], firstDelayMs = 0, extraCalls: { name: string; arguments: string }[] = []): Promise<void> {
+async function mockMaster(page: Page, bodies: Record<string, unknown>[], firstDelayMs = 0, extraCalls: { name: string; arguments: string }[] = [], narration = 'Дождь стучит по крыше таверны «Последний Порог».'): Promise<void> {
   await page.route(`${RELAY}/**`, async (route: Route) => {
     const req = route.request();
     if (req.method() === 'OPTIONS') return route.fulfill({ status: 204, headers: CORS });
@@ -20,8 +20,8 @@ async function mockMaster(page: Page, bodies: Record<string, unknown>[], firstDe
     bodies.push(req.postDataJSON() as Record<string, unknown>);
     if (bodies.length === 1 && firstDelayMs) await new Promise((r) => setTimeout(r, firstDelayMs));
     const body = sse([
-      { event: 'response.output_text.delta', data: { delta: 'Дождь стучит по крыше ' } },
-      { event: 'response.output_text.delta', data: { delta: 'таверны «Последний Порог».' } },
+      { event: 'response.output_text.delta', data: { delta: narration.slice(0, 12) } },
+      { event: 'response.output_text.delta', data: { delta: narration.slice(12) } },
       ...extraCalls.map((c, i) => ({ event: 'response.output_item.done', data: { item: { type: 'function_call', call_id: `x${i}`, name: c.name, arguments: c.arguments } } })),
       { event: 'response.output_item.done', data: { item: { type: 'function_call', call_id: 'c1', name: 'end_turn', arguments: '{"suggestions":["Осмотреть зал","Заказать эль"]}' } } },
       { event: 'response.completed', data: { response: { usage: { input_tokens: 50, output_tokens: 20 } } } },
@@ -124,4 +124,21 @@ test('вещи и лист героя: панели справа (десктоп
   await expect(dialog).toContainText('Тяжёлый');
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
+});
+
+test('Markdown в ответе Мастера: разметка не попадает на экран, заголовок, жирный, курсив и список выглядят как текст', async ({ page }) => {
+  await mockMaster(page, [], 0, [], '## Таверна\n\nЭто **важно** и *тихо*, см. `ключ`.\n\n- первое\n- второе');
+  await openGame(page);
+  await page.keyboard.type('/start');
+  await page.keyboard.press('Enter');
+  const log = page.getByRole('log');
+  await expect(log).toContainText('Таверна');
+  await expect(log).toContainText('• первое');
+  await expect(log).toContainText('• второе');
+  const text = await log.innerText();
+  expect(text).not.toMatch(/\*\*|##|`/);
+  expect(text).toContain('Это важно и тихо, см. ключ.');
+  // жирный и курсив — цветом токенов палитры (terminal: fgBright, accent2), а не символами
+  await expect(log.locator('span', { hasText: /^важно$/ })).toHaveCSS('color', 'rgb(255, 255, 255)'); // fgBright
+  await expect(log.locator('span', { hasText: /^тихо$/ })).toHaveCSS('color', 'rgb(232, 197, 71)'); // accent2
 });

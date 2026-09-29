@@ -33,6 +33,7 @@ export function Row({ line, width }: { line: Line; width?: number }) {
             ...(s.fg ? { color: cssVar(s.fg) } : {}),
             ...(s.bg ? { background: cssVar(s.bg) } : {}),
             ...(s.bold ? { fontWeight: 'bold' } : {}),
+            ...(s.underline || s.strike ? { textDecoration: [s.underline ? 'underline' : '', s.strike ? 'line-through' : ''].filter(Boolean).join(' ') } : {}),
           }}
         >
           {s.text}
