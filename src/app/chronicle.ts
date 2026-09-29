@@ -2,11 +2,16 @@
 import { signal } from '@preact/signals';
 import { BRAND_NAME } from '../brand';
 import { locale, t, type Key } from '../i18n';
+import { TurnError } from '../dm/types';
 import { LlmError } from '../llm/types';
 import { getPalette, type Token } from '../theme/palettes';
+import { session, type Session } from './campaigns';
+import { entriesFromCommits } from './chronicleLog';
+import { dmConfig } from './dmConfig';
 import * as llm from './llm';
-import { ask, busy } from './master';
+import { ask, beginRequest, busy, endRequest, lastError, lastUsage } from './master';
 import { paletteId } from './settings';
+import { takeTurn, type PlayerAction } from './turn';
 
 /** Запись хроники: ключ словаря (перерисуется при смене языка), готовый текст или заглушка «Мастер думает». */
 export type Entry = { key: Key; params?: Record<string, string>; fg: Token } | { text: string; fg: Token } | { pending: true; fg: Token };
@@ -88,5 +93,76 @@ export async function askMaster(text: string): Promise<void> {
   } catch (e) {
     if (e instanceof LlmError && e.kind === 'aborted') replace(t('msg.aborted'), 'warning');
     else replace(errorText(e), 'failure');
+  }
+}
+
+/** Вступление и записи кампании: заголовок, подсказка и всё, что записано в журнале. */
+export function campaignEntries(current: Session): Entry[] {
+  const hero = Object.values(current.state.entities).find((e) => e.kind === 'pc')?.name ?? '—';
+  const started = current.commits.some((c) => c.kind === 'turn');
+  return [
+    { key: 'game.intro', params: { title: current.meta.title, hero }, fg: 'accent' },
+    { text: '', fg: 'dm' },
+    { key: started ? 'game.tryIt' : 'game.begin', fg: 'fgDim' },
+    ...entriesFromCommits(current.commits, t('input.prompt')),
+  ];
+}
+
+function turnFailure(e: unknown): string {
+  if (e instanceof TurnError) return t('msg.turnFailed', { reason: e.message });
+  return errorText(e);
+}
+
+/**
+ * Ход в кампании: реплика игрока (или открытие игры) → оркестратор Мастера → коммит в журнал.
+ * Пока Мастер отвечает, его текст стримится в ленту; после хода лента перестраивается по журналу (так же, как после перезагрузки).
+ * Неудавшийся ход в журнал не попадает и его можно повторить.
+ */
+export async function playTurn(action: PlayerAction): Promise<void> {
+  const missing = llm.problems.value;
+  if (missing.length > 0) {
+    push({ key: 'msg.notConfigured', params: { problems: missing.map((p) => t(`problems.${p}` as Key)).join(', ') }, fg: 'warning' });
+    return;
+  }
+  if (busy.value) {
+    push({ key: 'msg.busy', fg: 'warning' });
+    return;
+  }
+  const start = session.peek();
+  if (!start) return;
+  scrollOffset.value = 0;
+  thinkingTick.value = 0;
+  if (action.kind === 'player') push({ text: `${t('input.prompt')} ${action.text}`, fg: 'player' }, { text: '', fg: 'dm' }, { pending: true, fg: 'dm' });
+  else push({ pending: true, fg: 'dm' });
+  const index = chronicle.value.length - 1;
+  // Лента может смениться, пока идёт ход (игрок ушёл в другую кампанию): чужую ленту не трогаем.
+  const owner = chronicleOwner;
+  const replace = (body: string, fg: Token = 'dm') => {
+    if (chronicleOwner !== owner) return;
+    chronicle.value = chronicle.value.map((e, i) => (i === index ? { text: body, fg } : e));
+  };
+  let streamed = '';
+  const started = Date.now();
+  const abortSignal = beginRequest();
+  try {
+    const report = await takeTurn(action, {
+      ...dmConfig(abortSignal),
+      onProgress: (p) => {
+        if (p.type !== 'text') return;
+        streamed += p.delta;
+        replace(streamed);
+      },
+    });
+    lastUsage.value = { inputTokens: report.usage.inputTokens, outputTokens: report.usage.outputTokens, ms: Date.now() - started };
+    const done = session.peek();
+    if (done && chronicleOwner === owner) chronicle.value = campaignEntries(done);
+  } catch (e) {
+    if (e instanceof LlmError && e.kind === 'aborted') replace(t('msg.aborted'), 'warning');
+    else {
+      lastError.value = e instanceof LlmError ? e.kind : 'other';
+      replace(turnFailure(e), 'failure');
+    }
+  } finally {
+    endRequest(abortSignal);
   }
 }

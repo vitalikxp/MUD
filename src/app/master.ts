@@ -23,6 +23,21 @@ function systemPrompt(): string {
   );
 }
 
+/** Запрос Мастера из кампании (src/app/turn.ts): тот же индикатор «отвечает» и отмена по Esc, что у чернового чата. */
+export function beginRequest(): AbortSignal {
+  controller = new AbortController();
+  busy.value = true;
+  lastError.value = null;
+  return controller.signal;
+}
+
+/** Конец запроса, начатого `beginRequest`. Запрос, который уже вытеснен новым (отменённый ход прежней кампании), чужой индикатор не гасит. */
+export function endRequest(request: AbortSignal): void {
+  if (controller && controller.signal !== request) return;
+  busy.value = false;
+  controller = null;
+}
+
 export function abort(): void {
   controller?.abort();
 }

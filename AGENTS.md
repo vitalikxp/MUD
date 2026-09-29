@@ -57,6 +57,7 @@
 - `index.html` и `public/site.webmanifest` содержат плейсхолдеры `%BRAND_NAME%`, `%BRAND_DOMAIN%` и др. Подставляет `tools/brand.ts` (vite-плагин; манифест — в `dist/` после сборки, в dev — middleware). Тест манифеста ждёт плейсхолдеры, а не готовое имя.
 - Ключ LLM для dev и evals: `.env.local` → `OPENCODE_GO_API_KEY` (без префикса `VITE_`, иначе Vite вложит ключ в сборку). Значение ключа не выводить в логи и ответы.
 - Публичные значения по умолчанию (например `VITE_RELAY_URL`) лежат в `.env.default` (в git, **только `VITE_*`, секретов нет** — это проверяет тест). Приоритет: окружение/CI > `.env.local` > `.env.default`.
+  В CI `VITE_RELAY_URL` берётся из переменной репозитория `RELAY_URL` и перекрывает `.env.default`: при смене адреса relay обнови её (`gh variable set RELAY_URL --body <url>`, проверка — `gh variable list`) и перезапусти деплой (`gh workflow run deploy.yml --ref master`).
 - Ручной запрос к Go: `POST https://opencode.ai/zen/go/v1/{chat/completions|responses|messages}` (формат зависит от модели) с заголовками `Authorization: Bearer`, `x-opencode-session: <uuid>` (иначе `400 MissingSessionID`) и `User-Agent`.
 - Думающим моделям (Muse Spark и др.) задавай `reasoning.effort` и `max_output_tokens` ≥ 1500, иначе ответ может прийти `incomplete` без текста ([ADR-0018](docs/adr/0018-reasoning-effort-and-go-headers.md)).
 
@@ -89,7 +90,7 @@
 13. **Обучение на данных — только с согласием.** Если модель Мастера отдаёт данные на обучение (`*-contributor`), это раскрывается в UI,
     а участник кооп-кампании подтверждает согласие (`modelConsent`) до отправки заявок. См. FR-LLM-9, [ADR-0017](docs/adr/0017-default-model-muse-spark.md).
 
-## 5. Структура репозитория (целевая; сейчас в `src/` есть `app/`, `dm/`, `engine/`, `i18n/`, `llm/`, `net/`, `rules/`, `theme/`, `ui/`, `brand.ts`)
+## 5. Структура репозитория (целевая; сейчас в `src/` есть `app/`, `dm/`, `engine/`, `i18n/`, `llm/`, `net/`, `rules/`, `theme/`, `ui/`, `brand.ts`; ещё нет `firebase/`, `evals/`, `src/content/`, `src/ui/panels/`)
 
 ```
 src/

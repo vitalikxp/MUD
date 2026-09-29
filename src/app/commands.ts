@@ -8,6 +8,7 @@ export type Command =
   | { kind: 'lang'; locale: Locale }
   | { kind: 'glyphs' }
   | { kind: 'settings' }
+  | { kind: 'start' }
   | { kind: 'unknown'; raw: string };
 
 export function parseCommand(input: string, knownPalettes: readonly string[]): Command {
@@ -26,6 +27,8 @@ export function parseCommand(input: string, knownPalettes: readonly string[]): C
       return { kind: 'glyphs' };
     case 'settings':
       return { kind: 'settings' };
+    case 'start':
+      return { kind: 'start' };
     default:
       return { kind: 'unknown', raw: text };
   }

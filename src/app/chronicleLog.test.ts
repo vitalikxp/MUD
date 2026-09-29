@@ -1,0 +1,38 @@
+import { describe, expect, it } from 'vitest';
+import type { Commit, GameEvent } from '../engine/types';
+import { entriesFromCommits } from './chronicleLog';
+
+const commit = (seq: number, events: GameEvent[], kind: Commit['kind'] = 'turn'): Commit => ({ seq, turnId: `t${seq}`, kind, createdAt: 0, rngState: '', events });
+const texts = (commits: Commit[]): string[] => entriesFromCommits(commits, 'Вы>').flatMap((e) => ('text' in e ? [e.text] : 'key' in e ? [`[${e.key}]`] : []));
+
+describe('entriesFromCommits', () => {
+  it('реплика, повествование, открытый бросок и варианты последнего хода', () => {
+    const lines = texts([
+      commit(1, [{ t: 'narration', text: 'Дождь стучит по крыше.', speaker: 'dm' }, { t: 'turn.ended', suggestions: ['Уйти'] }]),
+      commit(2, [
+        { t: 'intent', uid: 'u', charId: 'pc', text: 'Открываю замок' },
+        { t: 'roll', roll: { code: '4D+1', total: 14 }, reason: 'Взлом', difficulty: 12, success: true, visibility: 'all' },
+        { t: 'narration', text: 'Замок щёлкает.', speaker: 'dm' },
+        { t: 'turn.ended', suggestions: ['Войти', 'Прислушаться'] },
+      ]),
+    ]);
+    expect(lines).toEqual(['', 'Дождь стучит по крыше.', '', 'Вы> Открываю замок', '♦ Взлом 4D+1 = 14 ≥ 12 ✓', '', 'Замок щёлкает.', '', '[game.suggestions]', '1. Войти', '2. Прислушаться']);
+  });
+
+  it('тайные броски Мастера и откатанные ходы не показываются, не-ходы пропускаются', () => {
+    const lines = texts([
+      commit(1, [{ t: 'roll', roll: { total: 3 }, reason: 'тайный', visibility: 'dm' }, { t: 'narration', text: 'Первый ход.', speaker: 'dm' }]),
+      commit(2, [{ t: 'narration', text: 'Отменённый ход.', speaker: 'dm' }]),
+      commit(3, [{ t: 'revert', targetSeq: 2 }], 'revert'),
+    ]);
+    expect(lines).toEqual(['', 'Первый ход.']);
+  });
+
+  it('проваленная проверка красная, бросок без сложности нейтральный', () => {
+    const e = entriesFromCommits([commit(1, [
+      { t: 'roll', roll: { code: '3D', total: 7 }, reason: 'Прыжок', difficulty: 10, success: false, visibility: 'all' },
+      { t: 'roll', roll: { code: '1D', total: 2 }, reason: 'Жребий', visibility: 'all' },
+    ])], '>');
+    expect(e.map((x) => x.fg)).toEqual(['failure', 'accent']);
+  });
+});

@@ -1,7 +1,7 @@
 import { useSignalEffect } from '@preact/signals';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { session } from '../../app/campaigns';
-import { askMaster, chronicle, enterChronicle, INTRO, push, reducedMotion, scrollOffset, setLang, setPalette, thinkingTick, type Entry } from '../../app/chronicle';
+import { askMaster, campaignEntries, chronicle, enterChronicle, INTRO, playTurn, push, reducedMotion, scrollOffset, setLang, setPalette, thinkingTick } from '../../app/chronicle';
 import { parseCommand } from '../../app/commands';
 import * as llm from '../../app/llm';
 import { abort, busy, lastError, lastUsage } from '../../app/master';
@@ -51,7 +51,7 @@ function llmSegments(): Segment[] {
 
 /**
  * Игровой экран. С `game` показывает кампанию из `session` (лист героя, возврат к списку кампаний), без него — черновой чат с моделью.
- * До M1.5 (Мастер с инструментами) чат в кампании не сохраняется.
+ * В кампании реплики идут в оркестратор Мастера (`playTurn`), лента строится по журналу; черновой чат ничего не сохраняет.
  */
 export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?: boolean }) {
   const { cols, rows, mobile } = screen;
@@ -67,7 +67,8 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
   const onSubmit = (text: string) => {
     const cmd = parseCommand(text, PALETTES.map((p) => p.id));
     switch (cmd.kind) {
-      case 'say': void askMaster(cmd.text); break;
+      case 'say': if (game) void playTurn({ kind: 'player', text: cmd.text }); else void askMaster(cmd.text); break;
+      case 'start': if (game) void playTurn({ kind: 'opening' }); else push({ key: 'msg.noCampaign', fg: 'warning' }); break;
       case 'settings': setDialog('settings'); break;
       case 'help': setDialog('help'); break;
       case 'palette': setPalette(cmd.id); break;
@@ -92,21 +93,13 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
   const campaignTitle = current?.meta.title;
   const heroName = current ? Object.values(current.state.entities).find((e) => e.kind === 'pc')?.name : undefined;
   useEffect(() => {
-    if (campaignTitle === undefined) {
+    const now = session.peek();
+    if (!game || !now) {
       enterChronicle('chat', INTRO);
       return;
     }
-    const intro: Entry[] = [
-      { key: 'game.intro', params: { title: campaignTitle, hero: heroName ?? '—' }, fg: 'accent' },
-      { text: '', fg: 'dm' },
-      { key: 'game.preview', fg: 'dm' },
-      { text: '', fg: 'dm' },
-      { key: 'game.heroSaved', fg: 'success' },
-      { text: '', fg: 'dm' },
-      { key: 'game.tryIt', fg: 'fgDim' },
-    ];
-    enterChronicle(`campaign:${campaignId}`, intro);
-  }, [campaignId, campaignTitle, heroName]);
+    enterChronicle(`campaign:${campaignId}`, campaignEntries(now));
+  }, [game, campaignId, campaignTitle, heroName]);
 
   // Анимация «думает»: тикаем, пока идёт запрос; при prefers-reduced-motion кадр не меняется.
   useSignalEffect(() => {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'preact/hooks';
 import { closeSession, openSession, session } from '../../app/campaigns';
+import { abort } from '../../app/master';
 import { navigate } from '../../app/router';
 import { t } from '../../i18n';
 import { Panel } from '../tui/Panel';
@@ -23,6 +24,7 @@ export function GameScreen({ screen, id }: { screen: ScreenInfo; id: string }) {
     );
     return () => {
       alive = false;
+      abort(); // ход Мастера не должен пережить экран кампании: он писал бы в ленту другой кампании и держал бы «занят»
       closeSession();
     };
   }, [id]);
