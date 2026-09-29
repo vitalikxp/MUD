@@ -12,10 +12,11 @@ MVP = вехи **M0–M5**. Каждая веха заканчивается ч�
 - [x] Шрифты self-hosted (PxPlus IBM VGA 9x16 по умолчанию, JetBrains Mono), покрытие кириллицы и псевдографики проверено
 - [x] Палитры: 37 токенов, 11 встроенных, переключение, тест контраста
 - [x] i18n RU/EN, тест совпадения ключей
-- [ ] Экран настроек LLM (FR-LLM-1..5), хранение ключа, «Проверить»
-- [ ] `relay/`: Cloudflare Worker (allowlist хостов и Origin, стриминг, без логов), инструкция деплоя
-- [ ] `src/llm/`: клиент со стримингом SSE, tool calls, retry, пресеты, адаптеры Chat Completions и OpenAI Responses (модель по умолчанию `muse-spark-1.3-contributor` — Responses), пресеты «Экономный», «Приватный», «Качество», раскрытие про обучение на данных. Проверка на OpenCode Go и одном CORS-дружественном провайдере
-- [ ] Заголовки OpenCode Go (`x-opencode-session`, `User-Agent`), `reasoning.effort` и `max_output_tokens` по ролям, обработка `incomplete` ([ADR-0018](adr/0018-reasoning-effort-and-go-headers.md))
+- [x] Экран настроек LLM (FR-LLM-1..5, 9): провайдер, пресеты моделей, ключ (localStorage или только на вкладку), relay, согласие на обучение, «Проверить» (связь, стрим, tool calling, причины отказов)
+- [x] `relay/`: Cloudflare Worker (allowlist хостов и Origin, стриминг, без логов), [инструкция деплоя](../relay/README.md)
+- [x] Деплой relay проекта на Cloudflare: `https://swrd-relay.swrd.workers.dev` (2026-09-29), адрес по умолчанию — `VITE_RELAY_URL` в `.env.default`, переопределяется переменной репозитория `RELAY_URL`
+- [x] `src/llm/`: клиент со стримингом SSE, tool calls, retry, пресеты, адаптеры Chat Completions и OpenAI Responses (модель по умолчанию `muse-spark-1.3-contributor` — Responses), пресеты «Экономный», «Приватный», «Качество», раскрытие про обучение на данных. Проверка на OpenCode Go и одном CORS-дружественном провайдере
+- [x] Заголовки OpenCode Go (`x-opencode-session`; `User-Agent` ставит relay), `reasoning.effort` и `max_output_tokens` по ролям, обработка `incomplete` ([ADR-0018](adr/0018-reasoning-effort-and-go-headers.md))
 
 **Готово, когда**: на Pages открывается терминал, можно ввести ключ и получить потоковый ответ модели в панели.
 

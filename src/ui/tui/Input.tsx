@@ -8,15 +8,22 @@ import { sanitize } from './text';
  * (прозрачный): он даёт IME, экранную клавиатуру на телефоне и доступность.
  * История — стрелки ↑/↓.
  */
-export function Input({ x, y, w, prompt, placeholder, label, onSubmit, inputRef }: {
+export function Input({ x, y, w, prompt, placeholder, label, onSubmit, inputRef, initial = '', allowEmpty = false, mask = false, onCancel, focusOnMount = false }: {
   x: number; y: number; w: number;
   prompt: string;
   placeholder: string;
   label: string;
   onSubmit: (text: string) => void;
   inputRef?: { current: HTMLInputElement | null };
+  initial?: string;
+  /** Разрешить отправку пустой строки (очистка поля в форме). */
+  allowEmpty?: boolean;
+  /** Показывать вместо символов «•» (ключи). */
+  mask?: boolean;
+  onCancel?: () => void;
+  focusOnMount?: boolean;
 }) {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState(initial);
   const [focused, setFocused] = useState(false);
   const history = useRef<string[]>([]);
   const cursor = useRef(-1);
@@ -24,19 +31,24 @@ export function Input({ x, y, w, prompt, placeholder, label, onSubmit, inputRef 
   const ref = inputRef ?? ownRef;
 
   const room = Math.max(1, w - Array.from(prompt).length - 2);
-  const chars = Array.from(sanitize(value));
+  const chars = Array.from(mask ? '•'.repeat(Array.from(value).length) : sanitize(value));
   const shown = chars.slice(Math.max(0, chars.length - room)).join('');
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
       const text = value.trim();
-      if (text) {
+      if (text || allowEmpty) {
         onSubmit(text);
         history.current.push(text);
       }
       cursor.current = -1;
       setValue('');
       e.preventDefault();
+      e.stopPropagation();
+    } else if (e.key === 'Escape' && onCancel) {
+      e.preventDefault();
+      e.stopPropagation();
+      onCancel();
     } else if (e.key === 'ArrowUp' && history.current.length) {
       cursor.current = cursor.current < 0 ? history.current.length - 1 : Math.max(0, cursor.current - 1);
       setValue(history.current[cursor.current] ?? '');
@@ -57,7 +69,6 @@ export function Input({ x, y, w, prompt, placeholder, label, onSubmit, inputRef 
         <span class={focused ? 'tui-cursor' : undefined} style={{ color: cssVar('cursor') }}>{focused ? '█' : ''}</span>
       </div>
       <input
-        ref={ref}
         class="tui-native-input"
         aria-label={label}
         autocomplete="off"
@@ -65,6 +76,7 @@ export function Input({ x, y, w, prompt, placeholder, label, onSubmit, inputRef 
         value={value}
         onInput={(e) => setValue((e.target as HTMLInputElement).value)}
         onKeyDown={onKeyDown}
+        ref={(el) => { ref.current = el; if (el && focusOnMount && document.activeElement !== el) el.focus(); }}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
       />

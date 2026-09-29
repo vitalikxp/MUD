@@ -78,6 +78,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm build
+        env:
+          # Необязательное переопределение адреса relay из .env.default (Settings → Variables → Actions → RELAY_URL). Пусто — берётся дефолт.
+          VITE_RELAY_URL: ${{ vars.RELAY_URL }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

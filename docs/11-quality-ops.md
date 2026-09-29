@@ -32,13 +32,13 @@ deploy: deploy-pages → https://swrd.ru
 
 ## Relay (Cloudflare Worker)
 
-- `POST /v1/chat/completions`, `/v1/responses`, `/v1/messages` → `https://<upstream>/…`. Пропускаются заголовки `Authorization`, `x-api-key`, `anthropic-version`, `x-opencode-session`, `User-Agent`. Upstream задаётся заголовком `X-Upstream` и проверяется по **allowlist**
+- `POST /v1/chat/completions`, `/v1/responses`, `/v1/messages` → `https://<upstream>/…`. Пропускаются заголовки `Authorization`, `x-api-key`, `anthropic-version`, `x-opencode-session`; `User-Agent` ставит сам relay. Подробности и деплой: [relay/README.md](../relay/README.md). Upstream задаётся заголовком `X-Upstream` и проверяется по **allowlist**
   (`opencode.ai`, `openrouter.ai`, `generativelanguage.googleapis.com`, …). Список в `relay/allowlist.ts`.
 - CORS: `Access-Control-Allow-Origin` только для разрешённых Origin (`https://swrd.ru`, `http://localhost:*`; форки задают свой список переменной окружения).
 - Заголовок `Authorization` передаётся как есть. **Тела, заголовки и ответы не логируются.**
 - Стриминг: тело ответа upstream проксируется потоком. Ожидание сети не расходует лимит CPU в 10 мс.
 - Лимит бесплатного тарифа — 100K запросов в сутки на весь relay. Один ход занимает 1–12 запросов. Если лимит станет проблемой, пользователи смогут задеплоить свой relay (инструкция в `relay/README.md`).
-- Для OpenCode Go обязательны заголовки `x-opencode-session` (ID кампании; без него ответ `400 MissingSessionID`) и уникальный `User-Agent: swrd/<версия>` ([ADR-0018](adr/0018-reasoning-effort-and-go-headers.md)).
+- Для OpenCode Go обязательны заголовки `x-opencode-session` (ID кампании; без него ответ `400 MissingSessionID`) и уникальный `User-Agent` (в браузере его выставляет relay: `swrd-relay/<версия>`) ([ADR-0018](adr/0018-reasoning-effort-and-go-headers.md)).
   OpenCode Go — пресет по умолчанию. Риск ограничения ключа по условиям сервиса владелец принял (Q6), в UI есть предупреждение.
 
 ## Долговечность («проект живёт без автора»)

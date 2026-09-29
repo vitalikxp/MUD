@@ -30,12 +30,12 @@ test('главный экран: сетка, панели, рамки, шриф�
   expect(errors).toEqual([]);
 });
 
-test('команды: заявка попадает в хронику, /palette меняет палитру', async ({ page }) => {
+test('команды: /palette меняет палитру, заявка без настройки LLM даёт подсказку', async ({ page }) => {
   await page.goto('/');
   const input = page.getByRole('textbox');
   await input.fill('осматриваю алтарь');
   await input.press('Enter');
-  await expect(page.getByRole('log')).toContainText('осматриваю алтарь');
+  await expect(page.getByRole('log')).toContainText('Мастер не настроен');
   await input.fill('/palette amber');
   await input.press('Enter');
   await expect(page.locator('html')).toHaveAttribute('data-palette', 'amber');
@@ -56,13 +56,16 @@ test('язык переключается командой и сохраняет
 test('десктоп: F1 открывает справку, Esc закрывает; F8 — палитры с клавиатуры', async ({ page }, info) => {
   test.skip(info.project.name !== 'desktop', 'F-клавиши — десктопная раскладка');
   await page.goto('/');
+  await expect(page.getByRole('region', { name: 'Хроника' })).toBeVisible(); // экран смонтирован, обработчики клавиш зарегистрированы
   await page.keyboard.press('F1');
   const dialog = page.getByRole('dialog');
   await expect(dialog).toBeVisible();
   await expectFramesAligned(page);
   await page.keyboard.press('Escape');
   await expect(dialog).toBeHidden();
+  await expect(page.getByRole('textbox')).toBeFocused(); // диалог вернул фокус на место
   await page.keyboard.press('F8');
+  await expect(page.getByRole('listbox')).toBeFocused();
   await page.keyboard.press('End');
   await page.keyboard.press('Enter');
   await expect(page.locator('html')).toHaveAttribute('data-palette', 'high-contrast');

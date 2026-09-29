@@ -32,12 +32,14 @@
 - LLM-relay: Cloudflare Worker (`relay/`, бесплатный тариф).
 - Модели по умолчанию меняются только новым ADR по методике [ADR-0016](docs/adr/0016-default-models-pareto.md): цены и лимиты — https://opencode.ai/docs/go/, Elo — CSV внутри `https://eqbench.com/creative_writing.js` (HTML-таблица рисуется скриптом, `WebFetch` её не видит).
 - Хостинг: GitHub Pages через GitHub Actions.
+- Внешние сервисы владельца: relay — Cloudflare Worker `swrd-relay` (`pnpm relay:deploy`, нужен `wrangler login`; сертификат нового поддомена выпускается ~1–2 мин); Pages деплоит из `master` (окружение `github-pages` должно разрешать эту ветку).
 
-Команды (`test:rules`, `eval:dm`, `relay:*` появятся в следующих шагах, см. [дорожную карту](docs/10-roadmap.md)):
+Команды (`test:rules` и `eval:dm` появятся в следующих вехах, см. [дорожную карту](docs/10-roadmap.md)):
 
 | Команда | Назначение |
 |---|---|
 | `pnpm dev` | dev-сервер Vite |
+| `pnpm preview` | раздача собранного `dist/` на :4173 (её же использует `test:e2e`) |
 | `pnpm build` | `tsc --noEmit && vite build` + копия `404.html` для SPA |
 | `pnpm test` | unit-тесты (Vitest) |
 | `pnpm test:rules` | тесты правил безопасности Firebase (эмулятор) |
@@ -45,12 +47,13 @@
 | `pnpm eval:dm` | сценарные проверки ИИ-мастера на реальной модели (ключ — см. ниже) |
 | `pnpm lint` / `pnpm typecheck` | oxlint и проверка типов |
 | `pnpm docs:check` | то же, что `python3 scripts/check_docs.py` |
-| `pnpm relay:dev` / `pnpm relay:deploy` | локальный запуск и деплой relay (wrangler) |
+| `pnpm relay:dev` / `pnpm relay:deploy` | локальный запуск и деплой relay через `wrangler` ([relay/README.md](relay/README.md)); деплой требует `wrangler login` владельца |
 | `python3 scripts/ref/search.py …` | поиск по книгам OpenD6 (работает уже сейчас, см. §8) |
 | `python3 scripts/ref/extract.py` | пересобрать `ref/OpenD6/text/` и `INDEX.md` после добавления PDF (запись в `CATALOG`) |
 | `python3 scripts/check_docs.py` | проверка документации: ссылки, якоря, ширина ASCII-рамок (код выхода 1 при ошибках) |
 
-- Ключ LLM для dev и evals: `.env.local` (шаблон — `.env.example`) → `OPENCODE_GO_API_KEY` (без префикса `VITE_`, иначе Vite вложит ключ в сборку). Значение ключа не выводить в логи и ответы.
+- Ключ LLM для dev и evals: `.env.local` → `OPENCODE_GO_API_KEY` (без префикса `VITE_`, иначе Vite вложит ключ в сборку). Значение ключа не выводить в логи и ответы.
+- Публичные значения по умолчанию (например `VITE_RELAY_URL`) лежат в `.env.default` (в git, **только `VITE_*`, секретов нет** — это проверяет тест). Приоритет: окружение/CI > `.env.local` > `.env.default`.
 - Ручной запрос к Go: `POST https://opencode.ai/zen/go/v1/{chat/completions|responses|messages}` (формат зависит от модели) с заголовками `Authorization: Bearer`, `x-opencode-session: <uuid>` (иначе `400 MissingSessionID`) и `User-Agent`.
 - Думающим моделям (Muse Spark и др.) задавай `reasoning.effort` и `max_output_tokens` ≥ 1500, иначе ответ может прийти `incomplete` без текста ([ADR-0018](docs/adr/0018-reasoning-effort-and-go-headers.md)).
 
@@ -82,7 +85,7 @@
 13. **Обучение на данных — только с согласием.** Если модель Мастера отдаёт данные на обучение (`*-contributor`), это раскрывается в UI,
     а участник кооп-кампании подтверждает согласие (`modelConsent`) до отправки заявок. См. FR-LLM-9, [ADR-0017](docs/adr/0017-default-model-muse-spark.md).
 
-## 5. Структура репозитория (целевая; сейчас в `src/` есть `app/`, `i18n/`, `theme/`, `ui/`)
+## 5. Структура репозитория (целевая; сейчас в `src/` есть `app/`, `i18n/`, `llm/`, `theme/`, `ui/`)
 
 ```
 src/
@@ -100,7 +103,7 @@ src/
   i18n/         словари ru/en
 content/        шаблоны сеттингов, палитры (данные, не код; палитры — content/palettes/*.json)
 public/         статика: шрифты (public/fonts/), CNAME
-relay/          Cloudflare Worker
+relay/          Cloudflare Worker (src/index.ts, тесты, wrangler.toml, README)
 firebase/       firestore.rules, database.rules.json, firebase.json
 e2e/            Playwright
 evals/          сценарии проверки ИИ-мастера
@@ -108,6 +111,7 @@ docs/           документация, ADR
 ref/OpenD6/     книги OpenD6 (PDF, OGL) + постраничный текстовый индекс (§8)
 scripts/ref/    extract.py, search.py — индекс и поиск по книгам
 scripts/        check_docs.py — проверка документации
+tools/          env-default.ts — загрузчик .env.default для vite.config.ts
 ```
 
 Направление зависимостей: `ui → app → dm → (engine, rules, llm)`, `app → net → engine`.
@@ -138,6 +142,8 @@ scripts/        check_docs.py — проверка документации
 4. Перед завершением: `pnpm typecheck && pnpm lint && pnpm test && pnpm docs:check`; для UI — ещё `pnpm test:e2e`.
    Для UI-изменений нужна визуальная проверка в браузере на ширине 1280 и 390 px.
 5. В отчёте честно указывай, что не проверено.
+6. E2E (Playwright): перед `keyboard.press` жди готовности экрана (`toBeFocused` / `toBeVisible` нужной роли) — клавиши раньше монтирования теряются. Новый тест гоняй в цикле 5–10 раз: флаки чинить, а не терпеть.
+7. TUI-компоненты с вложенным `<input>` (Form, Input): обработчик контейнера игнорирует события от `.tui-native-input`, а Input гасит обработанный Enter (`stopPropagation`). Иначе после перерисовки событие всплывает уже к «свежему» обработчику и повторно открывает редактирование.
 
 ## 8. Книги правил OpenD6 (справочник)
 

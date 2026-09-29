@@ -9,6 +9,7 @@ export type Command =
   | { kind: 'lang'; locale: Locale }
   | { kind: 'font'; font: FontId }
   | { kind: 'glyphs' }
+  | { kind: 'settings' }
   | { kind: 'unknown'; raw: string };
 
 export function parseCommand(input: string, knownPalettes: readonly string[]): Command {
@@ -27,6 +28,8 @@ export function parseCommand(input: string, knownPalettes: readonly string[]): C
       return arg === 'pxplus' || arg === 'jetbrains' ? { kind: 'font', font: arg } : { kind: 'unknown', raw: text };
     case 'glyphs':
       return { kind: 'glyphs' };
+    case 'settings':
+      return { kind: 'settings' };
     default:
       return { kind: 'unknown', raw: text };
   }

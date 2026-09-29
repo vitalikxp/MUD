@@ -1,0 +1,260 @@
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"role":"assistant","content":"","refusal":null}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"The"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" user is asking in"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" Russian for"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" a short phrase"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" describing an"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" entrance to a crypt ("}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ск"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"леп). They"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" want just"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" one short phrase.\n\n"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"Let me think of"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" an"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" evocative,"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" atmospheric description of"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" a crypt entrance in"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" Russian. Something like:\n\n\""}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"Тяж"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ё"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"лая каменная"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" плита, при"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"открытая"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" во тьму"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":", окруж"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ена м"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"х"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ом и тр"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ещ"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"инами\""}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" —"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" that"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"'s a bit long.\n\nShort"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" phrase"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" options:\n- \"Пол"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"у"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"разруш"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"енная каменная ар"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ка з"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ияет"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" чер"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"нотой"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" под"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" к"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"рош"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ащ"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"им"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ися свод"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ами.\"\n- \"У"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"зкий"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" про"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ём в"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" холод"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ном"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" камне у"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ходит во"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" влаж"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ную,"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" п"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ахн"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ущую зем"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"лёй т"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ьму.\"\n- \"Ск"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ольз"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"кие"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" ступени ск"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"рываются под"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" мрач"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ной"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" аркой, покры"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"той м"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"хом.\"\n\n"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"The user asked"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" for \"од"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"на короткая фраза\""}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" — one short phrase. So"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" I should just"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" give one phrase"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":", no"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" preamble. Keep it atmospheric"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" and concise"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":".\n\nSomething like:"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" \"Под"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" мрачной аркой,"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" пор"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"осшей"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" мхом, з"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ияет"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" чёрный проём с"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" пол"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"уст"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ёрты"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ми ступ"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"енями"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":", вед"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ущими вниз"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":".\"\n\n"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"Or shorter"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":": \"П"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"окры"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"тая м"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"хом кам"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"енная арка з"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"ияет чёрным"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" пров"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"алом вниз"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":".\"\n\nI"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"'ll go with something atmospheric"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" and concise"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":". The"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" response"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" should be just"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" the phrase itself"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":", since"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":" they asked for one short phrase"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"reasoning_content":"."}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"content":"П"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"content":"окрытая м"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"content":"хом кам"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"content":"енная арка зияет"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"content":" чёрным провалом,"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"content":" от"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"content":" которого вниз"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"content":" уход"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"content":"ят пол"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"content":"устёртые"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"content":" ск"}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":null,"logprobs":null,"delta":{"content":"ользкие ступени."}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[{"index":0,"finish_reason":"stop","logprobs":null,"delta":{}}],"usage":null}
+
+data: {"id":"chatcmpl-D4009EUYx9IWJgukFDdfqclNe75fr","object":"chat.completion.chunk","created":1790629928,"model":"glm-5.3-flash","choices":[],"usage":{"prompt_tokens":28,"completion_tokens":333,"total_tokens":361,"prompt_tokens_details":{"audio_tokens":0,"cached_tokens":0,"cache_write_tokens":0},"completion_tokens_details":{"accepted_prediction_tokens":0,"audio_tokens":0,"reasoning_tokens":0,"rejected_prediction_tokens":0}}}
+
+data: [DONE]
+

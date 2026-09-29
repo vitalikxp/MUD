@@ -1,0 +1,127 @@
+import { signal } from '@preact/signals';
+import { useEffect, useRef } from 'preact/hooks';
+import * as llm from '../../app/llm';
+import { navigate } from '../../app/router';
+import { t, type Key } from '../../i18n';
+import { checkProvider, type CheckStep } from '../../llm/check';
+import { CUSTOM, OPENCODE_GO } from '../../llm/presets';
+import type { ApiFormat } from '../../llm/types';
+import { FKeyBar, useFKeys, type FKey } from '../tui/FKeyBar';
+import { Form, type Field } from '../tui/Form';
+import { Panel } from '../tui/Panel';
+import type { ScreenInfo } from '../tui/Screen';
+import { TextView, wrapParagraphs } from '../tui/TextView';
+import type { Paragraph } from '../tui/types';
+
+type CheckState = { status: 'idle' } | { status: 'running' } | { status: 'done'; steps: CheckStep[] } | { status: 'blocked' };
+const checkState = signal<CheckState>({ status: 'idle' });
+
+async function runCheck(): Promise<void> {
+  if (llm.problems.value.length > 0) {
+    checkState.value = { status: 'blocked' };
+    return;
+  }
+  checkState.value = { status: 'running' };
+  const p = llm.preset.value;
+  const target = p
+    ? { model: p.dm.model, maxOutputTokens: p.dm.maxOutputTokens, ...(p.dm.effort ? { effort: p.dm.effort } : {}) }
+    : { model: llm.dmModel.value, maxOutputTokens: 4000 };
+  checkState.value = { status: 'done', steps: await checkProvider(llm.providerConfig(), target) };
+}
+
+function stepLines(steps: readonly CheckStep[]): Paragraph[] {
+  const out: Paragraph[] = [];
+  for (const s of steps) {
+    const extra = s.count !== undefined ? ` (${t('check.deltas', { count: s.count })})` : '';
+    out.push({ text: `${s.ok ? '✓' : '✗'} ${t(`check.${s.id}`)}: ${s.ok ? t('check.ok') : t('check.fail')}${extra}`, fg: s.ok ? 'success' : 'failure' });
+    if (!s.ok) {
+      const reason = s.id === 'tools' && !s.kind ? t('check.noTools') : s.kind === 'other' && s.message ? s.message : t(`errors.${s.kind ?? 'other'}`);
+      out.push({ text: `→ ${reason}`, fg: 'warning' });
+    }
+  }
+  out.push({ text: '' });
+  out.push(steps.every((s) => s.ok) ? { text: t('check.done'), fg: 'success' } : { text: t('check.partial'), fg: 'warning' });
+  return out;
+}
+
+export function SettingsScreen({ screen }: { screen: ScreenInfo }) {
+  const { cols, rows, mobile } = screen;
+  const formRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { formRef.current?.focus(); }, []);
+  useEffect(() => { checkState.value = { status: 'idle' }; }, []);
+
+  const custom = llm.provider.value.id === CUSTOM.id;
+  const fields: Field[] = [
+    { id: 'provider', label: t('settings.provider'), kind: 'choice', value: llm.providerId.value,
+      options: [OPENCODE_GO, CUSTOM].map((p) => ({ value: p.id, label: t(`providers.${p.id}` as Key) })),
+      onChange: (v) => { llm.providerId.value = v; } },
+    ...(custom
+      ? ([
+          { id: 'baseUrl', label: t('settings.baseUrl'), kind: 'text', value: llm.customBaseUrl.value, placeholder: 'https://…/v1', onChange: (v: string) => { llm.customBaseUrl.value = v; } },
+          { id: 'model', label: t('settings.model'), kind: 'text', value: llm.customModel.value, onChange: (v: string) => { llm.customModel.value = v; } },
+          { id: 'format', label: t('settings.format'), kind: 'choice', value: llm.customFormat.value,
+            options: (['chat', 'responses', 'messages'] as const).map((f) => ({ value: f, label: t(`formats.${f}`) })),
+            onChange: (v: string) => { llm.customFormat.value = v as ApiFormat; } },
+        ] satisfies Field[])
+      : ([
+          { id: 'preset', label: t('settings.preset'), kind: 'choice', value: llm.presetId.value,
+            options: OPENCODE_GO.presets.map((p) => ({ value: p.id, label: t(`presets.${p.id}`) })),
+            onChange: (v: string) => { llm.presetId.value = v as typeof llm.presetId.value; } },
+        ] satisfies Field[])),
+    ...(llm.trainsOnData.value
+      ? ([{ id: 'ack', label: t('settings.ack'), kind: 'toggle', value: llm.trainsAck.value, yes: t('settings.ackYes'), no: t('settings.ackNo'), onChange: (v: boolean) => { llm.trainsAck.value = v; } }] satisfies Field[])
+      : []),
+    { id: 'key', label: t('settings.key'), kind: 'text', value: llm.apiKey.value, secret: true, placeholder: t('settings.keyEmpty'), onChange: (v) => { llm.apiKey.value = v; } },
+    { id: 'remember', label: t('settings.remember'), kind: 'toggle', value: llm.remember.value, yes: t('settings.rememberYes'), no: t('settings.rememberNo'), onChange: (v) => { llm.remember.value = v; } },
+    { id: 'relay', label: t('settings.relay'), kind: 'choice', value: llm.relayMode.value,
+      options: (['default', 'custom', 'direct'] as const).map((m) => ({ value: m, label: t(`relayModes.${m}`) })),
+      onChange: (v) => { llm.relayMode.value = v as llm.RelayMode; } },
+    ...(llm.relayMode.value === 'custom'
+      ? ([{ id: 'relayUrl', label: t('settings.relayUrl'), kind: 'text', value: llm.relayUrl.value, placeholder: t('settings.relayUrlEmpty'), onChange: (v: string) => { llm.relayUrl.value = v; } }] satisfies Field[])
+      : []),
+    { id: 'check', label: t('settings.check'), kind: 'action', onRun: () => { void runCheck(); } },
+  ];
+
+  const fkeys: FKey[] = [
+    { n: 6, label: t('fkeys.check'), action: () => { void runCheck(); } },
+    { n: 10, label: t('fkeys.back'), action: () => navigate('home') },
+  ];
+  useFKeys(fkeys);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const editing = (document.activeElement as HTMLElement | null)?.classList.contains('tui-native-input');
+      if (e.key === 'Escape' && !editing) navigate('home');
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
+  const w = cols;
+  const bodyW = w - 2;
+  const formH = fields.length;
+  const notes: Paragraph[] = [{ text: t('settings.hint'), fg: 'fgDim' }];
+  if (llm.trainsOnData.value) notes.push({ text: t('settings.noteTrains'), fg: 'warning' });
+  if (llm.provider.value.notice === 'opencode-terms') notes.push({ text: t('settings.noteTerms'), fg: 'warning' });
+  notes.push({ text: t('settings.noteKey'), fg: 'fgDim' });
+  if (llm.provider.value.needsRelay) notes.push({ text: t('settings.noteRelay'), fg: 'fgDim' });
+  notes.push({ text: '' });
+
+  const cs = checkState.value;
+  if (cs.status === 'running') notes.push({ text: t('check.running'), fg: 'info' });
+  else if (cs.status === 'blocked') notes.push({ text: t('check.fixFirst', { problems: llm.problems.value.map((p) => t(`problems.${p}`)).join(', ') }), fg: 'warning' });
+  else if (cs.status === 'done') notes.push(...stepLines(cs.steps));
+
+  const h = mobile ? rows - 1 : rows - 1;
+  const lines = wrapParagraphs(notes, bodyW);
+  return (
+    <>
+      <Panel x={0} y={0} w={w} h={h} title={t('panels.settings')} active separators={[formH + 1]}>
+        <Form fields={fields} width={bodyW} label={t('panels.settings')} formRef={formRef} />
+        <div style={{ position: 'absolute', left: 0, right: 0, top: `calc(var(--ch) * ${formH + 1})` }}>
+          <TextView lines={lines} width={bodyW} height={Math.max(1, h - 2 - formH - 1)} anchor="top" live />
+        </div>
+      </Panel>
+      <FKeyBar keys={fkeys} y={rows - 1} cols={cols} />
+    </>
+  );
+}

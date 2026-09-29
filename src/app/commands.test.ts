@@ -13,6 +13,7 @@ describe('parseCommand', () => {
     expect(parseCommand('/font jetbrains', P)).toEqual({ kind: 'font', font: 'jetbrains' });
     expect(parseCommand('/help', P)).toEqual({ kind: 'help' });
     expect(parseCommand('/glyphs', P)).toEqual({ kind: 'glyphs' });
+    expect(parseCommand('/settings', P)).toEqual({ kind: 'settings' });
   });
   it('неизвестные команды и аргументы', () => {
     expect(parseCommand('/palette neon', P).kind).toBe('unknown');

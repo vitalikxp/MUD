@@ -1,9 +1,12 @@
 import { signal, useSignalEffect } from '@preact/signals';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import { parseCommand } from '../../app/commands';
+import * as llm from '../../app/llm';
+import { abort, ask, busy } from '../../app/master';
 import { navigate } from '../../app/router';
 import { fontId, paletteId } from '../../app/settings';
 import { locale, t, tList, type Key } from '../../i18n';
+import { LlmError } from '../../llm/types';
 import type { FontId } from '../../theme/fonts';
 import { getPalette, PALETTES, type Token } from '../../theme/palettes';
 import { Dialog } from '../tui/Dialog';
@@ -18,6 +21,12 @@ import type { Paragraph } from '../tui/types';
 
 /** Запись хроники: либо ключ словаря (перерисуется при смене языка), либо готовый текст. */
 type Entry = { key: Key; params?: Record<string, string>; fg: Token } | { text: string; fg: Token };
+
+function errorText(e: unknown): string {
+  const kind = e instanceof LlmError ? e.kind : 'other';
+  const detail = e instanceof LlmError && kind === 'other' ? `: ${e.message}` : '';
+  return `${t(`errors.${kind}` as Key)}${detail}`;
+}
 
 const INTRO: Entry[] = [
   { key: 'intro.p1', fg: 'dm' },
@@ -47,6 +56,31 @@ function setFont(id: FontId): void {
   push({ key: 'msg.font', params: { name: t(`fonts.${id}`) }, fg: 'system' });
 }
 
+/** Реплика игрока → модель; ответ стримится в последнюю запись хроники. */
+async function askMaster(text: string): Promise<void> {
+  const missing = llm.problems.value;
+  if (missing.length > 0) {
+    push({ key: 'msg.notConfigured', params: { problems: missing.map((p) => t(`problems.${p}` as Key)).join(', ') }, fg: 'warning' });
+    return;
+  }
+  if (busy.value) {
+    push({ key: 'msg.busy', fg: 'warning' });
+    return;
+  }
+  push({ text: `${t('input.prompt')} ${text}`, fg: 'player' }, { text: '…', fg: 'dm' });
+  const index = chronicle.value.length - 1;
+  const replace = (body: string, fg: Token = 'dm') => {
+    chronicle.value = chronicle.value.map((e, i) => (i === index ? { text: body, fg } : e));
+  };
+  try {
+    const answer = await ask(text, { onText: (full) => replace(full) });
+    replace(answer);
+  } catch (e) {
+    if (e instanceof LlmError && e.kind === 'aborted') replace(t('msg.aborted'), 'warning');
+    else replace(errorText(e), 'failure');
+  }
+}
+
 function setLang(next: 'ru' | 'en'): void {
   locale.value = next;
   push({ key: 'msg.lang', fg: 'system' });
@@ -71,7 +105,8 @@ export function HomeScreen({ screen }: { screen: ScreenInfo }) {
   const onSubmit = (text: string) => {
     const cmd = parseCommand(text, PALETTES.map((p) => p.id));
     switch (cmd.kind) {
-      case 'say': push({ text: `${t('input.prompt')} ${cmd.text}`, fg: 'player' }); break;
+      case 'say': void askMaster(cmd.text); break;
+      case 'settings': navigate('settings'); break;
       case 'help': setHelpOpen(true); break;
       case 'palette': setPalette(cmd.id); break;
       case 'lang': setLang(cmd.locale); break;
@@ -85,10 +120,17 @@ export function HomeScreen({ screen }: { screen: ScreenInfo }) {
     { n: 1, label: t('fkeys.help'), action: () => setHelpOpen(true) },
     { n: 2, label: t('fkeys.lang'), action: () => setLang(locale.value === 'ru' ? 'en' : 'ru') },
     { n: 3, label: t('fkeys.font'), action: () => setFont(fontId.value === 'pxplus' ? 'jetbrains' : 'pxplus') },
+    { n: 4, label: t('fkeys.settings'), action: () => navigate('settings') },
     { n: 8, label: t('fkeys.palette'), action: () => focusPanel('palettes') },
     { n: 9, label: t('fkeys.glyphs'), action: () => navigate('glyphs') },
   ];
   useFKeys(fkeys, !helpOpen);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && busy.value) abort(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
 
   // Tab / Shift+Tab — смена активной панели, как в Norton Commander.
   useEffect(() => {
@@ -157,8 +199,8 @@ export function HomeScreen({ screen }: { screen: ScreenInfo }) {
         {active === 'chronicle' && chroniclePanel(0, 0, cols, h)}
         {active === 'palettes' && palettesPanel(0, 0, cols, h)}
         {active === 'status' && statusPanel(0, 0, cols, h)}
-        <Tabs y={rows - 2} cols={cols} active={active} onChange={(id) => focusPanel(id as PanelId)}
-          tabs={ORDER.map((id) => ({ id, label: t(`tabs.${id}`) }))}
+        <Tabs y={rows - 2} cols={cols} active={active} onChange={(id) => (id === 'settings' ? navigate('settings') : focusPanel(id as PanelId))}
+          tabs={[...ORDER.map((id) => ({ id, label: t(`tabs.${id}`) })), { id: 'settings', label: t('tabs.settings') }]}
           extra={{ label: '≡', ariaLabel: t('fkeys.help'), action: () => setHelpOpen(true) }} />
       </>
     );

@@ -1,9 +1,9 @@
 // Минимальный роутер по pathname. На GitHub Pages глубокие ссылки работают через 404.html = index.html.
 import { signal } from '@preact/signals';
 
-export type Route = 'home' | 'glyphs';
+export type Route = 'home' | 'glyphs' | 'settings';
 
-const PATHS: Record<Route, string> = { home: '/', glyphs: '/dev/glyphs' };
+const PATHS: Record<Route, string> = { home: '/', glyphs: '/dev/glyphs', settings: '/settings' };
 
 function parse(pathname: string): Route {
   const clean = pathname.replace(/\/+$/, '') || '/';
