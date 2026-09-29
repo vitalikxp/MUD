@@ -15,6 +15,7 @@ export const irmaData: CharacterData = {
   move: 10,
   points: { cp: 5, fp: 1 },
   concept: 'Плутовка',
+  traits: [],
 };
 
 export const irma = (over: Partial<CharacterData> = {}, items: Entity['items'] = []): Entity =>

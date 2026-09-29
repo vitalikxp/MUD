@@ -6,12 +6,24 @@ import { attributeCode, rollBase, woundLevel, ZERO } from './character';
 import { loadActor } from './checks';
 import { resolveOptions } from './options';
 
-/** Броня: сумма кодов `data.armor` у предметов, надетых в слот (не в рюкзаке). */
-export function armorCode(entity: Entity): DieCode {
+/**
+ * Броня: сумма кодов `data.armor` у предметов, надетых в слот (не в рюкзаке). Код может быть без кубов: «2» = Armor Value +2 (OpenD6: adventure p.115).
+ * Предмет с `data.zone` («legs», «head») защищает только эту часть тела и учитывается, когда `zone` совпадает с зоной попадания.
+ * Щит (`data.shield`) защищает, только если он удерживался между атакующим и владельцем (`shielded`; OpenD6: fantasy p.116).
+ */
+export function armorCode(entity: Entity, zone?: string, shielded = false): DieCode {
   let total = ZERO;
   for (const item of entity.items as Item[]) {
     const armor = item.data?.['armor'];
-    if (item.slot && typeof armor === 'string') total = addCodes(total, parseDieCode(armor));
+    if (!item.slot || typeof armor !== 'string') continue;
+    if (item.data?.['shield'] === true && !shielded) continue;
+    const itemZone = item.data?.['zone'];
+    if (typeof itemZone === 'string' && itemZone !== zone) continue;
+    try {
+      total = addCodes(total, parseDieCode(armor));
+    } catch {
+      // Неверный код брони у придуманного Мастером предмета не должен ронять ход: считаем предмет без защиты.
+    }
   }
   return total;
 }
@@ -47,11 +59,13 @@ export function applyDamage(ctx: RulesCtx, args: DamageArgs): Result<Outcome> {
   let resistance = 0;
   let armor = ZERO;
   if (!args.ignoreArmor) {
-    armor = armorCode(entity);
+    armor = armorCode(entity, args.zone, args.shielded);
     if (armor.dice >= 1) {
       const roll = rollPool(ctx.rng, { code: armor, wildOne: resolveOptions(ctx.options).wildOne });
       resistance = roll.total;
       events.push({ t: 'roll', roll, reason: `Сопротивление урону: ${entity.name}`, actorId: entity.id, visibility: 'all' });
+    } else if (toPips(armor) > 0) {
+      resistance = toPips(armor); // только пипы («+2»): постоянная защита, бросать нечего
     }
   }
 

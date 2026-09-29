@@ -38,5 +38,7 @@ export const opend6: RulesModule = {
   lookup,
 };
 
+export * from './catalog';
 export * from './character';
 export * from './data';
+export * from './templates';

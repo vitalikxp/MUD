@@ -6,7 +6,7 @@ SWRD использует несколько лицензий. Подробно�
 |---|---|
 | Код проекта | [0BSD](LICENSE) — разрешено всё, без условий и без обязательного упоминания автора |
 | Контент и документация (`content/`, `docs/`, промпты Мастера) | [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/) — общественное достояние, упоминание автора не требуется, коммерческое использование разрешено |
-| Модуль правил `src/rules/opend6/` | Open Game License v1.0a (полный текст и Section 15 — в `src/rules/opend6/LICENSE`, появится в M1) |
+| Модуль правил `src/rules/opend6/` | Open Game License v1.0a (полный текст и Section 15 — в `src/rules/opend6/LICENSE`) |
 
 ## Сторонние материалы
 

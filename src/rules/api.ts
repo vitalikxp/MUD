@@ -77,6 +77,10 @@ export interface DamageArgs {
   reason: string;
   /** Не учитывать броню (падение, яд). */
   ignoreArmor?: boolean;
+  /** Куда попало («legs», «head»): броня с указанной зоной защищает только её. */
+  zone?: string;
+  /** Персонаж прикрылся щитом от этой атаки: только тогда щит добавляет защиту. */
+  shielded?: boolean;
 }
 
 export type RestQuality = 'full' | 'light' | 'hard';

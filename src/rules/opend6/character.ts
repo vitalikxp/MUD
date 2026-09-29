@@ -17,6 +17,19 @@ const codeString = z.string().refine((v) => {
   }
 }, 'некорректный код кубов');
 
+const localized = z.object({ ru: z.string(), en: z.string() });
+
+/** Преимущество, недостаток или особая способность (OpenD6: adventure p.20–36): механику по описанию применяет Мастер. */
+export const traitSchema = z.object({
+  kind: z.enum(['advantage', 'disadvantage', 'ability']),
+  name: localized,
+  /** Ранг (R1, R2…). */
+  rank: z.number().int().min(1).optional(),
+  text: localized,
+});
+
+export type Trait = z.infer<typeof traitSchema>;
+
 export const characterDataSchema = z.object({
   variant: z.enum(['fantasy', 'adventure']),
   /** Характеристики кодами: «3D+1». Экстранормальные, которых нет, считаются 0D. */
@@ -29,6 +42,11 @@ export const characterDataSchema = z.object({
   points: z.object({ cp: z.number().int().min(0), fp: z.number().int().min(0) }).default({ cp: 5, fp: 1 }),
   /** Кратко о персонаже: шаблон, профессия — для Мастера и листа. */
   concept: z.string().optional(),
+  /** Средства (Funds, код кубов) — для покупок в современных сеттингах (OpenD6: adventure p.113). */
+  funds: codeString.optional(),
+  /** Серебро — деньги в фэнтези-сеттингах. */
+  silver: z.number().int().min(0).optional(),
+  traits: z.array(traitSchema).default([]),
 });
 
 export type CharacterData = z.infer<typeof characterDataSchema>;

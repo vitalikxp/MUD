@@ -29,6 +29,12 @@ const L = {
   move: { ru: 'Движение', en: 'Move' },
   meters: { ru: 'м/раунд', en: 'm/round' },
   sd: { ru: 'Сила удара', en: 'Strength Damage' },
+  funds: { ru: 'Средства', en: 'Funds' },
+  silver: { ru: 'Серебро', en: 'Silver' },
+  traits: { ru: 'Особенности', en: 'Traits' },
+  advantage: { ru: 'Преимущество', en: 'Advantage' },
+  disadvantage: { ru: 'Недостаток', en: 'Disadvantage' },
+  ability: { ru: 'Способность', en: 'Ability' },
 };
 
 export function buildSheet(entity: Entity, lang: Lang): SheetView {
@@ -73,8 +79,13 @@ export function buildSheet(entity: Entity, lang: Lang): SheetView {
         rows: [
           { label: L.move[lang], value: `${data.move} ${L.meters[lang]}` },
           { label: L.sd[lang], value: formatDieCode(strengthDamage(attributeCode(data, 'physique'))) },
+          ...(data.funds ? [{ label: L.funds[lang], value: data.funds }] : []),
+          ...(data.silver !== undefined ? [{ label: L.silver[lang], value: String(data.silver) }] : []),
         ],
       },
+      ...(data.traits.length > 0
+        ? [{ heading: L.traits[lang], rows: data.traits.map((t) => ({ label: `${t.name[lang]}${t.rank ? ` R${t.rank}` : ''}`, value: L[t.kind][lang], hint: t.text[lang] })) }]
+        : []),
     ],
   };
 }
