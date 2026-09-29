@@ -24,7 +24,8 @@
   },
   "dependencies": {
     "@preact/signals": "^2.11.2",
-    "preact": "^10.29.8"
+    "preact": "^10.29.8",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@babel/core": "^7.29.7",
