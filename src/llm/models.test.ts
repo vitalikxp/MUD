@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { arrangeModels, listModels, modelTrainsOnData } from './models';
-import { CUSTOM, OPENCODE_GO } from './presets';
+import { CUSTOM, formatFor, OPENCODE_GO } from './presets';
 import type { ProviderConfig } from './types';
 
 const cfg: ProviderConfig = { format: 'chat', baseUrl: 'https://opencode.ai/zen/go/v1', apiKey: 'SECRET', sessionId: 's1' };
@@ -47,11 +47,11 @@ describe('arrangeModels: порядок окна выбора', () => {
   it('рекомендуемые (в порядке реестра) → с оговорками → непроверенные по алфавиту → неработающие', () => {
     const order = arrangeModels(OPENCODE_GO, available).map((m) => `${m.level}:${m.id}`);
     // проверенные, которых нет в списке провайдера, тоже показываются (после проверенных из списка нет смысла скрывать их)
-    expect(order.slice(0, 4)).toEqual(['good:gpt-5.6-luna', 'good:glm-5.3', 'good:deepseek-v4-flash', 'good:mimo-v2.6-flash']);
+    expect(order.slice(0, 4)).toEqual(['good:deepseek-v4-flash', 'good:deepseek-flash', 'good:deepseek-v4-pro', 'good:mimo-v2.5-pro']);
     const caveats = order.filter((x) => x.startsWith('caveats:'));
     expect(caveats[0]).toBe('caveats:deepseek-v4.1-flash');
-    expect(order.filter((x) => x.startsWith('unchecked:'))).toEqual(['unchecked:alpha-model', 'unchecked:minimax-m2.7', 'unchecked:qwen3.8-max', 'unchecked:zeta-model']);
-    expect(order.at(-1)).toBe('bad:longcat-2.0');
+    expect(order.filter((x) => x.startsWith('unchecked:'))).toEqual(['unchecked:alpha-model', 'unchecked:zeta-model']); // остальные модели из списка проверены
+    expect(order.at(-1)).toBe('bad:minimax-m2.7');
   });
 
   it('у проверенных есть заметка, у остальных нет; формат и «не поддержан» по таблице провайдера', () => {
@@ -67,7 +67,7 @@ describe('arrangeModels: порядок окна выбора', () => {
     const offline = arrangeModels(OPENCODE_GO, null);
     expect(offline).toHaveLength(OPENCODE_GO.verified!.length);
     expect(offline.slice(0, 4).map((m) => m.level)).toEqual(['good', 'good', 'good', 'good']);
-    expect(offline.at(-1)!.id).toBe('longcat-2.0');
+    expect(offline.at(-1)!.id).toBe('minimax-m2.7');
     expect(offline.every((m) => !m.offline)).toBe(true);
     const partial = arrangeModels(OPENCODE_GO, ['alpha-model']);
     expect(partial.find((m) => m.id === 'glm-5.3')).toMatchObject({ offline: true });
@@ -79,10 +79,15 @@ describe('arrangeModels: порядок окна выбора', () => {
     expect(arrangeModels(CUSTOM, null)).toEqual([]);
   });
 
-  it('реестр не содержит повторов и включает модель по умолчанию', () => {
-    const ids = OPENCODE_GO.verified!.map((v) => v.id);
+  it('реестр не содержит повторов; модель по умолчанию — первая рекомендуемая; неподдерживаемые форматы не рекомендуются', () => {
+    const verified = OPENCODE_GO.verified!;
+    const ids = verified.map((v) => v.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids).toContain(OPENCODE_GO.defaultModel.model);
+    expect(verified[0]).toMatchObject({ id: OPENCODE_GO.defaultModel.model, level: 'good' });
+    for (const v of verified.filter((x) => formatFor(OPENCODE_GO, x.id) === 'messages')) expect(v.level, v.id).toBe('bad');
+    // рекомендуемые идут раньше моделей с оговорками, неработающие — в конце (порядок реестра — порядок окна выбора)
+    const levels = verified.map((v) => v.level);
+    expect(levels).toEqual(levels.toSorted((a, b) => ['good', 'caveats', 'bad'].indexOf(a) - ['good', 'caveats', 'bad'].indexOf(b)));
   });
 });
 

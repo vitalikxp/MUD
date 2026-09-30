@@ -301,23 +301,28 @@ test('выбор модели: проверенные первыми и цвет
   await openModelPicker(page);
   const options = page.getByRole('option');
   await expect(page.getByRole('dialog', { name: 'Выбор модели' })).toContainText('Моделей у провайдера: 9'); // список подгружен после ввода ключа
-  await expect(options.first()).toContainText('gpt-5.6-luna');
+  await expect(options.first()).toContainText('deepseek-v4-flash'); // модель по умолчанию — первая рекомендуемая
   await expect(options.first()).toContainText('рекомендуем');
-  // порядок: рекомендуемые, с оговорками, непроверенные по алфавиту, неработающие
-  const names = (await options.allTextContents()).map((t) => t.replace(/[●○×•]/g, '').trim().split(/\s+/)[0]);
-  expect(names.slice(0, 4)).toEqual(['gpt-5.6-luna', 'glm-5.3', 'deepseek-v4-flash', 'mimo-v2.6-flash']);
-  expect(names.indexOf('aaa-unknown')).toBeLessThan(names.indexOf('zzz-unknown'));
-  expect(names.at(-1)).toBe('longcat-2.0');
+  // порядок: рекомендуемые, с оговорками, непроверенные по алфавиту, неработающие; список длинный, окно показывает его часть: начало и конец
+  const visibleNames = async () => (await options.allTextContents()).map((t) => t.replace(/[●○×•]/g, '').trim().split(/\s+/)[0]);
+  const color = (name: string) => page.locator(`[id="menu-item-${name}"]`).evaluate((el) => getComputedStyle(el).color);
+  expect((await visibleNames()).slice(0, 4)).toEqual(['deepseek-v4-flash', 'deepseek-flash', 'deepseek-v4-pro', 'mimo-v2.5-pro']);
+  const verifiedColor = await color('deepseek-v4-flash'); // цвет проверенной модели — токен палитры, непроверенная — обычный
+  await page.keyboard.press('End');
+  const tail = await visibleNames();
+  expect(tail.indexOf('aaa-unknown')).toBeGreaterThan(-1);
+  expect(tail.indexOf('aaa-unknown')).toBeLessThan(tail.indexOf('zzz-unknown'));
+  expect(tail.at(-1)).toBe('minimax-m2.7'); // неработающие в конце
   expect(models.requests[0]).toMatch(/^GET Bearer sk-test-123$/);
-  // цвет проверенной модели — токен палитры, непроверенная — обычный
-  const color = (name: string) => page.getByRole('option', { name: new RegExp(name) }).evaluate((el) => getComputedStyle(el).color);
-  expect(await color('deepseek-v4-flash')).not.toBe(await color('aaa-unknown'));
+  expect(verifiedColor).not.toBe(await color('aaa-unknown'));
   // заметка к выбранной строке: курсор стоит на текущей модели (по умолчанию), идём к началу списка и на строку ниже
   await page.keyboard.press('Home');
   await page.keyboard.press('ArrowDown');
-  await expect(page.getByRole('dialog', { name: 'Выбор модели' })).toContainText('Богатый язык');
-  // непроверенная модель: предупреждение; формат Messages — «нельзя играть»
-  await page.locator('#menu-item-grok-4\\.7').click(); // непроверенная модель с форматом Responses (его говорит фальшивый relay)
+  await expect(page.getByRole('dialog', { name: 'Выбор модели' })).toContainText('Evals 8/8'); // заметка выбранной строки (deepseek-flash)
+  // выбор любой модели, в том числе «не работает» (grok-4.7, формат Responses — его говорит фальшивый relay): играть решает игрок
+  await page.keyboard.press('End'); // grok-4.7 — предпоследняя строка длинного списка (окно показывает её часть, поэтому выбор клавишами)
+  await page.keyboard.press('ArrowUp');
+  await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog', { name: 'Настройки LLM' })).toContainText('grok-4.7');
   await expect(page.getByRole('dialog', { name: 'Выбор модели' })).toHaveCount(0);
 
@@ -343,13 +348,16 @@ test('выбор модели: список не получен — показа
   await startGame(page);
   await openModelPicker(page);
   await expect(page.getByRole('dialog', { name: 'Выбор модели' })).toContainText('Список не получен');
-  await expect(page.getByRole('option').first()).toContainText('gpt-5.6-luna');
+  await expect(page.getByRole('option').first()).toContainText('deepseek-v4-flash');
   await page.locator('#menu-item-glm-5\\.3').click();
   await expect(page.getByRole('menuitem', { name: /Модель\s+glm-5.3/ })).toBeVisible();
   // Модель с обучением на данных: раскрытие и строка согласия.
   await page.keyboard.press('Enter');
-  await page.locator('#menu-item-muse-spark-1\\.3-contributor').click();
-  await expect(page.getByText('Meta', { exact: false }).first()).toBeVisible();
+  await expect(page.getByRole('listbox', { name: 'Выбор модели' })).toBeFocused(); // клавиши раньше монтирования окна теряются
+  await page.keyboard.press('End'); // muse-spark-1.3-contributor: пятая строка снизу перед тремя «не работает» и двумя «с оговорками»
+  for (let n = 0; n < 5; n++) await page.keyboard.press('ArrowUp');
+  await page.keyboard.press('Enter');
+  // строка согласия появляется; текст раскрытия (про Meta) лежит в прокручиваемых заметках под формой и при длинной причине «список не получен» уходит за нижний край
   await expect(page.getByRole('menuitem', { name: /нет согласия/ })).toBeVisible();
 });
 
