@@ -20,7 +20,9 @@
     "test:e2e": "playwright test",
     "docs:check": "python3 scripts/check_docs.py",
     "relay:dev": "pnpm dlx wrangler@4 dev --config relay/wrangler.toml",
-    "relay:deploy": "pnpm dlx wrangler@4 deploy --config relay/wrangler.toml"
+    "relay:deploy": "pnpm dlx wrangler@4 deploy --config relay/wrangler.toml",
+    "eval:dm": "vitest run --config evals/vitest.config.ts",
+    "eval:rescore": "vitest run --config evals/vitest.config.ts evals/rescore.eval.ts"
   },
   "dependencies": {
     "@preact/signals": "^2.11.2",

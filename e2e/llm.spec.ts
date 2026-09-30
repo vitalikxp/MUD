@@ -1,10 +1,9 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
+import { CORS, replyFor } from './wire';
 
 const RELAY = 'https://relay.test';
-const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'GET, POST, OPTIONS' };
-const sse = (events: { event: string; data: object }[]): string => events.map((e) => `event: ${e.event}\ndata: ${JSON.stringify({ type: e.event, ...e.data })}\n\n`).join('');
 
-/** Фальшивый relay в формате Responses: с tools — вызов ping, без tools — потоковый текст. */
+/** Фальшивый relay (Chat Completions или Responses — по пути запроса): с tools — вызов ping, без tools — потоковый текст. */
 async function mockRelay(page: Page, seen: { headers: Record<string, string>[]; bodies: Record<string, unknown>[] }, delayMs = 0): Promise<void> {
   await page.route(`${RELAY}/**`, async (route: Route) => {
     const req = route.request();
@@ -14,16 +13,7 @@ async function mockRelay(page: Page, seen: { headers: Record<string, string>[]; 
     const body = req.postDataJSON() as Record<string, unknown>;
     seen.bodies.push(body);
     if (delayMs) await new Promise((r) => setTimeout(r, delayMs));
-    const reply = body['tools']
-      ? sse([
-          { event: 'response.output_item.done', data: { item: { type: 'function_call', call_id: 'c1', name: 'ping', arguments: '{"word":"pong"}' } } },
-          { event: 'response.completed', data: { response: { usage: { input_tokens: 5, output_tokens: 5 } } } },
-        ])
-      : sse([
-          { event: 'response.output_text.delta', data: { delta: 'Сырой воздух ' } },
-          { event: 'response.output_text.delta', data: { delta: 'пахнет воском.' } },
-          { event: 'response.completed', data: { response: { usage: { input_tokens: 5, output_tokens: 5 } } } },
-        ]);
+    const reply = replyFor(new URL(req.url()).pathname, body['tools'] ? { calls: [{ name: 'ping', arguments: '{"word":"pong"}' }] } : { deltas: ['Сырой воздух ', 'пахнет воском.'] });
     await route.fulfill({ status: 200, headers: { ...CORS, 'content-type': 'text/event-stream' }, body: reply });
   });
 }
@@ -75,8 +65,9 @@ test('настройки: проверка проходит, запрос ухо
   await expect(log).toContainText('Готово: все проверки пройдены.');
   expect(seen.headers[0]).toMatchObject({ authorization: 'Bearer sk-test-123', 'x-upstream': 'https://opencode.ai/zen/go/v1' });
   expect(seen.headers[0]!['x-opencode-session']).toMatch(/^[0-9a-f-]{36}$/);
-  expect(seen.bodies[0]).toMatchObject({ model: 'gpt-5.6-luna', stream: true, reasoning: { effort: 'medium' } });
-  expect(seen.bodies[0]!['max_output_tokens']).toBeGreaterThanOrEqual(1500);
+  expect(seen.bodies[0]).toMatchObject({ model: 'deepseek-v4-flash', stream: true }); // модель по умолчанию, Chat Completions
+  expect(seen.bodies[0]!['max_tokens']).toBeGreaterThanOrEqual(1500);
+  expect(seen.bodies[0]!['reasoning_effort']).toBeUndefined();
 });
 
 test('чат: реплика игрока → потоковый ответ Мастера в хронике', async ({ page }) => {
@@ -231,13 +222,14 @@ test('строка состояния: готов + токены и время �
   await configure(page);
   await startGame(page);
   const bar = page.locator('.tui-statusbar');
-  await expect(bar).toContainText('● готов · gpt-5.6-luna');
+  await expect(bar).toContainText('● готов · deepseek-v4-flash');
   const input = page.getByRole('textbox');
   await input.fill('Вхожу в склеп');
   await input.press('Enter');
   await expect(bar).toContainText('Мастер отвечает…');
   await expect(bar).toContainText('↑5 ↓5 ток.'); // usage из мока
-  await expect(bar).toContainText('с'); // время ответа
+  // время ответа: на телефоне длинное имя модели обрезает строку состояния (layoutStatus режет левую часть с «…»)
+  if (test.info().project.name === 'desktop') await expect(bar).toContainText('с');
   await expect(bar).not.toContainText('Мастер отвечает…');
 
   await page.unroute(`${RELAY}/**`);
@@ -320,7 +312,8 @@ test('выбор модели: проверенные первыми и цвет
   // цвет проверенной модели — токен палитры, непроверенная — обычный
   const color = (name: string) => page.getByRole('option', { name: new RegExp(name) }).evaluate((el) => getComputedStyle(el).color);
   expect(await color('deepseek-v4-flash')).not.toBe(await color('aaa-unknown'));
-  // заметка к выбранной строке
+  // заметка к выбранной строке: курсор стоит на текущей модели (по умолчанию), идём к началу списка и на строку ниже
+  await page.keyboard.press('Home');
   await page.keyboard.press('ArrowDown');
   await expect(page.getByRole('dialog', { name: 'Выбор модели' })).toContainText('Богатый язык');
   // непроверенная модель: предупреждение; формат Messages — «нельзя играть»

@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => {
       sourcemap: true,
     },
     test: {
-      include: ['src/**/*.test.{ts,tsx}', 'relay/**/*.test.ts', 'tools/**/*.test.ts'],
+      include: ['src/**/*.test.{ts,tsx}', 'relay/**/*.test.ts', 'tools/**/*.test.ts', 'evals/**/*.test.ts'],
       environment: 'node',
     },
   };

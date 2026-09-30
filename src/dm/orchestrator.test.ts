@@ -151,6 +151,34 @@ describe('runTurn: завершение хода', () => {
     expect(draft.events.at(-1)).toEqual({ t: 'turn.ended', suggestions: [] });
   });
 
+  it('псевдовызов end_turn в тексте вырезается; при настоящем вызове варианты берутся у него', async () => {
+    const { draft } = heroDraft(scriptedRng([]));
+    const { llm } = scriptedLlm([{ text: 'Ночь тиха. Что делает Ирма?\n\n(end_turn tool call required)', calls: [endTurn] }]);
+    await runTurn(draft, player, opend6, deps(llm));
+    expect(draft.events[1]).toEqual({ t: 'narration', text: 'Ночь тиха. Что делает Ирма?', speaker: 'dm' });
+    expect(draft.events.at(-1)).toEqual({ t: 'turn.ended', suggestions: ['Войти', 'Прислушаться'] });
+  });
+
+  it('модель написала end_turn текстом, но не вызвала: мусор вырезан, варианты из него попадают в ход', async () => {
+    const { draft } = heroDraft(scriptedRng([]));
+    const leaked = 'Ночь тиха. Что делает Ирма?\n\nend_turn(["Бежать", "Драться"])';
+    const { llm } = scriptedLlm([{ text: leaked }, { text: leaked }]);
+    const report = await runTurn(draft, player, opend6, deps(llm));
+    expect(report.autoClosed).toBe(true);
+    expect(draft.events.filter((e) => e.t === 'narration').map((e) => (e as { text: string }).text)).toEqual(['Ночь тиха. Что делает Ирма?', 'Ночь тиха. Что делает Ирма?']);
+    expect(draft.events.at(-1)).toEqual({ t: 'turn.ended', suggestions: ['Бежать', 'Драться'] });
+  });
+
+  it('в историю диалога модели идёт очищенный текст: мусор не закрепляется как образец', async () => {
+    const { draft } = heroDraft(scriptedRng([1]));
+    const { llm, requests } = scriptedLlm([
+      { text: 'Вы достаёте отмычки.\n(end_turn)', calls: [{ name: 'roll', args: { expr: '1d6', reason: 'проба' } }] },
+      { calls: [endTurn] },
+    ]);
+    await runTurn(draft, player, opend6, deps(llm));
+    expect(requests[1]!.messages.find((m) => m.role === 'assistant')).toMatchObject({ content: 'Вы достаёте отмычки.' });
+  });
+
   it('вызовы после end_turn игнорируются, но отвечаем на каждый', async () => {
     const { draft } = heroDraft(scriptedRng([1]));
     const { llm } = scriptedLlm([{ calls: [endTurn, { name: 'roll', args: { expr: '1d6', reason: 'поздно' } }] }]);

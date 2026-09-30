@@ -6,6 +6,7 @@ import type { Message, Usage } from '../llm/types';
 import { LlmError } from '../llm/types';
 import type { RulesModule } from '../rules/api';
 import { buildMessages } from './context';
+import { cleanNarration } from './narration';
 import { REMIND_END_TURN, SYSTEM_PROMPT_VERSION } from './prompts/system';
 import { buildTools, toolDefs, type ToolEnv } from './tools';
 import { TurnError, type ToolTrace, type TurnDeps, type TurnInput, type TurnReport } from './types';
@@ -83,9 +84,10 @@ export async function runTurn(draft: Draft, input: TurnInput, rules: RulesModule
     );
     usage = addUsage(usage, completion.usage);
 
-    const text = completion.text.trim();
+    // Служебный мусор (псевдовызов end_turn, <think>) игроку не показывается и в историю модели не попадает.
+    const { text, suggestions: leakedSuggestions } = cleanNarration(completion.text);
     if (text) draft.emit({ t: 'narration', text, speaker: 'dm' });
-    messages.push({ role: 'assistant', content: completion.text, ...(completion.toolCalls.length > 0 ? { toolCalls: completion.toolCalls } : {}) });
+    messages.push({ role: 'assistant', content: text, ...(completion.toolCalls.length > 0 ? { toolCalls: completion.toolCalls } : {}) });
 
     if (completion.toolCalls.length === 0) {
       // Модель закончила текстом без end_turn: один раз напоминаем, потом закрываем ход сами (повествование уже записано).
@@ -94,7 +96,7 @@ export async function runTurn(draft: Draft, input: TurnInput, rules: RulesModule
         messages.push({ role: 'user', content: REMIND_END_TURN });
         continue;
       }
-      draft.emit({ t: 'turn.ended', suggestions: [] });
+      draft.emit({ t: 'turn.ended', suggestions: leakedSuggestions }); // варианты, которые модель написала текстом вместо вызова
       autoClosed = true;
       break;
     }

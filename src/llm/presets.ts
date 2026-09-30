@@ -7,7 +7,7 @@ export interface RoleModel {
   maxOutputTokens: number;
 }
 
-/** Итог нашей проверки модели в роли Мастера (`DM_LIVE=1 pnpm test src/dm/live`, docs/04-ai-dm.md). */
+/** Итог нашей проверки модели в роли Мастера (`pnpm eval:dm`, docs/04-ai-dm.md#evals). */
 export type VerifiedLevel = 'good' | 'caveats' | 'bad';
 
 export interface VerifiedModel {
@@ -42,9 +42,7 @@ const GO_FORMATS: Record<string, ApiFormat> = {
   'gpt-5.6-luna': 'responses',
   'grok-4.7': 'responses',
   'grok-4.6': 'responses',
-  'qwen3.8-max': 'messages',
-  'qwen3.8-flash': 'chat', // по таблице провайдера messages, но в игре проверена через chat (2026-09-29)
-  'qwen3.7-plus': 'messages',
+  // qwen3.8-max, qwen3.8-flash и qwen3.7-plus провайдер числит за messages, но они играют через chat (evals 2026-09-30): формат по умолчанию.
   'minimax-m3': 'messages',
   'minimax-m2.7': 'messages',
 };
@@ -57,7 +55,7 @@ export const OPENCODE_GO: ProviderPreset = {
   formatByModel: GO_FORMATS,
   needsRelay: true,
   notice: 'opencode-terms',
-  defaultModel: { model: 'gpt-5.6-luna', effort: 'medium', maxOutputTokens: 4000 },
+  defaultModel: { model: 'deepseek-v4-flash', maxOutputTokens: 4000 },
   verified: [
     { id: 'gpt-5.6-luna', level: 'good', checked: '2026-09-29', note: { ru: 'Связная история, честно спрашивает про очки, аккуратные инструменты.', en: 'Coherent story, asks about points, clean tool calls.' } },
     { id: 'glm-5.3', level: 'good', checked: '2026-09-29', note: { ru: 'Богатый язык, следует правилам хода.', en: 'Rich prose, follows the turn rules.' } },

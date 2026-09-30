@@ -42,7 +42,7 @@ describe('listModels', () => {
 });
 
 describe('arrangeModels: порядок окна выбора', () => {
-  const available = ['zeta-model', 'longcat-2.0', 'alpha-model', 'mimo-v2.5', 'glm-5.3', 'gpt-5.6-luna', 'qwen3.8-max', 'deepseek-v4-flash', 'mimo-v2.6-flash'];
+  const available = ['zeta-model', 'longcat-2.0', 'alpha-model', 'mimo-v2.5', 'glm-5.3', 'gpt-5.6-luna', 'qwen3.8-max', 'deepseek-v4-flash', 'mimo-v2.6-flash', 'minimax-m2.7'];
 
   it('рекомендуемые (в порядке реестра) → с оговорками → непроверенные по алфавиту → неработающие', () => {
     const order = arrangeModels(OPENCODE_GO, available).map((m) => `${m.level}:${m.id}`);
@@ -50,7 +50,7 @@ describe('arrangeModels: порядок окна выбора', () => {
     expect(order.slice(0, 4)).toEqual(['good:gpt-5.6-luna', 'good:glm-5.3', 'good:deepseek-v4-flash', 'good:mimo-v2.6-flash']);
     const caveats = order.filter((x) => x.startsWith('caveats:'));
     expect(caveats[0]).toBe('caveats:deepseek-v4.1-flash');
-    expect(order.filter((x) => x.startsWith('unchecked:'))).toEqual(['unchecked:alpha-model', 'unchecked:qwen3.8-max', 'unchecked:zeta-model']);
+    expect(order.filter((x) => x.startsWith('unchecked:'))).toEqual(['unchecked:alpha-model', 'unchecked:minimax-m2.7', 'unchecked:qwen3.8-max', 'unchecked:zeta-model']);
     expect(order.at(-1)).toBe('bad:longcat-2.0');
   });
 
@@ -59,8 +59,8 @@ describe('arrangeModels: порядок окна выбора', () => {
     expect(list.find((m) => m.id === 'gpt-5.6-luna')).toMatchObject({ format: 'responses', unsupported: false, offline: false, note: { ru: expect.any(String), en: expect.any(String) } });
     expect(list.find((m) => m.id === 'alpha-model')).toMatchObject({ level: 'unchecked', format: 'chat' });
     expect(list.find((m) => m.id === 'alpha-model')).not.toHaveProperty('note');
-    expect(list.find((m) => m.id === 'qwen3.8-max')).toMatchObject({ format: 'messages', unsupported: true });
-    expect(list.find((m) => m.id === 'qwen3.8-flash')).toMatchObject({ format: 'chat', unsupported: false }); // проверена через chat
+    expect(list.find((m) => m.id === 'minimax-m2.7')).toMatchObject({ format: 'messages', unsupported: true });
+    expect(list.find((m) => m.id === 'qwen3.8-max')).toMatchObject({ format: 'chat', unsupported: false }); // играет через chat (evals)
   });
 
   it('список провайдера не получен (null) — только проверенные; модель вне списка помечена offline', () => {

@@ -34,7 +34,7 @@
 - Хостинг: GitHub Pages через GitHub Actions.
 - Внешние сервисы владельца: relay — Cloudflare Worker `mud-relay` (`pnpm relay:deploy`, нужен `wrangler login`; сертификат нового поддомена выпускается ~1–2 мин); Pages деплоит из `master` (окружение `github-pages` должно разрешать эту ветку).
 
-Команды (`test:rules` и `eval:dm` появятся в следующих вехах, см. [дорожную карту](docs/10-roadmap.md)):
+Команды (`test:rules` появится в следующих вехах, см. [дорожную карту](docs/10-roadmap.md)):
 
 | Команда | Назначение |
 |---|---|
@@ -46,7 +46,8 @@
 | `pnpm test:watch` | Vitest в режиме наблюдения |
 | `pnpm test:rules` | тесты правил безопасности Firebase (эмулятор) |
 | `pnpm test:e2e` | Playwright по собранному сайту, проекты `desktop` (1280) и `mobile` (390); позже — mock-LLM и эмулятор Firebase |
-| `pnpm eval:dm` | сценарные проверки ИИ-мастера на реальной модели (ключ — см. ниже) |
+| `pnpm eval:dm` | сценарные проверки ИИ-мастера на реальной модели: `DM_MODELS=a,b` (или `DM_MODEL`), `DM_SCENARIOS=id,id`, `DM_EFFORT`, `DM_FORMAT`; отчёт в `evals/reports/` ([docs/04](docs/04-ai-dm.md#evals); ключ — см. ниже) |
+| `pnpm eval:rescore` | пересчёт проверок evals по сохранённым отчётам без запросов к моделям: `DM_RESCORE=evals/reports/<папка>`, `DM_DROP=id,id` |
 | `pnpm lint` / `pnpm typecheck` | oxlint и проверка типов |
 | `pnpm docs:check` | то же, что `python3 scripts/check_docs.py` |
 | `pnpm relay:dev` / `pnpm relay:deploy` | локальный запуск и деплой relay через `wrangler` ([relay/README.md](relay/README.md)); деплой требует `wrangler login` владельца |
@@ -91,7 +92,7 @@
 13. **Обучение на данных — только с согласием.** Если модель Мастера отдаёт данные на обучение (`*-contributor`), это раскрывается в UI,
     а участник кооп-кампании подтверждает согласие (`modelConsent`) до отправки заявок. См. FR-LLM-9, [ADR-0017](docs/adr/0017-default-model-muse-spark.md).
 
-## 5. Структура репозитория (целевая; сейчас в `src/` есть `app/`, `dm/`, `engine/`, `i18n/`, `llm/`, `net/`, `rules/`, `theme/`, `ui/`, `brand.ts`; ещё нет `firebase/`, `evals/`, `src/content/`)
+## 5. Структура репозитория (целевая; сейчас в `src/` есть `app/`, `dm/`, `engine/`, `i18n/`, `llm/`, `net/`, `rules/`, `theme/`, `ui/`, `brand.ts`; ещё нет `firebase/`, `src/content/`)
 
 ```
 src/
@@ -112,7 +113,7 @@ public/         статика: шрифты (public/fonts/), CNAME
 relay/          Cloudflare Worker (src/index.ts, тесты, wrangler.toml, README)
 firebase/       firestore.rules, database.rules.json, firebase.json
 e2e/            Playwright
-evals/          сценарии проверки ИИ-мастера
+evals/          evals ИИ-мастера на реальной модели: scenarios.ts, checks.ts (+тесты), runner.ts, report.ts, dm.eval.ts, rescore.eval.ts; отчёты в evals/reports/ (не в git)
 docs/           документация, ADR
 ref/OpenD6/     книги OpenD6 (PDF, OGL) + постраничный текстовый индекс (§8)
 scripts/ref/    extract.py, search.py — индекс и поиск по книгам
@@ -137,6 +138,7 @@ tools/          env-default.ts — загрузчик .env.default для vite.c
 - У заменённого ADR меняется только строка статуса (`Accepted. … заменено в [NNNN](NNNN-name.md)`) плюс строка в `docs/adr/README.md`.
 - Вопросы к владельцу: `docs/README.md` → «Открытые вопросы» (следующий номер Q10+, веха-срок). После ответа — перенести в «Принятые решения».
 - Скриптовые замены в `docs/`: проверяй, что заменяемый фрагмент встречается ровно один раз. Символы рамок (`╔═[ … ]`) есть и в тексте, и в ASCII-макетах, так что неуникальная замена может удалить целый раздел.
+  При замене «от заголовка A до заголовка B» проверь, что B стоит после A: иначе срез склеится и продублирует половину файла (после правки сверь `grep -n '^##' <файл>`).
   Если скрипт упал на середине, предыдущие замены уже записаны: не перезапускай его целиком, допиши оставшиеся.
 - ASCII-макеты: все строки одной рамки одинаковой длины в символах (кириллица занимает одну ячейку).
 - После правок `docs/` или любых `*.md` запусти `python3 scripts/check_docs.py` — он проверяет ссылки, якоря и ширину рамок.
@@ -146,8 +148,9 @@ tools/          env-default.ts — загрузчик .env.default для vite.c
 
 1. Прочитай раздел `docs/`, относящийся к задаче, и связанные ADR.
 2. Для engine и rules сначала пиши тест (Vitest), потом код.
-3. Промпты Мастера лежат в `src/dm/prompts/` как версионируемые файлы. Изменил промпт — подними `SYSTEM_PROMPT_VERSION` и прогони `pnpm eval:dm` (пока его нет — `DM_LIVE=1 pnpm test src/dm/live`, другая модель — `DM_MODEL=<id>`, `DM_EFFORT`, `DM_FORMAT`), если есть ключ.
+3. Промпты Мастера лежат в `src/dm/prompts/` как версионируемые файлы. Изменил промпт — подними `SYSTEM_PROMPT_VERSION` и прогони `pnpm eval:dm` (другая модель — `DM_MODEL=<id>`), если есть ключ.
    Если ключа нет, так и напиши в отчёте.
+   Evals: отчёт пишется в конце процесса, а фоновая команда живёт не дольше часа — прогоны по многим моделям дроби на отдельные запуски (`DM_MODEL=<id>`, до 5 параллельных потоков). Одинаковый провал у многих моделей — сначала подозревай проверку или сценарий (`evals/checks.ts`, `evals/scenarios.ts`): исправь и пересчитай сохранённые отчёты `pnpm eval:rescore`, не гоняя модели заново.
 4. Перед завершением: `pnpm typecheck && pnpm lint && pnpm test && pnpm docs:check`; для UI — ещё `pnpm test:e2e`.
    Для UI-изменений нужна визуальная проверка в браузере на ширине 1280 и 390 px.
    Порядок скриншотов — в [docs/dev-notes.md](docs/dev-notes.md).

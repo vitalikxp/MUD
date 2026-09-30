@@ -29,6 +29,7 @@
     "src",
     "relay/src",
     "e2e",
+    "evals",
     "vite.config.ts",
     "playwright.config.ts",
     "tools"

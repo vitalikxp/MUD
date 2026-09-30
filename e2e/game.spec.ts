@@ -1,8 +1,7 @@
 import { expect, test, type Page, type Route } from '@playwright/test';
+import { CORS, replyFor } from './wire';
 
 const RELAY = 'https://relay.test';
-const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'GET, POST, OPTIONS' };
-const sse = (events: { event: string; data: object }[]): string => events.map((e) => `event: ${e.event}\ndata: ${JSON.stringify({ type: e.event, ...e.data })}\n\n`).join('');
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript((relay) => {
@@ -11,7 +10,7 @@ test.beforeEach(async ({ page }) => {
   }, RELAY);
 });
 
-/** Фальшивый Мастер (формат Responses): пишет повествование и закрывает ход через end_turn с вариантами. */
+/** Фальшивый Мастер (формат ответа — по пути запроса): пишет повествование и закрывает ход через end_turn с вариантами. */
 async function mockMaster(page: Page, bodies: Record<string, unknown>[], firstDelayMs = 0, extraCalls: { name: string; arguments: string }[] = [], narration = 'Дождь стучит по крыше таверны «Последний Порог».', failFirst = false): Promise<void> {
   await page.route(`${RELAY}/**`, async (route: Route) => {
     const req = route.request();
@@ -20,13 +19,10 @@ async function mockMaster(page: Page, bodies: Record<string, unknown>[], firstDe
     bodies.push(req.postDataJSON() as Record<string, unknown>);
     if (failFirst && bodies.length === 1) return route.fulfill({ status: 401, headers: CORS, body: '{"error":"bad key"}' }); // ход не удаётся
     if (bodies.length === 1 && firstDelayMs) await new Promise((r) => setTimeout(r, firstDelayMs));
-    const body = sse([
-      { event: 'response.output_text.delta', data: { delta: narration.slice(0, 12) } },
-      { event: 'response.output_text.delta', data: { delta: narration.slice(12) } },
-      ...extraCalls.map((c, i) => ({ event: 'response.output_item.done', data: { item: { type: 'function_call', call_id: `x${i}`, name: c.name, arguments: c.arguments } } })),
-      { event: 'response.output_item.done', data: { item: { type: 'function_call', call_id: 'c1', name: 'end_turn', arguments: '{"suggestions":["Осмотреть зал","Заказать эль"]}' } } },
-      { event: 'response.completed', data: { response: { usage: { input_tokens: 50, output_tokens: 20 } } } },
-    ]);
+    const body = replyFor(new URL(req.url()).pathname, {
+      deltas: [narration.slice(0, 12), narration.slice(12)],
+      calls: [...extraCalls, { name: 'end_turn', arguments: '{"suggestions":["Осмотреть зал","Заказать эль"]}' }],
+    });
     await route.fulfill({ status: 200, headers: { ...CORS, 'content-type': 'text/event-stream' }, body });
   });
 }

@@ -2,6 +2,7 @@
 import { signal } from '@preact/signals';
 import { BRAND_NAME } from '../brand';
 import { locale, t, type Key } from '../i18n';
+import { cleanNarration } from '../dm/narration';
 import { TurnError } from '../dm/types';
 import { LlmError } from '../llm/types';
 import { getPalette, type Token } from '../theme/palettes';
@@ -214,7 +215,8 @@ export async function playTurn(action: PlayerAction): Promise<void> {
       onProgress: (p) => {
         if (p.type !== 'text') return;
         streamed += p.delta;
-        replace(streamed);
+        const shown = cleanNarration(streamed).text; // мусор вроде «(end_turn)» не мелькает и во время стриминга
+        if (shown) replace(shown);
       },
     });
     lastUsage.value = { inputTokens: report.usage.inputTokens, outputTokens: report.usage.outputTokens, ms: Date.now() - started };

@@ -101,7 +101,7 @@ test('окно состояния (F7): сетка, палитра, модель
 test('строка состояния: готов, модель; помещается в одну строку сетки', async ({ page }) => {
   await page.goto('/dev/chat');
   const bar = page.locator('.tui-statusbar');
-  await expect(bar).toContainText('● готов · gpt-5.6-luna');
+  await expect(bar).toContainText('● готов · deepseek-v4-flash');
   const overflow = await bar.evaluate((el) => el.querySelector('.tui-row')!.scrollWidth > el.clientWidth + 0.5);
   expect(overflow).toBe(false);
   expect((await bar.boundingBox())!.height).toBeCloseTo(16, 0);

@@ -48,5 +48,6 @@
 | [0018](0018-reasoning-effort-and-go-headers.md) | Уровень рассуждений по ролям, обязательные заголовки OpenCode Go, `enum` в схемах инструментов | Accepted |
 | [0019](0019-typescript7-oxlint-font-source.md) | TypeScript 7 + oxlint вместо ESLint; источник шрифта PxPlus, маркер `♦` | Accepted |
 | [0020](0020-single-font.md) | Один шрифт (PxPlus), без переключения | Accepted |
-| [0021](0021-no-model-presets.md) | Без пресетов моделей: одна модель по умолчанию и выбор из списка | Accepted |
+| [0021](0021-no-model-presets.md) | Без пресетов моделей: одна модель по умолчанию и выбор из списка | Accepted, модель по умолчанию заменена 0023 |
+| [0023](0023-default-model-deepseek-v4-flash.md) | Модель по умолчанию — deepseek-v4-flash | Accepted |
 | [0022](0022-no-anthropic-messages.md) | Два формата API: Chat Completions и Responses, без Anthropic Messages | Accepted |

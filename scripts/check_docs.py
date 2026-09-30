@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SKIP = ("ref/OpenD6/text/", "node_modules/", "dist/", ".git/")
+SKIP = ("ref/OpenD6/text/", "node_modules/", "dist/", ".git/", "evals/reports/")  # отчёты evals: сгенерированные, в git не хранятся
 FENCE = re.compile(r"^```.*?^```", re.S | re.M)
 LINK = re.compile(r"(?<!!)\[[^\]]*\]\(([^)\s]+)\)")
 FRAME_START = set("╔║╟╠╚┌│├└")
