@@ -158,6 +158,8 @@ export const ru = {
   },
   settings: {
     lang: 'Язык',
+    style: 'Стиль Мастера',
+    length: 'Длина ответа',
     start: 'Начать игру',
     firstRun: 'Первый запуск: выберите язык, задайте ключ API и модель, затем «Начать игру».',
     provider: 'Провайдер',
@@ -202,6 +204,11 @@ export const ru = {
   providers: {
     'opencode-go': 'OpenCode Go',
     custom: 'Свой API',
+  },
+  lengths: {
+    short: 'краткий (1 абзац)',
+    normal: 'обычный (1–3 абзаца)',
+    long: 'подробный (3–5)',
   },
   relayModes: {
     default: 'встроенный',

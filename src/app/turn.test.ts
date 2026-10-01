@@ -37,7 +37,7 @@ describe('takeTurn: ход Мастера с коммитом в журнал', 
     const s = session.value!;
     expect(s.meta.headSeq).toBe(2); // 1 — герой, 2 — ход
     const commit = s.commits.at(-1)!;
-    expect(commit).toMatchObject({ kind: 'turn', promptVersion: 'dm-system@3' });
+    expect(commit).toMatchObject({ kind: 'turn', promptVersion: 'dm-system@4' });
     expect(commit.events.map((e) => e.t)).toEqual(['flag.set', 'scene.set', 'narration', 'turn.ended']);
 
     closeSession();

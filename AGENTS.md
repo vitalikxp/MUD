@@ -46,7 +46,7 @@
 | `pnpm test:watch` | Vitest в режиме наблюдения |
 | `pnpm test:rules` | тесты правил безопасности Firebase (эмулятор) |
 | `pnpm test:e2e` | Playwright по собранному сайту, проекты `desktop` (1280) и `mobile` (390); позже — mock-LLM и эмулятор Firebase |
-| `pnpm eval:dm` | сценарные проверки ИИ-мастера на реальной модели: `DM_MODELS=a,b` (или `DM_MODEL`), `DM_SCENARIOS=id,id`, `DM_EFFORT`, `DM_FORMAT`; отчёт в `evals/reports/` ([docs/04](docs/04-ai-dm.md#evals); ключ — см. ниже) |
+| `pnpm eval:dm` | сценарные проверки ИИ-мастера на реальной модели: `DM_MODELS=a,b` (или `DM_MODEL`), `DM_SCENARIOS=id,id`, `DM_EFFORT`, `DM_FORMAT`, `DM_LENGTH`, `DM_STYLE`; отчёт в `evals/reports/` ([docs/04](docs/04-ai-dm.md#evals); ключ — см. ниже) |
 | `pnpm eval:rescore` | пересчёт проверок evals по сохранённым отчётам без запросов к моделям: `DM_RESCORE=evals/reports/<папка>`, `DM_DROP=id,id` |
 | `pnpm lint` / `pnpm typecheck` | oxlint и проверка типов |
 | `pnpm docs:check` | то же, что `python3 scripts/check_docs.py` |

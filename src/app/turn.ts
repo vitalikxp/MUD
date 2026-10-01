@@ -1,5 +1,6 @@
 // Ход Мастера в кампании: оркестратор (src/dm) + черновик + атомарный коммит (commitTurn). Без UI: экран игры (M1.6) вызывает `takeTurn`.
 import { runTurn } from '../dm/orchestrator';
+import type { NarrationSettings } from '../dm/prompts/style';
 import { SYSTEM_PROMPT_VERSION } from '../dm/prompts/system';
 import type { LlmCall, TurnInput, TurnProgress, TurnReport } from '../dm/types';
 import type { ReasoningEffort } from '../llm/types';
@@ -14,6 +15,7 @@ export interface TurnConfig {
   reasoningEffort?: ReasoningEffort;
   signal?: AbortSignal;
   paletteIds: readonly string[];
+  narration?: NarrationSettings;
   onProgress?: (p: TurnProgress) => void;
 }
 
@@ -42,6 +44,7 @@ export async function takeTurn(action: PlayerAction, config: TurnConfig): Promis
         ...(config.reasoningEffort ? { reasoningEffort: config.reasoningEffort } : {}),
         ...(config.signal ? { signal: config.signal } : {}),
         narrationLang: current.meta.narrationLang,
+        ...(config.narration ? { narration: config.narration } : {}),
         campaignTitle: current.meta.title,
         variant: current.meta.rules.variant,
         options: {},

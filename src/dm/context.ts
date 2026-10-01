@@ -5,6 +5,7 @@ import type { Commit, GameState } from '../engine/types';
 import type { Message } from '../llm/types';
 import type { Lang, RulesModule } from '../rules/api';
 import { openingInstruction, systemPrompt } from './prompts/system';
+import { DEFAULT_NARRATION, type NarrationSettings } from './prompts/style';
 import type { TurnInput } from './types';
 
 /** Бюджет истории диалога в символах (≈ 6k токенов при 3.5 символа на токен). */
@@ -15,6 +16,8 @@ interface ContextInput {
   rules: RulesModule;
   variant: string;
   narrationLang: Lang;
+  /** Длина и стиль повествования из настроек игрока. */
+  narration?: NarrationSettings;
   campaignTitle: string;
   state: GameState;
   commits: readonly Commit[];
@@ -23,10 +26,10 @@ interface ContextInput {
 }
 
 /** Блоки 1–3: стабильная часть, одинаковая от хода к ходу (работает кэш промпта). */
-export function systemMessage(i: Pick<ContextInput, 'rules' | 'variant' | 'narrationLang' | 'campaignTitle' | 'state'>): string {
+export function systemMessage(i: Pick<ContextInput, 'rules' | 'variant' | 'narrationLang' | 'narration' | 'campaignTitle' | 'state'>): string {
   const world = i.state.flags['world'];
   return [
-    systemPrompt(i.narrationLang),
+    systemPrompt(i.narrationLang, i.narration ?? DEFAULT_NARRATION),
     i.rules.promptPrimer(i.variant, 'en'),
     [
       'CAMPAIGN',
@@ -105,7 +108,7 @@ export function buildMessages(i: ContextInput): Message[] {
   const hero = i.state.entities[i.input.charId];
   const request =
     i.input.kind === 'opening'
-      ? openingInstruction(hero?.name ?? 'the hero')
+      ? openingInstruction(hero?.name ?? 'the hero', (i.narration ?? DEFAULT_NARRATION).length)
       : `PLAYER (${hero?.name ?? 'hero'}): ${i.input.text}`;
   return [
     { role: 'system', content: systemMessage(i) },

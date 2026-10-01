@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Entity } from '../src/engine/types';
-import { askedBeforeRolling, baselineChecks, calledBefore, calledTool, damageOnlyThroughEngine, doesNotSpeakForHero, endedByMaster, fewToolErrors, mentions, narrationLanguage, noMeta, noPointsSpent, notCalledTool, plainText, rolledDice, spentCharacterPoints } from './checks';
+import { paragraphLimit, plainSpeech, askedBeforeRolling, baselineChecks, calledBefore, calledTool, damageOnlyThroughEngine, doesNotSpeakForHero, endedByMaster, fewToolErrors, mentions, narrationLanguage, noMeta, noPointsSpent, notCalledTool, plainText, rolledDice, spentCharacterPoints } from './checks';
 import type { TurnResult } from './types';
 
 const hero = (cp: number, body = 24): Entity => ({ id: 'hero', kind: 'pc', name: 'Ирма', data: { points: { cp, fp: 1 }, body: { points: body, max: 24 } }, items: [], conditions: [] }) as unknown as Entity;
@@ -83,5 +83,23 @@ describe('проверки под сценарии', () => {
     expect(damageOnlyThroughEngine(turn({ heroAfter: hero(5, 20), tools: [tool('apply_damage')] })).ok).toBe(true);
     expect(doesNotSpeakForHero('Ирма')(turn({ text: 'Ирма шепчет — «Я уйду».' })).ok).toBe(false);
     expect(doesNotSpeakForHero('Ирма')(turn({ text: 'Ирма молчит, а стражник спрашивает: «Кто там?»' })).ok).toBe(true);
+  });
+});
+
+describe('длина и стиль', () => {
+  const three = 'Первый абзац.\n\nВторой абзац.\n\nТретий абзац.';
+  it('число абзацев сравнивается с выбранной длиной (по умолчанию «обычная» — 3)', () => {
+    expect(paragraphLimit(turn({ text: three })).ok).toBe(true);
+    expect(paragraphLimit(turn({ text: `${three}\n\nЧетвёртый.` })).ok).toBe(false);
+    expect(paragraphLimit(turn({ text: three, narration: { style: 'classic', length: 'short' } })).ok).toBe(false);
+    expect(paragraphLimit(turn({ text: `${three}\n\nЧетвёртый.\n\nПятый.`, narration: { style: 'classic', length: 'long' } })).ok).toBe(true);
+    expect(paragraphLimit(turn({ text: three, narration: { style: 'classic', length: 'short' } })).soft).toBe(true);
+  });
+
+  it('«простая речь»: длинные предложения — предупреждение; другим стилям проверка не нужна', () => {
+    const long = 'Тёмный коридор медленно тянется вперёд между влажных каменных стен, на которых давно застыли тяжёлые капли воды. Вдалеке, за последним поворотом этого бесконечного узкого коридора, мерцает слабый и неровный свет какого-то давно забытого факела.';
+    expect(plainSpeech(turn({ text: long, narration: { style: 'plain', length: 'short' } })).ok).toBe(false);
+    expect(plainSpeech(turn({ text: 'Вы в коридоре. Впереди свет. Идёте к нему.', narration: { style: 'plain', length: 'short' } })).ok).toBe(true);
+    expect(plainSpeech(turn({ text: long })).ok).toBe(true);
   });
 });

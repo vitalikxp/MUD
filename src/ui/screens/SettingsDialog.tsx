@@ -2,6 +2,7 @@ import { signal } from '@preact/signals';
 import { useEffect, useRef, useState } from 'preact/hooks';
 import * as llm from '../../app/llm';
 import { modelList, modelListKey, refreshModels } from '../../app/models';
+import { LENGTHS, STYLES, type NarrationLength } from '../../dm/prompts/style';
 import { locale, t, type Key, type Locale } from '../../i18n';
 import { checkProvider, type CheckStep } from '../../llm/check';
 import { CUSTOM, OPENCODE_GO } from '../../llm/presets';
@@ -88,6 +89,12 @@ export function SettingsDialog({ gate, onClose, onStart }: { gate: boolean; onCl
     ...(llm.trainsOnData.value
       ? ([{ id: 'ack', label: t('settings.ack'), kind: 'toggle', value: llm.trainsAck.value, yes: t('settings.ackYes'), no: t('settings.ackNo'), onChange: (v: boolean) => { llm.trainsAck.value = v; } }] satisfies Field[])
       : []),
+    { id: 'style', label: t('settings.style'), kind: 'choice', value: llm.narrationStyle.value,
+      options: STYLES.map((st) => ({ value: st.id, label: st.name[locale.value] })),
+      onChange: (v) => { llm.narrationStyle.value = v; } },
+    { id: 'length', label: t('settings.length'), kind: 'choice', value: llm.narrationLength.value,
+      options: LENGTHS.map((l) => ({ value: l, label: t(`lengths.${l}` as Key) })),
+      onChange: (v) => { llm.narrationLength.value = v as NarrationLength; } },
     { id: 'relay', label: t('settings.relay'), kind: 'choice', value: llm.relayMode.value,
       options: (['default', 'custom', 'direct'] as const).map((m) => ({ value: m, label: t(`relayModes.${m}`) })),
       onChange: (v) => { llm.relayMode.value = v as llm.RelayMode; } },
@@ -105,6 +112,13 @@ export function SettingsDialog({ gate, onClose, onStart }: { gate: boolean; onCl
   const bodyW = w - 2;
   const formH = fields.length;
   const notes: Paragraph[] = gate ? [{ text: t('settings.firstRun'), fg: 'accent' }, { text: '' }] : [];
+  // Результат проверки — первым: на узком экране остальные заметки длинные, и он не помещался бы в окно.
+  const head: Paragraph[] = [];
+  const cs = checkState.value;
+  if (cs.status === 'running') head.push({ text: t('check.running'), fg: 'info' });
+  else if (cs.status === 'blocked') head.push({ text: t('check.fixFirst', { problems: llm.problems.value.map((p) => t(`problems.${p}` as Key)).join(', ') }), fg: 'warning' });
+  else if (cs.status === 'done') head.push(...stepLines(cs.steps));
+  notes.push(...head, ...(head.length > 0 ? [{ text: '' }] : []));
   notes.push({ text: t(gate ? 'settings.hintFirst' : 'settings.hint'), fg: 'fgDim' });
   if (llm.trainsOnData.value) notes.push({ text: t('settings.noteTrains'), fg: 'warning' });
   if (llm.provider.value.notice === 'opencode-terms') notes.push({ text: t('settings.noteTerms'), fg: 'warning' });
@@ -115,11 +129,6 @@ export function SettingsDialog({ gate, onClose, onStart }: { gate: boolean; onCl
   notes.push({ text: t('settings.noteKey'), fg: 'fgDim' });
   if (llm.provider.value.needsRelay) notes.push({ text: t('settings.noteRelay'), fg: 'fgDim' });
   notes.push({ text: '' });
-
-  const cs = checkState.value;
-  if (cs.status === 'running') notes.push({ text: t('check.running'), fg: 'info' });
-  else if (cs.status === 'blocked') notes.push({ text: t('check.fixFirst', { problems: llm.problems.value.map((p) => t(`problems.${p}` as Key)).join(', ') }), fg: 'warning' });
-  else if (cs.status === 'done') notes.push(...stepLines(cs.steps));
 
   return (
     <>

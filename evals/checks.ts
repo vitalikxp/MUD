@@ -60,7 +60,23 @@ export const fewToolErrors: Check = guarded('ошибок инструменто
   return result('ошибок инструментов не больше 1', errors.length <= 1, `${errors.length}: ${errors.map((t) => `${t.name}: ${t.error}`).join('; ').slice(0, 200)}`);
 });
 
-export const baselineChecks: readonly Check[] = [endedByMaster, hasNarration, narrationLanguage, noMeta, plainText, goodSuggestions, fewToolErrors];
+/** Длина ответа не больше выбранной: абзацев 1 / 3 / 5 (`DM_LENGTH`; по умолчанию «обычная»). */
+export const paragraphLimit: Check = guarded('число абзацев в пределах выбранной длины', true, (r) => {
+  const length = r.narration?.length ?? 'normal';
+  const max = { short: 1, normal: 3, long: 5 }[length];
+  const n = r.text.split(/\n\s*\n/).filter((p) => p.trim()).length;
+  return result('число абзацев в пределах выбранной длины', n <= max, `абзацев ${n}, нужно не больше ${max} (${length})`, true);
+});
+
+/** «Простая речь»: средняя длина предложения не больше 14 слов (остальным стилям проверка не нужна). */
+export const plainSpeech: Check = guarded('простая речь: короткие предложения', true, (r) => {
+  if (r.narration?.style !== 'plain') return ok('простая речь: короткие предложения', true);
+  const sentences = r.text.split(/[.!?…]+\s/).map((s) => s.trim().split(/\s+/).filter(Boolean).length).filter((n) => n > 0);
+  const avg = sentences.length > 0 ? sentences.reduce((a, b) => a + b, 0) / sentences.length : 0;
+  return result('простая речь: короткие предложения', avg <= 14, `среднее предложение ${avg.toFixed(1)} слов (нужно ≤ 14)`, true);
+});
+
+export const baselineChecks: readonly Check[] = [endedByMaster, hasNarration, narrationLanguage, noMeta, plainText, goodSuggestions, fewToolErrors, paragraphLimit, plainSpeech];
 
 // ─── проверки под сценарии ─────────────────────────────────────────────────────
 

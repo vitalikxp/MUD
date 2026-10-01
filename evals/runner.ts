@@ -4,6 +4,7 @@ import 'fake-indexeddb/auto';
 import { closeSession, createCampaign, createHero, heroOf, openSession, session, useStorage } from '../src/app/campaigns';
 import { inventoryAction } from '../src/app/inventory';
 import { takeTurn, type PlayerAction, type TurnConfig } from '../src/app/turn';
+import { DEFAULT_NARRATION, getStyle, LENGTHS, type NarrationLength, type NarrationSettings } from '../src/dm/prompts/style';
 import { scriptedLlm } from '../src/dm/testing';
 import { complete } from '../src/llm/client';
 import { OPENCODE_GO } from '../src/llm/presets';
@@ -28,6 +29,12 @@ export function resolveModel(model: string, env: Record<string, string | undefin
     ...(effort ? { effort } : {}),
     maxOutputTokens: def.maxOutputTokens,
   };
+}
+
+/** Длина и стиль повествования для прогона: `DM_LENGTH` (short|normal|long) и `DM_STYLE` (id стиля). */
+export function narrationFromEnv(env: Record<string, string | undefined> = process.env): NarrationSettings {
+  const length = LENGTHS.find((l) => l === env['DM_LENGTH']) ?? DEFAULT_NARRATION.length;
+  return { style: getStyle(env['DM_STYLE'] ?? DEFAULT_NARRATION.style).id, length: length satisfies NarrationLength };
 }
 
 export interface TurnRun {
@@ -63,7 +70,7 @@ async function realTurn(action: PlayerAction, config: TurnConfig, lang: 'ru' | '
       input: label(action), tools: report.tools, events: commit.events, text: text(commit.events),
       suggestions: commit.events.flatMap((e) => (e.t === 'turn.ended' ? e.suggestions : [])),
       autoClosed: report.autoClosed, iterations: report.iterations, ms: Date.now() - started, usage: report.usage,
-      heroBefore, heroAfter: heroOf(session.peek()!.state)!, lang,
+      heroBefore, heroAfter: heroOf(session.peek()!.state)!, lang, ...(config.narration ? { narration: config.narration } : {}),
     };
   } catch (e) {
     return {
@@ -98,6 +105,7 @@ export async function runScenario(scenario: Scenario, setup: ModelSetup, apiKey:
     maxOutputTokens: setup.maxOutputTokens,
     ...(setup.effort ? { reasoningEffort: setup.effort } : {}),
     paletteIds: base.paletteIds,
+    narration: narrationFromEnv(),
   };
 
   const turns: TurnRun[] = [];

@@ -42,6 +42,7 @@ export async function runTurn(draft: Draft, input: TurnInput, rules: RulesModule
     rules,
     variant: deps.variant,
     narrationLang: deps.narrationLang,
+    ...(deps.narration ? { narration: deps.narration } : {}),
     campaignTitle: deps.campaignTitle,
     state: draft.state,
     commits: deps.commits,

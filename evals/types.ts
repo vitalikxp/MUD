@@ -1,6 +1,7 @@
 // Evals Мастера (docs/04-ai-dm.md#evals): сценарий = подготовка состояния + ходы игрока + проверки результата каждого хода.
 import type { Entity, GameEvent } from '../src/engine/types';
 import type { Usage } from '../src/llm/types';
+import type { NarrationSettings } from '../src/dm/prompts/style';
 import type { ToolTrace } from '../src/dm/types';
 import type { Lang } from '../src/rules/api';
 
@@ -21,6 +22,8 @@ export interface TurnResult {
   heroBefore: Entity;
   heroAfter: Entity;
   lang: Lang;
+  /** Длина и стиль, с которыми шёл ход (`DM_LENGTH`, `DM_STYLE`); нет в старых отчётах — тогда по умолчанию. */
+  narration?: NarrationSettings;
   /** Ход не удался (ошибка провайдера, лимит шагов, ошибки инструментов подряд): остальные поля пустые. */
   error?: string;
 }

@@ -35,6 +35,8 @@ async function configure(page: Page): Promise<void> {
   await page.keyboard.press('Enter');
   await page.keyboard.press('ArrowDown'); // Запомнить
   await page.keyboard.press('ArrowDown'); // Модель (выбор из списка)
+  await page.keyboard.press('ArrowDown'); // Стиль Мастера
+  await page.keyboard.press('ArrowDown'); // Длина ответа
   await page.keyboard.press('ArrowDown'); // Relay
   await page.keyboard.press('ArrowRight'); // → свой адрес
   await page.keyboard.press('ArrowDown'); // Адрес relay
@@ -102,7 +104,7 @@ test('первый запуск без настроек: только окно �
   // Модель по умолчанию не отдаёт данные на обучение: строки согласия нет.
   await expect(page.getByRole('menuitem', { name: /согласен/ })).toHaveCount(0);
   // «Начать игру» без ключа — не пускает и говорит, чего не хватает.
-  for (let n = 0; n < 7; n++) await page.keyboard.press('ArrowDown'); // провайдер, ключ, запомнить, модель, relay, проверить, начать
+  for (let n = 0; n < 9; n++) await page.keyboard.press('ArrowDown'); // провайдер, ключ, запомнить, модель, стиль, длина, relay, проверить, начать
   await page.keyboard.press('Enter');
   await expect(page.getByRole('log')).toContainText('Сначала исправьте: нет ключа API');
   await expect(page.getByRole('region', { name: 'Хроника' })).toHaveCount(0);
@@ -327,6 +329,8 @@ test('выбор модели: проверенные первыми и цвет
   await expect(page.getByRole('dialog', { name: 'Выбор модели' })).toHaveCount(0);
 
   // выбор запомнился и попал в запрос проверки
+  await page.keyboard.press('ArrowDown'); // Стиль Мастера
+  await page.keyboard.press('ArrowDown'); // Длина ответа
   await page.keyboard.press('ArrowDown'); // Relay
   await page.keyboard.press('ArrowDown'); // Адрес relay
   await page.keyboard.press('ArrowDown'); // Проверить
@@ -370,16 +374,35 @@ test('после ввода ключа список моделей подгру�
   await page.keyboard.press('ArrowDown'); // Ключ
   await page.keyboard.press('ArrowDown'); // Запомнить
   await page.keyboard.press('ArrowDown'); // Модель
+  await page.keyboard.press('ArrowDown'); // Стиль Мастера
+  await page.keyboard.press('ArrowDown'); // Длина ответа
   await page.keyboard.press('ArrowDown'); // Relay
   await page.keyboard.press('ArrowRight'); // → свой адрес
   await page.keyboard.press('ArrowDown'); // Адрес relay
   await page.keyboard.press('Enter');
   await page.keyboard.type(RELAY);
   await page.keyboard.press('Enter');
-  for (let n = 0; n < 4; n++) await page.keyboard.press('ArrowUp'); // Ключ
+  for (let n = 0; n < 6; n++) await page.keyboard.press('ArrowUp'); // Ключ
   await page.keyboard.press('Enter');
   await page.keyboard.type('sk-test-123');
   await page.keyboard.press('Enter');
   await expect(page.getByRole('dialog', { name: 'Настройки LLM' })).toContainText('Моделей у провайдера: 3');
   expect(models.requests).toEqual(['GET Bearer sk-test-123']);
+});
+
+test('стиль и длина ответа Мастера: выбираются в окне LLM и переживают перезагрузку', async ({ page }) => {
+  await mockRelay(page, { headers: [], bodies: [] });
+  await configure(page);
+  // вернуться к «Стиль Мастера»: Адрес relay → Relay → Длина → Стиль
+  for (let i = 0; i < 3; i++) await page.keyboard.press('ArrowUp');
+  const dialog = page.getByRole('dialog', { name: 'Настройки LLM' });
+  await page.keyboard.press('ArrowRight'); // Классика → Простая речь
+  await expect(dialog).toContainText('Простая речь');
+  await dialog.getByRole('menuitem', { name: /Длина ответа/ }).click(); // Enter по строке: обычный → подробный
+  await expect(dialog).toContainText('подробный (3–5)');
+  await page.reload();
+  await page.keyboard.press('F4');
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText('Простая речь');
+  await expect(dialog).toContainText('подробный (3–5)');
 });

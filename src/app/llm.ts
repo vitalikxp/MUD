@@ -1,6 +1,7 @@
 // Настройки LLM игрока и сборка конфигурации клиента. Ключ хранится только в браузере (AGENTS.md §4.5).
 import { computed, effect, signal } from '@preact/signals';
 import { storageKey } from '../brand';
+import { DEFAULT_LENGTH, DEFAULT_STYLE, getStyle, LENGTHS, type NarrationLength } from '../dm/prompts/style';
 import { modelTrainsOnData } from '../llm/models';
 import { CUSTOM, formatFor, getProvider, OPENCODE_GO, type ProviderPreset, type RoleModel } from '../llm/presets';
 import type { ApiFormat, ProviderConfig } from '../llm/types';
@@ -25,6 +26,9 @@ interface Stored {
   remember?: boolean;
   /** Игрок подтвердил, что модель отдаёт тексты игры на обучение (FR-LLM-9). */
   trainsAck?: boolean;
+  /** Стиль и длина повествования Мастера (глобально, не на кампанию). */
+  narrationStyle?: string;
+  narrationLength?: NarrationLength;
 }
 
 function load(): Stored {
@@ -54,6 +58,8 @@ export const customModel = signal(s.customModel ?? '');
 export const customFormat = signal<ApiFormat>(s.customFormat ?? 'chat');
 export const remember = signal(s.remember ?? true);
 export const trainsAck = signal(s.trainsAck ?? false);
+export const narrationStyle = signal(getStyle(s.narrationStyle ?? DEFAULT_STYLE).id);
+export const narrationLength = signal<NarrationLength>(s.narrationLength && LENGTHS.includes(s.narrationLength) ? s.narrationLength : DEFAULT_LENGTH);
 export const apiKey = signal(loadKey());
 
 export const provider = computed<ProviderPreset>(() => (providerId.value === CUSTOM.id ? CUSTOM : OPENCODE_GO));
@@ -116,7 +122,7 @@ export function startLlmSettings(): void {
     const data: Stored = {
       provider: providerId.value, model: modelOverride.value, relayMode: relayMode.value, relayUrl: relayUrl.value,
       customBaseUrl: customBaseUrl.value, customModel: customModel.value, customFormat: customFormat.value,
-      remember: remember.value, trainsAck: trainsAck.value,
+      remember: remember.value, trainsAck: trainsAck.value, narrationStyle: narrationStyle.value, narrationLength: narrationLength.value,
     };
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));

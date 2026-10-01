@@ -14,5 +14,6 @@ export function dmConfig(signal?: AbortSignal): TurnConfig {
     ...(role.effort ? { reasoningEffort: role.effort } : {}),
     ...(signal ? { signal } : {}),
     paletteIds: PALETTES.map((p) => p.id),
+    narration: { style: llm.narrationStyle.value, length: llm.narrationLength.value },
   };
 }

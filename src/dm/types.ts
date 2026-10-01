@@ -1,3 +1,4 @@
+import type { NarrationSettings } from './prompts/style';
 import type { Commit } from '../engine/types';
 import type { Completion } from '../llm/client';
 import type { ChatRequest, ReasoningEffort, ToolDef, Usage } from '../llm/types';
@@ -24,6 +25,8 @@ export interface TurnDeps {
   reasoningEffort?: ReasoningEffort;
   signal?: AbortSignal;
   narrationLang: Lang;
+  /** Длина и стиль повествования (настройки игрока); без них — по умолчанию. */
+  narration?: NarrationSettings;
   campaignTitle: string;
   variant: string;
   options: RulesOptions;

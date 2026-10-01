@@ -158,6 +158,8 @@ export const en: Dict = {
   },
   settings: {
     lang: 'Language',
+    style: 'GM style',
+    length: 'Reply length',
     start: 'Start game',
     firstRun: 'First launch: pick a language, set the API key and model, then choose "Start game".',
     provider: 'Provider',
@@ -202,6 +204,11 @@ export const en: Dict = {
   providers: {
     'opencode-go': 'OpenCode Go',
     custom: 'Custom API',
+  },
+  lengths: {
+    short: 'short (1 paragraph)',
+    normal: 'normal (1-3 paragraphs)',
+    long: 'long (3-5)',
   },
   relayModes: {
     default: 'built-in',
