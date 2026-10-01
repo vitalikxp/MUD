@@ -2,7 +2,7 @@
 // Версия попадает в коммит хода (`promptVersion`); меняешь текст — поднимай версию и прогоняй `pnpm eval:dm`.
 import type { Lang } from '../../rules/api';
 
-export const SYSTEM_PROMPT_VERSION = 'dm-system@2';
+export const SYSTEM_PROMPT_VERSION = 'dm-system@3';
 
 const LANGUAGE_NAME: Record<Lang, string> = { ru: 'Russian', en: 'English' };
 

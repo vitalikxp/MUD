@@ -41,30 +41,40 @@ export function planSpend(actor: Actor, spend: Spend | undefined, options: OpenD
 const MINUS_ONE_DIE: DieCode = { dice: -1, pips: 0 };
 
 /** Штрафы броска: раны, лишние действия, модификатор от Мастера. */
-function rollMods(actor: Actor, side: { modifiers?: string | undefined; actions?: number | undefined }): Result<{ mods: DieCode; notes: string[] }> {
+/** Составляющая штрафа или бонуса: в запись броска (для хроники) и в заметки модели. */
+interface ModPart {
+  kind: 'wounds' | 'actions' | 'modifier';
+  code: string;
+}
+
+function rollMods(actor: Actor, side: { modifiers?: string | undefined; actions?: number | undefined }): Result<{ mods: DieCode; notes: string[]; parts: ModPart[] }> {
   const notes: string[] = [];
+  const parts: ModPart[] = [];
   let mods: DieCode = { dice: 0, pips: 0 };
   const w = woundLevel(actor.data.body.points, actor.data.body.max);
   if (w.cannotAct) return fail(`«${actor.entity.name}» не может действовать (${w.id === 'dead' ? 'мёртв' : 'без сознания'})`);
   if (w.penaltyDice > 0) {
     mods = addCodes(mods, { dice: -w.penaltyDice, pips: 0 });
     notes.push(`раны: −${w.penaltyDice}D`);
+    parts.push({ kind: 'wounds', code: `-${w.penaltyDice}D` });
   }
   const actions = Math.max(1, Math.floor(side.actions ?? 1));
   if (actions > 1) {
     for (let i = 1; i < actions; i++) mods = addCodes(mods, MINUS_ONE_DIE);
     notes.push(`действий за раунд ${actions}: −${actions - 1}D`);
+    parts.push({ kind: 'actions', code: `-${actions - 1}D` });
   }
   if (side.modifiers) {
     try {
       const m = parseDieCode(side.modifiers);
       mods = addCodes(mods, m);
       notes.push(`модификатор ${side.modifiers}`);
+      parts.push({ kind: 'modifier', code: formatDieCode(m) });
     } catch {
       return fail(`Некорректный модификатор «${side.modifiers}» (нужен код вроде +1D, -2, -1D+1)`);
     }
   }
-  return ok({ mods, notes });
+  return ok({ mods, notes, parts });
 }
 
 interface Rolled {
@@ -104,7 +114,13 @@ function rollFor(ctx: RulesCtx, side: ContestSide, wildOne: CheckArgs['wildOne']
     events,
     base: { attribute: base.value.attribute, ...(base.value.skill ? { skill: base.value.skill } : {}), untrained: base.value.untrained },
     notes: mods.value.notes,
-    record: { roll, actorId: side.actorId, attribute: base.value.attribute, ...(base.value.skill ? { skill: base.value.skill } : {}) },
+    // К кубам броска добавлены база и составляющие штрафов/бонусов: хроника показывает, откуда взялся код (`describeRoll`).
+    record: {
+      roll: { ...roll, base: formatDieCode(base.value.code), mods: mods.value.parts as unknown as Json, untrained: base.value.untrained },
+      actorId: side.actorId,
+      attribute: base.value.attribute,
+      ...(base.value.skill ? { skill: base.value.skill } : {}),
+    },
   });
 }
 

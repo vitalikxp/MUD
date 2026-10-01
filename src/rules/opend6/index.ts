@@ -12,6 +12,7 @@ import { ADVENTURE, FANTASY } from './data';
 import { LOOKUP_TOPICS, lookup, promptPrimer } from './primer';
 import { roll } from './roll';
 import { equipment } from './equipment';
+import { describeRoll } from './rollView';
 import { buildInventory } from './inventory';
 import { buildSheet } from './sheet';
 
@@ -38,6 +39,7 @@ export const opend6: RulesModule = {
   sheet: buildSheet,
   inventory: buildInventory,
   equipment,
+  describeRoll,
 
   roll,
   check,

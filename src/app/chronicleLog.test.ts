@@ -1,9 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import type { Commit, GameEvent } from '../engine/types';
-import { entriesFromCommits, lastSuggestions, resolveChoice } from './chronicleLog';
+import type { RollView } from '../rules/api';
+import { entriesFromCommits, lastSuggestions, resolveChoice, type RollDescriber } from './chronicleLog';
 
 const commit = (seq: number, events: GameEvent[], kind: Commit['kind'] = 'turn'): Commit => ({ seq, turnId: `t${seq}`, kind, createdAt: 0, rngState: '', events });
-const texts = (commits: Commit[]): string[] => entriesFromCommits(commits, 'Вы>').flatMap((e) => ('text' in e ? [e.text] : 'key' in e ? [`[${e.key}]`] : []));
+/** Описание броска как в модуле правил, но простое: проверяем компоновку ленты, а не формулировки (они в `rollView.test.ts`). */
+const stubDescriber: RollDescriber = (roll, actor) => {
+  const view: RollView = {
+    head: `${actor ? `${actor}: ` : ''}${roll.reason}`,
+    dice: [{ text: `= ${String(roll.roll['total'])}`, kind: 'plain' }],
+    ...(roll.roll['base'] ? { value: `Значение ${String(roll.roll['base'])}` } : {}),
+    ...(roll.success !== undefined ? { verdict: { text: roll.success ? 'Успех' : 'Провал', success: roll.success } } : {}),
+  };
+  return view;
+};
+const texts = (commits: Commit[]): string[] => entriesFromCommits(commits, 'Вы>', stubDescriber).flatMap((e) => ('text' in e ? [e.text] : 'key' in e ? [`[${e.key}]`] : []));
 
 describe('resolveChoice: номер варианта вместо текста', () => {
   const options = ['Осмотреть зал', 'Заказать эль', 'Уйти'];
@@ -65,7 +76,7 @@ describe('entriesFromCommits', () => {
         { t: 'turn.ended', suggestions: ['Войти', 'Прислушаться'] },
       ]),
     ]);
-    expect(lines).toEqual(['', 'Дождь стучит по крыше.', '', 'Вы> Открываю замок', '♦ Взлом 4D+1 = 14 ≥ 12 ✓', '', 'Замок щёлкает.', '', '[game.suggestions]', '1. Войти', '2. Прислушаться']);
+    expect(lines).toEqual(['', 'Дождь стучит по крыше.', '', 'Вы> Открываю замок', '', '♦ Взлом', '│ = 14', '│ ✓ Успех', '', 'Замок щёлкает.', '', '[game.suggestions]', '1. Войти', '2. Прислушаться']);
   });
 
   it('тайные броски Мастера и откатанные ходы не показываются, не-ходы пропускаются', () => {
@@ -77,11 +88,30 @@ describe('entriesFromCommits', () => {
     expect(lines).toEqual(['', 'Первый ход.']);
   });
 
-  it('проваленная проверка красная, бросок без сложности нейтральный', () => {
-    const e = entriesFromCommits([commit(1, [
-      { t: 'roll', roll: { code: '3D', total: 7 }, reason: 'Прыжок', difficulty: 10, success: false, visibility: 'all' },
+  it('бросок: пустая строка отделяет его от реплики игрока и от предыдущего броска; блок из заголовка, значения, кубов и исхода', () => {
+    const lines = texts([commit(1, [
+      { t: 'intent', uid: 'u', charId: 'hero', text: 'Прыгаю' },
+      { t: 'roll', roll: { code: '3D', total: 7, base: '3D' }, reason: 'Прыжок', actorId: 'hero', difficulty: 10, success: false, visibility: 'all' },
       { t: 'roll', roll: { code: '1D', total: 2 }, reason: 'Жребий', visibility: 'all' },
-    ])], '>');
-    expect(e.map((x) => x.fg)).toEqual(['failure', 'accent']);
+    ])]);
+    expect(lines).toEqual(['', 'Вы> Прыгаю', '', '♦ Прыжок', '│ Значение 3D', '│ = 7', '│ × Провал', '', '♦ Жребий', '│ = 2']);
+  });
+
+  it('цвета: заголовок акцентом, значение и кубы приглушены, исход зелёный или красный; блок без исхода без строки исхода', () => {
+    const e = entriesFromCommits([commit(1, [
+      { t: 'roll', roll: { code: '3D', total: 7, base: '3D' }, reason: 'Прыжок', difficulty: 10, success: false, visibility: 'all' },
+      { t: 'roll', roll: { code: '3D', total: 17, base: '3D' }, reason: 'Рывок', difficulty: 10, success: true, visibility: 'all' },
+    ])], '>', stubDescriber);
+    const colors = e.filter((x) => 'text' in x && x.text !== '').map((x) => x.fg);
+    expect(colors).toEqual(['accent', 'fgDim', 'fgDim', 'failure', 'accent', 'fgDim', 'fgDim', 'success']);
+  });
+
+  it('имя бросавшего берётся из события создания персонажа и передаётся описанию', () => {
+    const hero = { id: 'hero', kind: 'pc', name: 'Ирма', data: {}, items: [], conditions: [] } as never;
+    const lines = texts([
+      commit(1, [{ t: 'entity.created', entity: hero }], 'system'),
+      commit(2, [{ t: 'roll', roll: { total: 9 }, reason: 'взлом', actorId: 'hero', visibility: 'all' }]),
+    ]);
+    expect(lines).toContain('♦ Ирма: взлом');
   });
 });

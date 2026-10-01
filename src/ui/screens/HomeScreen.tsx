@@ -20,7 +20,7 @@ import { InventoryPanel } from '../panels/InventoryPanel';
 import { SheetPanel } from '../panels/SheetPanel';
 import { clampOffset, followOffset, thinkingBar } from '../tui/scroll';
 import { markdownLines } from '../tui/markdown';
-import { Scrollbar, TextView, wrapParagraphs } from '../tui/TextView';
+import { Scrollbar, TextView, wrapParagraphs, wrapSpans } from '../tui/TextView';
 import type { Line, Segment } from '../tui/types';
 import { HelpDialog, PaletteDialog, StatusDialog } from './dialogs';
 import { SettingsDialog } from './SettingsDialog';
@@ -147,6 +147,11 @@ export function HomeScreen({ screen, game = false }: { screen: ScreenInfo; game?
   const chronLines = chronicle.value.flatMap<Line>((e) => { // ширина без 1 столбца справа — под полосу прокрутки
     if ('pending' in e) return wrapParagraphs([{ text: `${t('msg.thinking')} [${thinkingBar(thinkingTick.value)}]`, fg: 'info', decorative: true }], chronBodyW - 1);
     if ('key' in e) return wrapParagraphs([{ text: t(e.key, e.params ?? {}), fg: e.fg }], chronBodyW - 1);
+    if (e.spans) return wrapSpans(e.spans, chronBodyW - 1, e.hang ?? '');
+    if (e.hang && e.text.startsWith(e.hang)) {
+      const hang = e.hang;
+      return wrapParagraphs([{ text: e.text.slice(hang.length), fg: e.fg }], Math.max(1, chronBodyW - 1 - Array.from(hang).length)).map((l) => [{ text: hang, fg: e.fg }, ...l]);
+    }
     return e.md ? markdownLines(e.text, chronBodyW - 1, e.fg) : wrapParagraphs([{ text: e.text, fg: e.fg }], chronBodyW - 1);
   });
   const total = chronLines.length;

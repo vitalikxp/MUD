@@ -34,6 +34,7 @@ type GameEvent =
       cpWild?: number[][];                 // доп. Wild Die за каждое потраченное CP (свои цепочки, 1 без осложнения)
       pips: number; total: number; complication?: boolean;
       spent?: { cp?: number; fp?: boolean }; // FP удваивает кубы характеристики/навыка до броска
+      base?: string; mods?: { kind: "wounds" | "actions" | "modifier"; code: string }[]; untrained?: boolean; // код навыка/характеристики до штрафов и составляющие бонусов; модуль правил читает их в describeRoll (старые записи без них допустимы)
       reason: string; difficulty?: number; success?: boolean; margin?: number; visibility: "all" | "dm" }
   | { t: "entity.created"; entity: Entity }
   | { t: "entity.patched"; id: EntityId; patch: JsonPatch }           // здоровье, состояния, stats

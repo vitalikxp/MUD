@@ -1,7 +1,7 @@
 // Интерфейс модуля правил (docs/05-rules-engine.md). Ядро и Мастер обращаются к правилам только через него.
 // Функции модуля чистые: случайность приходит в `ctx.rng`, состояние — в `ctx.state`, результат — события и краткий отчёт для LLM.
 import type { Rng } from '../engine/rng';
-import type { Entity, EntityId, GameEvent, GameState, Item, Json } from '../engine/types';
+import type { Entity, EntityId, GameEvent, GameState, Item, Json, RollRecord } from '../engine/types';
 
 export type Lang = 'ru' | 'en';
 export interface LocalizedText {
@@ -119,6 +119,34 @@ export interface SheetView {
   title: string;
   /** `brief` — раздел важен в тесной панели (здоровье, очки): он идёт первым, остальные ниже и прокручиваются. */
   sections: { heading: string; rows: SheetRow[]; brief?: boolean }[];
+}
+
+/** Кусок строки с кубами: обычный куб, Wild Die, дополнительный Wild Die (за Очко персонажа) или связки между ними. */
+export interface DiceSpan {
+  text: string;
+  kind: 'die' | 'wild' | 'extra' | 'plain';
+}
+
+/** Бросок для хроники: что проверялось и с каким значением, баффы и дебаффы, выпавшие кубы, исход. Тексты — на языке интерфейса. */
+export interface RollView {
+  /** Причина броска словами Мастера. */
+  head: string;
+  /** Кто проверяет и что: «Ирма — навык «Взлом замков» (Координация), 4D+1». Нет у свободных бросков без персонажа. */
+  value?: string;
+  /** Баффы и дебаффы тегами в скобках с источником и итоговый код. Нет, если поправок не было. */
+  mods?: string;
+  /** Выпавшие кубы: `[4] + [4] + [6] + 1`; вид куба задаёт цвет. Пусто, если подробностей нет. */
+  dice: DiceSpan[];
+  /** Краткий исход: «4D+1 = 15 ≥ 12 · успех». Нет у бросков без сложности и без противника. */
+  verdict?: { text: string; success: boolean };
+}
+
+export interface RollViewContext {
+  lang: Lang;
+  /** Вариант правил кампании: по нему берутся названия навыков и характеристик. */
+  variant: string;
+  /** Имя того, кто бросал (из состояния). */
+  actorName?: string;
 }
 
 export interface InventoryRow {
@@ -249,6 +277,8 @@ export interface RulesModule {
   /** Вещи героя для панели «Вещи»: список с количеством, слотом и сводкой свойств. */
   inventory(entity: Entity, lang: Lang): InventoryView;
   equipment: EquipmentActions;
+  /** Расшифровка записи броска для хроники (запись в журнале хранит смысл броска, правила знают, как его читать). */
+  describeRoll(roll: RollRecord, ctx: RollViewContext): RollView;
 
   roll(ctx: RulesCtx, args: RollArgs): Result<Outcome>;
   check(ctx: RulesCtx, args: CheckArgs): Result<Outcome>;

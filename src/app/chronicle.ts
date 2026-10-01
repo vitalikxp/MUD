@@ -14,13 +14,16 @@ import { dmConfig } from './dmConfig';
 import * as llm from './llm';
 import { ask, beginRequest, busy, endRequest, lastError, lastUsage } from './master';
 import { paletteId } from './settings';
+import { rulesModule } from './rules';
 import { takeTurn, type PlayerAction } from './turn';
 
 /** Запись хроники: ключ словаря (перерисуется при смене языка), готовый текст или заглушка «Мастер думает». */
 export type Entry =
   | { key: Key; params?: Record<string, string>; fg: Token }
   /** `md` — текст Мастера: разбирается как Markdown (модели иногда отвечают с разметкой). */
-  | { text: string; fg: Token; md?: boolean }
+  /** `spans` — та же строка кусками разных цветов (кубы броска); `text` остаётся целой строкой для поиска и тестов. */
+  /** `hang` — префикс строки (`│ `), который повторяется на каждой строке при переносе по ширине. */
+  | { text: string; fg: Token; md?: boolean; hang?: string; spans?: { text: string; fg: Token }[] }
   | { pending: true; fg: Token };
 
 export const INTRO: Entry[] = [
@@ -112,7 +115,9 @@ export function campaignEntries(current: Session): Entry[] {
     { key: 'game.intro', params: { title: current.meta.title, hero }, fg: 'accent' },
     { text: '', fg: 'dm' },
     { key: started ? 'game.tryIt' : 'game.begin', fg: 'fgDim' },
-    ...entriesFromCommits(current.commits, t('input.prompt')),
+    ...entriesFromCommits(current.commits, t('input.prompt'), (roll, actorName) =>
+      rulesModule.describeRoll(roll, { lang: locale.value, variant: current.meta.rules.variant, ...(actorName ? { actorName } : {}) }),
+    ),
   ];
 }
 

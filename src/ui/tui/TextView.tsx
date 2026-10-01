@@ -13,6 +13,31 @@ export function wrapParagraphs(paragraphs: readonly Paragraph[], width: number):
   return out;
 }
 
+/**
+ * Переносит строку, собранную из кусков разных цветов (кубы броска). Переносит только перед кусками без пробела по краям (`[4]`),
+ * а не перед « + »; на каждой новой строке повторяется `hang`.
+ */
+export function wrapSpans(spans: readonly Segment[], width: number, hang: string): Line[] {
+  const room = Math.max(1, width);
+  const hangLen = Array.from(hang).length;
+  const lines: Segment[][] = [[]];
+  let used = 0;
+  for (const s of spans) {
+    const len = Array.from(s.text).length;
+    const atom = !s.text.startsWith(' ');
+    if (atom && used + len > room && used > hangLen) {
+      const last = lines[lines.length - 1]!;
+      const tail = last[last.length - 1];
+      if (tail) last[last.length - 1] = { ...tail, text: tail.text.trimEnd() };
+      lines.push([{ text: hang, ...(spans[0]?.fg ? { fg: spans[0].fg } : {}) }]);
+      used = hangLen;
+    }
+    lines[lines.length - 1]!.push(s);
+    used += len;
+  }
+  return lines;
+}
+
 export function Row({ line, width }: { line: Line; width?: number }) {
   let used = 0;
   const segs: Segment[] = [];

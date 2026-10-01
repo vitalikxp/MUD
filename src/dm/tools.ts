@@ -26,6 +26,8 @@ export interface DmTool {
 }
 
 const reason = z.string().min(1).max(200).describe('Short reason shown in the log.');
+/** Для проверок: строка попадает в ленту заголовком броска, поэтому это короткое описание действия, а не служебная причина. */
+const checkReason = z.string().min(1).max(200).describe('One short line in the story language: what the character attempts, as a plot beat shown as the roll title, e.g. "Reach Magpie\'s bunk past the silent cloaked men". Not a skill name.');
 const hidden = z.boolean().optional().describe('true: secret roll only the GM sees.');
 const oneOf = (values: readonly string[], describe: string): z.ZodType<string> =>
   (values.length > 0 ? z.enum(values as [string, ...string[]]) : z.string()).describe(describe);
@@ -69,7 +71,7 @@ export function buildTools(env: ToolEnv): DmTool[] {
     actions: z.number().int().min(1).max(5).optional().describe('Actions declared this round (each beyond the first costs -1D).'),
     spend: z.object({ cp: z.number().int().min(0).max(10).optional(), fp: z.boolean().optional() }).optional().describe('ONLY what the player asked to spend in their latest message.'),
     wildOne: z.enum(['complication', 'cancel']).optional().describe('How to treat a 1 on the first Wild Die throw.'),
-    reason,
+    reason: checkReason,
     hidden,
   }).refine((a) => a.skill !== undefined || a.attribute !== undefined, { message: 'give skill or attribute' });
 
@@ -100,7 +102,7 @@ export function buildTools(env: ToolEnv): DmTool[] {
     rules.check(ctx, defined({ actorId: a.actorId, skill: a.skill, attribute: a.attribute, difficulty: a.difficulty, modifiers: a.modifiers, actions: a.actions, spend: a.spend && defined(a.spend), wildOne: a.wildOne, reason: a.reason, visibility: a.hidden ? ('dm' as const) : undefined }) as CheckArgs));
 
   add('contest', 'Opposed check between two characters. A tie goes to side "a" (the initiator).',
-    z.object({ a: side.describe('Initiator.'), b: side.describe('Opponent.'), reason, hidden }),
+    z.object({ a: side.describe('Initiator.'), b: side.describe('Opponent.'), reason: checkReason, hidden }),
     (x) => rules.contest(ctx, defined({ a: sideOf(x.a), b: sideOf(x.b), reason: x.reason, visibility: x.hidden ? ('dm' as const) : undefined })));
 
   add('apply_damage', 'Wound a character. "damage" is a die code ("3D+1"), a weapon code with "+" ("+1D", needs attackerId: added to the attacker\'s Strength Damage) or a fixed number. Armor is applied by the engine.',

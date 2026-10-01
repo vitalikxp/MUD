@@ -294,6 +294,18 @@ test('номер варианта вместо текста: «2» уходит 
   expect(JSON.stringify(bodies[2])).toContain('PLAYER (Ирма): 7');
 });
 
+test('бросок в ленте: что проверяется, значение, кубы и расшифровка исхода', async ({ page }) => {
+  await mockMaster(page, [], 0, [{ name: 'check', arguments: JSON.stringify({ actorId: 'hero', attribute: 'agility', difficulty: 5, reason: 'проба ловкости' }) }]);
+  await openGame(page);
+  const log = page.getByRole('log');
+  await send(page, 'Прыгаю через ручей');
+  await expect(log).toContainText('Вы> Прыгаю через ручей');
+  await expect(log).toContainText('проба ловкости'); // причина словами Мастера
+  await expect(log).toContainText('Ирма — характеристика «Ловкость», 2D'); // кто и что проверяет, значение до броска
+  await expect(log).toContainText(/\[\d\] \+ \[\d\]/); // кубы в скобках
+  await expect(log).toContainText(/2D = \d+ [≥<] 5 · (успех|провал)/); // краткий исход со словом
+});
+
 test('Markdown в ответе Мастера: разметка не попадает на экран, заголовок, жирный, курсив и список выглядят как текст', async ({ page }) => {
   await mockMaster(page, [], 0, [], '## Таверна\n\nЭто **важно** и *тихо*, см. `ключ`.\n\n- первое\n- второе');
   await openGame(page);

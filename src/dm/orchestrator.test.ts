@@ -24,7 +24,7 @@ describe('runTurn: обычный ход', () => {
     expect(draft.events[0]).toMatchObject({ t: 'intent', uid: 'local', charId: 'hero', text: 'Я взламываю замок' });
     expect(draft.events[2]).toMatchObject({ t: 'roll', skill: 'lockpicking', difficulty: 15, success: true });
     expect(draft.events[4]).toEqual({ t: 'turn.ended', suggestions: ['Войти', 'Прислушаться'] });
-    expect(report).toMatchObject({ promptVersion: 'dm-system@2', iterations: 2, autoClosed: false, usage: { inputTokens: 20, outputTokens: 10 } });
+    expect(report).toMatchObject({ promptVersion: 'dm-system@3', iterations: 2, autoClosed: false, usage: { inputTokens: 20, outputTokens: 10 } });
     expect(report.tools.map((t) => [t.name, t.ok])).toEqual([['check', true], ['end_turn', true]]);
 
     // модель получила результат броска от движка и продолжила с ним
