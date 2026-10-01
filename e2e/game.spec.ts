@@ -271,6 +271,29 @@ test('/undo отменяет и бытовое действие с вещами'
   await expect(page.getByRole('log')).not.toContainText('берёт «Кинжал»');
 });
 
+test('номер варианта вместо текста: «2» уходит Мастеру текстом второго варианта и так же записан в ленте', async ({ page }) => {
+  const bodies: Record<string, unknown>[] = [];
+  await mockMaster(page, bodies);
+  await openGame(page);
+  const log = page.getByRole('log');
+  const bar = page.locator('.tui-statusbar');
+  await send(page, '/start');
+  await expect(log).toContainText('2. Заказать эль');
+  await expect(bar).not.toContainText('Мастер отвечает');
+
+  await send(page, '2');
+  await expect(async () => expect(bodies).toHaveLength(2)).toPass();
+  expect(JSON.stringify(bodies[1])).toContain('PLAYER (Ирма): Заказать эль');
+  expect(JSON.stringify(bodies[1])).not.toContain('PLAYER (Ирма): 2');
+  await expect(log).toContainText('Вы> Заказать эль');
+  await expect(bar).not.toContainText('Мастер отвечает');
+
+  // номер вне списка и число в предложении уходят как написано
+  await send(page, '7');
+  await expect(async () => expect(bodies).toHaveLength(3)).toPass();
+  expect(JSON.stringify(bodies[2])).toContain('PLAYER (Ирма): 7');
+});
+
 test('Markdown в ответе Мастера: разметка не попадает на экран, заголовок, жирный, курсив и список выглядят как текст', async ({ page }) => {
   await mockMaster(page, [], 0, [], '## Таверна\n\nЭто **важно** и *тихо*, см. `ключ`.\n\n- первое\n- второе');
   await openGame(page);

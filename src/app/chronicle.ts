@@ -9,7 +9,7 @@ import { getPalette, type Token } from '../theme/palettes';
 import { effectiveCommits } from '../engine/commits';
 import type { Commit } from '../engine/types';
 import { lastRetryAction, session, undoLastAction, type Session } from './campaigns';
-import { entriesFromCommits } from './chronicleLog';
+import { entriesFromCommits, lastSuggestions, resolveChoice } from './chronicleLog';
 import { dmConfig } from './dmConfig';
 import * as llm from './llm';
 import { ask, beginRequest, busy, endRequest, lastError, lastUsage } from './master';
@@ -179,11 +179,11 @@ function turnFailure(e: unknown): string {
 }
 
 /**
- * Ход в кампании: реплика игрока (или открытие игры) → оркестратор Мастера → коммит в журнал.
+ * Ход в кампании: реплика игрока (или открытие игры) → оркестратор Мастера → коммит в журнал. Номер показанного варианта заменяется его текстом.
  * Пока Мастер отвечает, его текст стримится в ленту; после хода лента перестраивается по журналу (так же, как после перезагрузки).
  * Неудавшийся ход в журнал не попадает и его можно повторить.
  */
-export async function playTurn(action: PlayerAction): Promise<void> {
+export async function playTurn(requested: PlayerAction): Promise<void> {
   const missing = llm.problems.value;
   if (missing.length > 0) {
     push({ key: 'msg.notConfigured', params: { problems: missing.map((p) => t(`problems.${p}` as Key)).join(', ') }, fg: 'warning' });
@@ -195,6 +195,8 @@ export async function playTurn(action: PlayerAction): Promise<void> {
   }
   const start = session.peek();
   if (!start) return;
+  // Номер варианта («2») заменяется его текстом ещё до ленты и журнала: игрок и Мастер видят одну и ту же реплику, `/retry` повторяет её же.
+  const action: PlayerAction = requested.kind === 'player' ? { kind: 'player', text: resolveChoice(requested.text, lastSuggestions(start.commits)) } : requested;
   scrollOffset.value = 0;
   thinkingTick.value = 0;
   if (action.kind === 'player') push({ text: `${t('input.prompt')} ${action.text}`, fg: 'player' }, { text: '', fg: 'dm' }, { pending: true, fg: 'dm' });

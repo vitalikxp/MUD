@@ -1,9 +1,40 @@
 import { describe, expect, it } from 'vitest';
 import type { Commit, GameEvent } from '../engine/types';
-import { entriesFromCommits } from './chronicleLog';
+import { entriesFromCommits, lastSuggestions, resolveChoice } from './chronicleLog';
 
 const commit = (seq: number, events: GameEvent[], kind: Commit['kind'] = 'turn'): Commit => ({ seq, turnId: `t${seq}`, kind, createdAt: 0, rngState: '', events });
 const texts = (commits: Commit[]): string[] => entriesFromCommits(commits, 'Вы>').flatMap((e) => ('text' in e ? [e.text] : 'key' in e ? [`[${e.key}]`] : []));
+
+describe('resolveChoice: номер варианта вместо текста', () => {
+  const options = ['Осмотреть зал', 'Заказать эль', 'Уйти'];
+
+  it('голый номер из списка заменяется текстом варианта; допустимы «2.», «2)», «№2», пробелы', () => {
+    for (const typed of ['2', ' 2 ', '2.', '2)', '№2', '№ 2', '#2']) expect(resolveChoice(typed, options), typed).toBe('Заказать эль');
+    expect(resolveChoice('1', options)).toBe('Осмотреть зал');
+    expect(resolveChoice('3', options)).toBe('Уйти');
+  });
+
+  it('всё остальное уходит как есть: номер вне списка, нуль, число в предложении, несколько чисел, пустой список', () => {
+    expect(resolveChoice('4', options)).toBe('4');
+    expect(resolveChoice('0', options)).toBe('0');
+    expect(resolveChoice('02', options)).toBe('02');
+    expect(resolveChoice('Беру 2 монеты', options)).toBe('Беру 2 монеты');
+    expect(resolveChoice('1 и 2', options)).toBe('1 и 2');
+    expect(resolveChoice('2', [])).toBe('2');
+    expect(resolveChoice('осмотреть зал', options)).toBe('осмотреть зал');
+  });
+});
+
+describe('lastSuggestions: варианты, которые сейчас показаны игроку', () => {
+  it('варианты последнего действующего хода; откатанный ход и бытовые действия их не меняют', () => {
+    const first = commit(1, [{ t: 'turn.ended', suggestions: ['А', 'Б'] }]);
+    const second = commit(2, [{ t: 'turn.ended', suggestions: ['В'] }]);
+    expect(lastSuggestions([first, second])).toEqual(['В']);
+    expect(lastSuggestions([first, commit(2, [{ t: 'note', text: 'x' }], 'ui_action')])).toEqual(['А', 'Б']);
+    expect(lastSuggestions([first, second, commit(3, [{ t: 'revert', targetSeq: 2 }], 'revert')])).toEqual(['А', 'Б']);
+    expect(lastSuggestions([])).toEqual([]);
+  });
+});
 
 describe('entriesFromCommits: бытовые действия', () => {
   it('заметки ui_action идут по порядку между ходами, подряд без пустых строк; откатанные пропускаются', () => {

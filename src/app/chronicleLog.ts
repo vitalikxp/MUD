@@ -14,10 +14,24 @@ function rollLine(e: Extract<GameEvent, { t: 'roll' }>): Entry {
   return { text: `♦ ${e.reason}${code ? ` ${code}` : ''}${total}${verdict}`, fg: e.success === undefined ? 'accent' : e.success ? 'success' : 'failure' };
 }
 
+/** Варианты действий, которые сейчас показаны под лентой: из последнего действующего хода Мастера. */
+export function lastSuggestions(commits: readonly Commit[]): string[] {
+  const last = effectiveCommits(commits).filter((c) => c.kind === 'turn').at(-1);
+  return last?.events.flatMap((e) => (e.t === 'turn.ended' ? e.suggestions : [])) ?? [];
+}
+
+/**
+ * Игрок ввёл номер варианта («2», «2.», «№2») — вместо него уходит текст этого варианта: модель номер без списка не понимает.
+ * Только голый номер из показанного списка; всё прочее (число в предложении, номер вне списка) отправляется как написано.
+ */
+export function resolveChoice(typed: string, options: readonly string[]): string {
+  const match = /^(?:№|#)?\s*([1-9]\d?)\s*[.)]?$/.exec(typed.trim());
+  return (match ? options[Number(match[1]) - 1] : undefined) ?? typed;
+}
+
 /** Записи хроники по журналу: ходы Мастера и заметки о бытовых действиях игрока. `prompt` — приглашение перед репликой игрока («Вы>»). Броски Мастера (`visibility: 'dm'`) не показываются. */
 export function entriesFromCommits(commits: readonly Commit[], prompt: string): Entry[] {
   const effective = effectiveCommits(commits);
-  const turns = effective.filter((c) => c.kind === 'turn');
   const out: Entry[] = [];
   for (const c of effective) {
     if (c.kind !== 'turn' && c.kind !== 'ui_action') continue;
@@ -32,7 +46,7 @@ export function entriesFromCommits(commits: readonly Commit[], prompt: string): 
       }
     }
   }
-  const suggestions = turns.at(-1)?.events.flatMap((e) => (e.t === 'turn.ended' ? e.suggestions : [])) ?? [];
+  const suggestions = lastSuggestions(commits);
   if (suggestions.length > 0) out.push(BLANK, { key: 'game.suggestions', fg: 'fgDim' }, ...suggestions.map<Entry>((s, i) => ({ text: `${i + 1}. ${s}`, fg: 'accent' })));
   return out;
 }
